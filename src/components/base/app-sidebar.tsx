@@ -31,12 +31,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 export function AppSidebar() {
   const pathname = usePathname();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { toggleSidebar } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +55,7 @@ export function AppSidebar() {
     // In a real app, this would call your logout function
     localStorage.removeItem("userRole");
 
-    toast.success("Logged out, You have been successfully logged out.");
+    toast.success("You have been successfully logged out.");
 
     // Redirect to login page
     window.location.href = "/";
@@ -59,7 +65,7 @@ export function AppSidebar() {
     localStorage.setItem("userRole", role);
     setUserRole(role);
 
-    toast.success(`Role Changed, You are now viewing as ${role}.`);
+    toast.success(`You are now viewing as ${role}.`);
 
     // Refresh the page to update the UI
     window.location.reload();
@@ -100,88 +106,112 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar>
-      <SidebarHeader className="flex items-center justify-between p-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="rounded-md bg-primary p-1">
-            <ClipboardList className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <span className="font-bold">HR Portal</span>
-        </Link>
-        <SidebarTrigger className="md:hidden" />
-      </SidebarHeader>
+    <TooltipProvider>
+      <Sidebar>
+        <SidebarHeader className="flex items-center justify-between p-4">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="rounded-md bg-primary p-1">
+              <ClipboardList className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <span
+              className={`font-bold transition-all duration-300 ${
+                state === "collapsed" ? "md:opacity-0" : "md:opacity-100"
+              }`}
+            >
+              HR Portal
+            </span>
+          </Link>
+          <SidebarTrigger />
+        </SidebarHeader>
 
-      <Separator />
+        <Separator />
 
-      <SidebarContent className="p-2">
-        <nav className="space-y-1">
-          {navItems
-            .filter((item) => !userRole || item.roles.includes(userRole))
-            .map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
-                  pathname === item.href
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </Link>
-            ))}
-        </nav>
-      </SidebarContent>
+        <SidebarContent className="flex flex-col justify-between flex-1">
+          <nav className="space-y-1 p-2">
+            {navItems
+              .filter((item) => !userRole || item.roles.includes(userRole))
+              .map((item) => (
+                <Tooltip key={item.href} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                        pathname === item.href
+                          ? "bg-secondary text-secondary-foreground"
+                          : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      <span
+                        className={`transition-all duration-300 ${
+                          state === "collapsed" ? "md:hidden" : "md:inline"
+                        }`}
+                      >
+                        {item.title}
+                      </span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="md:hidden">
+                    {item.title}
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+          </nav>
 
-      <SidebarFooter className="p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start px-2">
-              <Avatar className="mr-2 h-6 w-6">
-                <AvatarImage
-                  src="/placeholder.svg?height=32&width=32"
-                  alt="User"
-                />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <span className="text-sm">
-                {userRole === "admin"
-                  ? "Admin User"
-                  : userRole === "manager"
-                  ? "Manager User"
-                  : "Employee User"}
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/settings">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Switch Role (Demo)</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleRoleChange("admin")}>
-              Admin
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleRoleChange("manager")}>
-              Manager
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleRoleChange("employee")}>
-              Employee
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarFooter>
-    </Sidebar>
+          <SidebarFooter className="p-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full justify-start px-2">
+                  <Avatar className="h-6 w-6 mr-2">
+                    <AvatarImage
+                      src="/placeholder.svg?height=32&width=32"
+                      alt="User"
+                    />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <span
+                    className={`text-sm transition-all duration-300 ${
+                      state === "collapsed" ? "md:hidden" : "md:inline"
+                    }`}
+                  >
+                    {userRole === "admin"
+                      ? "Admin User"
+                      : userRole === "manager"
+                      ? "Manager User"
+                      : "Employee User"}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Switch Role (Demo)</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => handleRoleChange("admin")}>
+                  Admin
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRoleChange("manager")}>
+                  Manager
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRoleChange("employee")}>
+                  Employee
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarFooter>
+        </SidebarContent>
+      </Sidebar>
+    </TooltipProvider>
   );
 }

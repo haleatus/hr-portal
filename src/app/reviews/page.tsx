@@ -8,6 +8,7 @@ import Link from "next/link";
 
 export default function ReviewsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {

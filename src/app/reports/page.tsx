@@ -8,6 +8,7 @@ import { Download } from "lucide-react";
 
 export default function ReportsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [reports, setReports] = useState<any[]>([]);
   const [filters, setFilters] = useState({
     department: "all",

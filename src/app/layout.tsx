@@ -24,7 +24,7 @@ export default function RootLayout({
         <SidebarProvider>
           <div className="flex min-h-screen w-full">
             <AppSidebar />
-            <main className="flex-1 w-full md:pl-[12rem]">{children}</main>
+            <main className="flex-1 w-full md:pl-[16rem]">{children}</main>
           </div>
           <Toaster richColors position="bottom-left" />
         </SidebarProvider>
