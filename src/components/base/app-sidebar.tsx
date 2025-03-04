@@ -91,7 +91,7 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar>
+    <Sidebar className={`${pathname === "/" ? "hidden" : "block"}`}>
       <SidebarHeader className="flex items-center justify-between p-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="rounded-md bg-primary p-1">
