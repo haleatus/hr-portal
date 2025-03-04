@@ -40,32 +40,23 @@ export function AppSidebar() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate fetching user role
     const role = localStorage.getItem("userRole") || "employee";
     setUserRole(role);
   }, []);
 
   const handleLogout = () => {
-    // In a real app, this would call your logout function
     localStorage.removeItem("userRole");
-
     toast.success("Logged out, You have been successfully logged out.");
-
-    // Redirect to login page
     window.location.href = "/";
   };
 
   const handleRoleChange = (role: string) => {
     localStorage.setItem("userRole", role);
     setUserRole(role);
-
     toast.success(`Role Changed, You are now viewing as ${role}.`);
-
-    // Refresh the page to update the UI
-    window.location.reload();
+    window.location.reload(); // Refresh the page to update UI
   };
 
-  // Define navigation items based on user role
   const navItems = [
     {
       title: "Dashboard",
@@ -113,7 +104,7 @@ export function AppSidebar() {
 
       <Separator />
 
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-2 flex-1">
         <nav className="space-y-1">
           {navItems
             .filter((item) => !userRole || item.roles.includes(userRole))

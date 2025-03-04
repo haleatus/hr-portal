@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function CreateReviewPage() {
   const router = useRouter();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = (data: any) => {
     // In a real app, this would send the data to your API
     console.log("Submitting review:", data);
