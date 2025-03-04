@@ -22,9 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <SidebarProvider>
-          <div className="flex min-h-screen">
+          <div className="flex min-h-screen w-full">
             <AppSidebar />
-            <main className="flex-1 overflow-y-auto">{children}</main>
+            <main className="flex-1 w-full md:pl-[12rem]">{children}</main>
           </div>
           <Toaster richColors position="bottom-left" />
         </SidebarProvider>
