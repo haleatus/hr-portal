@@ -232,6 +232,11 @@ export function LoginForm() {
             )}
           </Button>
 
+          {/* TODO: OAuth Google */}
+          <Button>
+            Google TODO
+          </Button>
+
           {/* Sign-up Navigation Link */}
           <p className="text-center text-xs text-muted-foreground">
             {`Don't have an account? `}
