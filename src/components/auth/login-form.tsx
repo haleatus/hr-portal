@@ -71,7 +71,7 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-md border-2 shadow-xl">
-      <CardHeader className="space-y-2 pb-6 pt-8">
+      <CardHeader className="space-y-1 pb-4 pt-6">
         <div className="flex items-center justify-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary p-2 shadow-md">
             <ClipboardList className="h-7 w-7 text-primary-foreground" />

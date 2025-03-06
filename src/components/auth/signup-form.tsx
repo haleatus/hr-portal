@@ -121,7 +121,7 @@ export function SignupForm() {
 
   return (
     <Card className="w-full max-w-md border-2 shadow-xl">
-      <CardHeader className="space-y-2 pb-6 pt-8">
+      <CardHeader className="space-y-1 pb-4 pt-6">
         <div className="flex items-center justify-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary p-2 shadow-md">
             <ClipboardList className="h-7 w-7 text-primary-foreground" />
@@ -209,7 +209,7 @@ export function SignupForm() {
             </div>
 
             {formData.password && (
-              <div className="space-y-2 rounded-md bg-muted/50 p-3">
+              <div className="space-y-1 rounded-md bg-muted/50 p-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">
                     Password Strength:
@@ -238,7 +238,7 @@ export function SignupForm() {
                   />
                 </Progress>
 
-                <div className="mt-2 grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-2 gap-0.5">
                   <div className="flex items-center gap-1.5">
                     {passwordChecks.length ? (
                       <Check className="h-3.5 w-3.5 text-green-500" />
