@@ -1,9 +1,11 @@
 "use client";
 
+// Core React and Next.js imports
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
+// UI component imports
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+
+// Icon imports
 import {
   ClipboardList,
   Mail,
@@ -28,16 +32,27 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+
+// Toast Import
 import { toast } from "sonner";
 
+/**
+ * SignupForm Component - Handles user registration with password strength validation
+ * and confirmation checks. Provides visual feedback for password requirements
+ * and form validation errors.
+ */
 export function SignupForm() {
   const router = useRouter();
+
+  // Form state management
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
+  // Password strength indicators
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordChecks, setPasswordChecks] = useState({
     length: false,
@@ -46,10 +61,13 @@ export function SignupForm() {
     number: false,
     special: false,
   });
+
+  // UI state management
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Effect to calculate password strength when password changes
   useEffect(() => {
     const { password } = formData;
 
@@ -63,11 +81,16 @@ export function SignupForm() {
 
     setPasswordChecks(checks);
 
+    // Calculate strength percentage based on passed checks
     const passedChecks = Object.values(checks).filter(Boolean).length;
     const strengthPercentage = (passedChecks / 5) * 100;
     setPasswordStrength(strengthPercentage);
   }, [formData]);
 
+  /**
+   * Handles form input changes and updates form state
+   * @param e - React change event from input elements
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -76,9 +99,14 @@ export function SignupForm() {
     }));
   };
 
+  /**
+   * Handles form submission with validation checks
+   * @param e - React form submission event
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate password match
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords don't match", {
         description: "Please make sure your passwords match",
@@ -86,6 +114,7 @@ export function SignupForm() {
       return;
     }
 
+    // Validate minimum password strength
     if (passwordStrength < 60) {
       toast.error("Password is too weak", {
         description: "Please create a stronger password",
@@ -95,6 +124,7 @@ export function SignupForm() {
 
     setIsLoading(true);
 
+    // Simulate API call for registration
     setTimeout(() => {
       toast.success("Account created successfully!", {
         description: "You can now log in with your credentials",
@@ -105,6 +135,10 @@ export function SignupForm() {
     }, 1500);
   };
 
+  /**
+   * Determines progress bar color based on password strength
+   * @returns Tailwind CSS class for the strength color
+   */
   const getStrengthColor = () => {
     if (passwordStrength < 30) return "bg-destructive";
     if (passwordStrength < 60) return "bg-amber-500";
@@ -112,6 +146,10 @@ export function SignupForm() {
     return "bg-green-500";
   };
 
+  /**
+   * Generates strength description text based on password strength
+   * @returns Strength level description
+   */
   const getStrengthText = () => {
     if (passwordStrength < 30) return "Weak";
     if (passwordStrength < 60) return "Fair";
@@ -123,6 +161,7 @@ export function SignupForm() {
     <Card className="w-full max-w-md border-2 shadow-xl">
       <CardHeader className="space-y-1 pb-4 pt-6">
         <div className="flex items-center justify-center gap-3">
+          {/* Application Logo and Title */}
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary p-2 shadow-md">
             <ClipboardList className="h-7 w-7 text-primary-foreground" />
           </div>
@@ -137,6 +176,7 @@ export function SignupForm() {
 
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-5 pb-6">
+          {/* Name Input Field */}
           <div className="space-y-2">
             <Label
               htmlFor="name"
@@ -156,6 +196,7 @@ export function SignupForm() {
             />
           </div>
 
+          {/* Email Input Field */}
           <div className="space-y-2">
             <Label
               htmlFor="email"
@@ -175,6 +216,7 @@ export function SignupForm() {
             />
           </div>
 
+          {/* Password Input Field with Strength Indicator */}
           <div className="space-y-2">
             <Label
               htmlFor="password"
@@ -193,6 +235,7 @@ export function SignupForm() {
                 className="pr-10"
                 required
               />
+              {/* Toggle Password Visibility Button */}
               <Button
                 type="button"
                 variant="ghost"
@@ -208,6 +251,7 @@ export function SignupForm() {
               </Button>
             </div>
 
+            {/* Password Strength Indicator */}
             {formData.password && (
               <div className="space-y-1 rounded-md bg-muted/50 p-2">
                 <div className="flex items-center justify-between">
@@ -238,6 +282,7 @@ export function SignupForm() {
                   />
                 </Progress>
 
+                {/* Password Requirement Checklist */}
                 <div className="grid grid-cols-2 gap-0.5">
                   <div className="flex items-center gap-1.5">
                     {passwordChecks.length ? (
@@ -284,6 +329,7 @@ export function SignupForm() {
             )}
           </div>
 
+          {/* Confirm Password Input Field */}
           <div className="space-y-2">
             <Label
               htmlFor="confirmPassword"
@@ -307,6 +353,7 @@ export function SignupForm() {
                 }`}
                 required
               />
+              {/* Toggle Confirm Password Visibility Button */}
               <Button
                 type="button"
                 variant="ghost"
@@ -322,6 +369,7 @@ export function SignupForm() {
               </Button>
             </div>
 
+            {/* Password Match Indicator */}
             {formData.confirmPassword && (
               <div className="flex items-center gap-1.5 text-xs">
                 {formData.password === formData.confirmPassword ? (
@@ -342,6 +390,7 @@ export function SignupForm() {
           </div>
         </CardContent>
 
+        {/* Form Submission and Navigation */}
         <CardFooter className="flex-col gap-4 pb-8">
           <Button
             type="submit"
@@ -364,6 +413,7 @@ export function SignupForm() {
             )}
           </Button>
 
+          {/* Sign-in Navigation Link */}
           <p className="text-center text-xs text-muted-foreground">
             Already have an account?{" "}
             <Button

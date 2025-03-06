@@ -1,9 +1,11 @@
 "use client";
 
+// Core React and Next.js imports
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+// UI component imports
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,6 +17,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+// Icon imports
 import {
   ClipboardList,
   Mail,
@@ -26,15 +30,28 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+
+// Toast Import
 import { toast } from "sonner";
 
+/**
+ * SigninForm Component - Handles user login.
+ */
 export function LoginForm() {
   const router = useRouter();
+
+  // Form state management
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // UI state management
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  /**
+   * Handles form submission
+   * @param e - React form submission event
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -60,6 +77,10 @@ export function LoginForm() {
     }, 1000);
   };
 
+  /**
+   * Gets icons based on the role
+   * @returns Role Based Icon
+   */
   const getRoleIcon = (emailInput: string) => {
     if (emailInput.includes("admin")) {
       return <Shield className="h-4 w-4 text-red-500" />;
@@ -73,6 +94,7 @@ export function LoginForm() {
     <Card className="w-full max-w-md border-2 shadow-xl">
       <CardHeader className="space-y-1 pb-4 pt-6">
         <div className="flex items-center justify-center gap-3">
+          {/* Application Logo and Title */}
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary p-2 shadow-md">
             <ClipboardList className="h-7 w-7 text-primary-foreground" />
           </div>
@@ -89,6 +111,7 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          {/* Email Input Field */}
           <div className="space-y-2">
             <Label
               htmlFor="email"
@@ -113,6 +136,7 @@ export function LoginForm() {
                 </div>
               )}
             </div>
+            {/* Demo Emails to login */}
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <span>Demo: Use</span>
               <Button
@@ -145,6 +169,7 @@ export function LoginForm() {
             </div>
           </div>
 
+          {/* Password Input Field */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label
@@ -167,6 +192,7 @@ export function LoginForm() {
                 className="pr-10"
                 required
               />
+              {/* Toggle Password Visibility Button */}
               <Button
                 type="button"
                 variant="ghost"
@@ -187,6 +213,7 @@ export function LoginForm() {
           </div>
         </CardContent>
 
+        {/* Form Submission and Navigation */}
         <CardFooter className="flex-col gap-4 pb-8">
           <Button
             type="submit"
@@ -205,6 +232,7 @@ export function LoginForm() {
             )}
           </Button>
 
+          {/* Sign-up Navigation Link */}
           <p className="text-center text-xs text-muted-foreground">
             {`Don't have an account? `}
             <Button
