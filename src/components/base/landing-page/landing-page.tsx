@@ -28,6 +28,7 @@ import {
 // Custom component imports
 import Footer from "./footer";
 import Header from "./header";
+import HeroSection from "./hero-section";
 
 /**
  * LandingPage component - Main landing page for the HRHub application
@@ -68,33 +69,8 @@ export default function LandingPage() {
       {/* Main header with navigation */}
       <Header />
       <main className="flex-1">
-        <section className="py-20 md:py-28">
-          <div className="container">
-            <motion.div
-              className="max-w-3xl mx-auto text-center space-y-4"
-              initial="hidden"
-              animate={isVisible ? "visible" : "hidden"}
-              variants={fadeIn}
-            >
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                Streamline Your{" "}
-                <span className="text-primary">Performance Reviews</span>
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                A comprehensive HR portal for managing employee performance
-                reviews, feedback, and growth.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-                <Button size="lg" className="gap-2">
-                  Start Free Trial <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="lg">
-                  Book a Demo
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
+        {/* Hero Section */}
+        <HeroSection isVisible={isVisible} fadeIn={fadeIn} />
 
         <section className="py-16 bg-muted/50">
           <div className="container  md:px-5 lg:px-8">
