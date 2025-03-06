@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import LandingPage from "@/components/base/landing-page/landing-page";
+import { LoginForm } from "@/components/auth/login-form";
 
-export default function Home() {
+export default function SignInPage() {
   // In a real app, check if user is authenticated and redirect to their dashboard
   // For demo purposes, we'll just show the login form
   const isAuthenticated = false;
@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center">
-      <LandingPage />
+      <LoginForm />
     </div>
   );
 }
