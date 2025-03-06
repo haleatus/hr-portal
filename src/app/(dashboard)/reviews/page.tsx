@@ -54,7 +54,7 @@ export default function ReviewsPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Performance Reviews</h1>
-        {(userRole === "admin" || userRole === "manager") && (
+        {(userRole === "employee" || userRole === "manager") && (
           <Link href="/reviews/create">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
