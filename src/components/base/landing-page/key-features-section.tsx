@@ -7,6 +7,9 @@ import { motion, Variants } from "framer-motion";
 // Icon imports
 import { LineChart, MessageSquare, Users } from "lucide-react";
 
+/**
+ * KeyFeaturesSection component - Shows the key feactures of the application
+ */
 const KeyFeaturesSection = ({
   staggerContainer,
   fadeIn,
