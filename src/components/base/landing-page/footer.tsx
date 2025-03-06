@@ -1,6 +1,13 @@
-import { Shield } from "lucide-react";
+// Core React and Next.js imports
 import React from "react";
 
+// Icon imports
+import { Shield } from "lucide-react";
+
+/**
+ * Footer component - Footer of the landing page
+ * Includes the extra details which might be crutial
+ */
 const Footer = () => {
   return (
     <footer className="border-t py-4 bg-muted/30">

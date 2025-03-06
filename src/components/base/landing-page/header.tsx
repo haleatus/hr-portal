@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button";
 // Icon imports
 import { Shield } from "lucide-react";
 
+/**
+ * Header component - Header of the Landing page
+ * Includes the app logo, nav links and auth links
+ */
 const Header = () => {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur md:px-5 lg:px-8">

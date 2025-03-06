@@ -1,9 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+// Core React and Next.js imports
 import React from "react";
-import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 
+// Icon imports
+import { ArrowRight } from "lucide-react";
+
+// UI components imports
+import { Button } from "@/components/ui/button";
+
+// Animation Library imports
+import { motion, Variants } from "framer-motion";
+
+/**
+ * HeroSection component - Main section of landing page for the HRHub application
+ * Includes the key detail of the application in summary
+ */
 const HeroSection = ({
   isVisible,
   fadeIn,

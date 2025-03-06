@@ -4,13 +4,7 @@
 import { useEffect, useState } from "react";
 
 // Icon imports
-import {
-  ArrowRight,
-  CheckCircle,
-  LineChart,
-  MessageSquare,
-  Users,
-} from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
 
 // Animation Library imports
 import { motion } from "framer-motion";
@@ -29,6 +23,7 @@ import {
 import Footer from "./footer";
 import Header from "./header";
 import HeroSection from "./hero-section";
+import KeyFeaturesSection from "./key-features-section";
 
 /**
  * LandingPage component - Main landing page for the HRHub application
@@ -72,54 +67,11 @@ export default function LandingPage() {
         {/* Hero Section */}
         <HeroSection isVisible={isVisible} fadeIn={fadeIn} />
 
-        <section className="py-16 bg-muted/50">
-          <div className="container  md:px-5 lg:px-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid gap-8 md:grid-cols-3"
-            >
-              <motion.div variants={fadeIn}>
-                <div className="flex flex-col items-center text-center space-y-2 p-4">
-                  <div className="rounded-full bg-primary/10 p-4 mb-4">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-medium">Comprehensive Reviews</h3>
-                  <p className="text-muted-foreground">
-                    Support for peer reviews, manager evaluations, and
-                    self-assessments in one platform.
-                  </p>
-                </div>
-              </motion.div>
-              <motion.div variants={fadeIn}>
-                <div className="flex flex-col items-center text-center space-y-2 p-4">
-                  <div className="rounded-full bg-primary/10 p-4 mb-4">
-                    <MessageSquare className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-medium">Structured Feedback</h3>
-                  <p className="text-muted-foreground">
-                    Standardized templates with rating scales and comment
-                    sections for meaningful insights.
-                  </p>
-                </div>
-              </motion.div>
-              <motion.div variants={fadeIn}>
-                <div className="flex flex-col items-center text-center space-y-2 p-4">
-                  <div className="rounded-full bg-primary/10 p-4 mb-4">
-                    <LineChart className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-medium">Actionable Analytics</h3>
-                  <p className="text-muted-foreground">
-                    Generate reports and identify trends to drive performance
-                    improvements.
-                  </p>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
+        {/* Key Features Section */}
+        <KeyFeaturesSection
+          staggerContainer={staggerContainer}
+          fadeIn={fadeIn}
+        />
 
         <section id="features" className="py-20">
           <div className="container">
