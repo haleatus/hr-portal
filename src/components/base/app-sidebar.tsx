@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,22 +11,13 @@ import {
   Cog,
   Home,
   LogOut,
+  Menu,
   User,
   Users,
-  ChevronLeft,
-  ChevronRight,
-  Menu,
 } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  useSidebar,
-} from "@/providers/sidebar.provider";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/seperator";
+import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,135 +26,49 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  useSidebar,
+} from "@/components/ui/sidebar";
+
+// Define the navigation item type for better type safety
+type NavItem = {
+  title: string;
+  href: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  roles: string[];
+};
 
 /**
- * MobileSidebar Component
+ * Main Sidebar Provider Component
  *
- * A dedicated sidebar component for mobile devices that appears as a slide-out drawer.
+ * Wraps the application with the sidebar context and renders
+ * the appropriate sidebar based on the current route
  */
-function MobileSidebar({
-  navItems,
-  userRole,
-  pathname,
-  handleLogout,
-}: {
-  navItems: Array<{
-    href: string;
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    roles: string[];
-    title: string;
-  }>;
-  userRole: string;
-  pathname: string;
-  handleLogout: () => void;
-}) {
+export function SidebarWrapper({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  // Don't render the sidebar on authentication pages
+  if (pathname === "/" || pathname === "/signin" || pathname === "/signup") {
+    return <>{children}</>;
+  }
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          aria-label="Open menu"
-        >
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-64">
-        <SheetTitle className="hidden">Sidebar</SheetTitle>
-        <div className="flex h-full flex-col">
-          {/* Mobile Sidebar Header */}
-          <div className="flex h-14 items-center px-4">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="rounded-md bg-primary p-1">
-                <ClipboardList className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="font-bold">HR Portal</span>
-            </Link>
-          </div>
-
-          <Separator />
-
-          {/* Mobile Navigation Items */}
-          <div className="flex-1 overflow-auto p-4">
-            <nav className="space-y-2">
-              {navItems
-                .filter((item) => !userRole || item.roles.includes(userRole))
-                .map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                      pathname === item.href
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                ))}
-            </nav>
-          </div>
-
-          {/* Mobile User Section */}
-          <div className="border-t p-4">
-            <div className="mb-2 flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src="/placeholder.svg?height=32&width=32"
-                  alt="User"
-                />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium">
-                {userRole === "admin"
-                  ? "Admin User"
-                  : userRole === "manager"
-                  ? "Manager User"
-                  : "Employee User"}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-                asChild
-              >
-                <Link href="/settings">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-red-500"
-                onClick={handleLogout}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+    <SidebarProvider>
+      <div className="flex min-h-screen">
+        <AppSidebar />
+        <main className="flex-1">{children}</main>
+      </div>
+    </SidebarProvider>
   );
 }
 
@@ -177,13 +84,10 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   // Access sidebar context to manage collapsible state and mobile responsiveness
-  const { state, toggleSidebar } = useSidebar();
+  const { setOpenMobile, isMobile, state } = useSidebar();
 
   // Track the user's role to show appropriate navigation items
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  // Check if sidebar is in collapsed state
-  const isCollapsed = state === "collapsed";
+  const [userRole, setUserRole] = useState<string>("employee");
 
   // Load user role from localStorage on component mount
   useEffect(() => {
@@ -196,12 +100,12 @@ export function AppSidebar() {
    */
   const handleLogout = () => {
     localStorage.removeItem("userRole");
-    toast.success("Logged out, You have been successfully logged out.");
+    toast.success("Logged out. You have been successfully logged out.");
     window.location.href = "/";
   };
 
   // Navigation items with their respective roles, icons and paths
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       title: "Dashboard",
       href: "/dashboard",
@@ -234,150 +138,145 @@ export function AppSidebar() {
     },
   ];
 
-  // Don't render the sidebar on authentication pages
-  if (pathname === "/" || pathname === "/signin" || pathname === "/signup")
-    return null;
+  // Filter navigation items based on user role
+  const filteredNavItems = navItems.filter((item) =>
+    item.roles.includes(userRole)
+  );
 
   return (
     <>
-      {/* Mobile Hamburger Menu - Only visible on small screens */}
+      {/* Mobile Sidebar Trigger - Only visible on mobile */}
       <div className="fixed top-4 left-4 z-50 md:hidden">
-        <MobileSidebar
-          navItems={navItems}
-          userRole={userRole || ""}
-          pathname={pathname}
-          handleLogout={handleLogout}
-        />
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setOpenMobile(true)}
+          className="rounded-full shadow-md"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Open menu</span>
+        </Button>
       </div>
 
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <Sidebar className="bg-white border-r hidden md:flex">
+      {/* Main Sidebar */}
+      <Sidebar collapsible="icon" className="border-r">
         {/* Sidebar Header - Contains logo and collapse toggle */}
         <SidebarHeader className="flex items-center justify-between p-4">
-          <Link
-            href="/dashboard"
-            className={cn(
-              "flex items-center gap-2",
-              isCollapsed && "justify-center"
-            )}
-          >
-            <div className="rounded-md bg-primary p-1">
-              <ClipboardList className="h-6 w-6 text-primary-foreground" />
-            </div>
-            {/* Only show the title when expanded */}
-            {!isCollapsed && <span className="font-bold">HR Portal</span>}
-          </Link>
-
-          {/* Toggle button for desktop view */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="flex"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
-          </Button>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/dashboard">
+                  <div
+                    className={`flex aspect-square  items-center justify-center rounded-lg bg-primary text-primary-foreground ${
+                      state === "collapsed" ? "size-5" : "size-8"
+                    }`}
+                  >
+                    <ClipboardList className="size-4" />
+                  </div>
+                  <div
+                    className={`gap-0.5 leading-none  ${
+                      state === "collapsed" ? "hidden" : "flex flex-col"
+                    }`}
+                  >
+                    <span className="font-semibold">HR Portal</span>
+                    <span className="text-xs text-muted-foreground">
+                      {userRole}
+                    </span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarHeader>
 
         <Separator />
 
         {/* Sidebar Content - Contains navigation items */}
-        <SidebarContent className="p-2 flex-1">
-          <nav className="space-y-1">
-            {navItems
-              .filter((item) => !userRole || item.roles.includes(userRole))
-              .map((item) => {
-                // Create navigation link with appropriate styling
-                const NavLink = (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                      pathname === item.href
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      isCollapsed && "justify-center px-0"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {!isCollapsed && <span>{item.title}</span>}
+        <SidebarContent className="p-2">
+          <SidebarMenu>
+            {filteredNavItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href}
+                  tooltip={item.title}
+                >
+                  <Link href={item.href}>
+                    <item.icon className="size-4" />
+                    <span>{item.title}</span>
                   </Link>
-                );
-
-                // Use tooltip to show navigation item name when sidebar is collapsed
-                return isCollapsed ? (
-                  <Tooltip key={item.href}>
-                    <TooltipTrigger asChild>{NavLink}</TooltipTrigger>
-                    <TooltipContent side="right">{item.title}</TooltipContent>
-                  </Tooltip>
-                ) : (
-                  NavLink
-                );
-              })}
-          </nav>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
         </SidebarContent>
 
         {/* Sidebar Footer - Contains user profile and dropdown */}
-        <SidebarFooter className={cn("p-4", isCollapsed && "px-2")}>
-          <DropdownMenu>
-            {/* Use a button with avatar that adjusts based on sidebar state */}
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full",
-                  isCollapsed ? "justify-center p-1" : "justify-start px-2"
-                )}
-              >
-                <Avatar
-                  className={cn("h-8 w-8", !isCollapsed && "mr-2 h-6 w-6")}
+        <SidebarFooter className="p-4">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton
+                    size="lg"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+                  >
+                    <Avatar
+                      className={`${
+                        state === "collapsed" ? "size-4" : "size-8"
+                      }`}
+                    >
+                      <AvatarImage
+                        src="/placeholder.svg?height=32&width=32"
+                        alt="User"
+                      />
+                      <AvatarFallback>U</AvatarFallback>
+                    </Avatar>
+                    <div
+                      className={`text-left text-sm leading-tight ${
+                        state === "collapsed" ? "hidden" : "grid flex-1"
+                      }`}
+                    >
+                      <span className="truncate font-semibold">
+                        {userRole === "admin"
+                          ? "Admin User"
+                          : userRole === "manager"
+                          ? "Manager User"
+                          : "Employee User"}
+                      </span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {userRole}@example.com
+                      </span>
+                    </div>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-56"
+                  side={isMobile ? "bottom" : "right"}
+                  align={isMobile ? "end" : "start"}
+                  sideOffset={4}
                 >
-                  <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
-                    alt="User"
-                  />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                {/* Only display username when sidebar is expanded */}
-                {!isCollapsed && (
-                  <span className="text-sm">
-                    {userRole === "admin"
-                      ? "Admin User"
-                      : userRole === "manager"
-                      ? "Manager User"
-                      : "Employee User"}
-                  </span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            {/* Dropdown menu positioned to appear in the right place regardless of sidebar state */}
-            <DropdownMenuContent
-              align={isCollapsed ? "end" : "start"}
-              side={isCollapsed ? "right" : "bottom"}
-              className="w-56"
-            >
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarFooter>
+
+        {/* Sidebar Rail - Allows resizing/collapsing the sidebar */}
+        <SidebarRail />
       </Sidebar>
     </>
   );

@@ -2,9 +2,9 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SidebarProvider } from "@/providers/sidebar.provider";
-import { AppSidebar } from "@/components/base/app-sidebar";
 import { Toaster } from "sonner";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/base/app-sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,28 +29,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SidebarProvider defaultOpen={true}>
-          {/* Main layout container with group styling to respond to sidebar state */}
-          <div className="flex min-h-screen w-full">
-            {/* Sidebar component */}
-            <AppSidebar />
+        <SidebarProvider>
+          {/* Sidebar component */}
+          <AppSidebar />
 
-            {/* 
+          {/* 
               Main content area that adjusts based on sidebar state
-              - Utilizes group styling from SidebarProvider to adjust width
-              - Transitions smoothly between states
+              - Properly responds to sidebar expansion/collapse
+              - Takes full available width
+              - Maintains consistent padding
             */}
-            <main
-              className="
-              flex-1 p-4
-              md:transition-all md:duration-300
-              md:pl-[calc(var(--sidebar-width-collapsed)+1rem)]
-              group-data-[state=expanded]/sidebar-wrapper:md:pl-[calc(var(--sidebar-width)+1rem)]
-            "
-            >
-              {children}
-            </main>
-          </div>
+          <main className="relative flex-1 w-full ">
+            <div className="absolute bottom-2 left-2">
+              <SidebarTrigger />
+            </div>
+            {children}
+          </main>
 
           {/* Toast notifications */}
           <Toaster richColors position="bottom-left" />
