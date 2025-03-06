@@ -123,4 +123,31 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary)/0.2);
+    color: hsl(var(--primary));
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    display: block;
+  }
+  
+
+  ::-webkit-scrollbar-track {
+    background: #101010; /* Change to a valid color */
+  }  
+
+  ::-webkit-scrollbar-thumb {
+    background: #747576; /* Set a direct color */
+    border-radius: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary)/0.5);
+  }
 }
