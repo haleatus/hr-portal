@@ -12,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+// Icon imports
 import { CheckCircle } from "lucide-react";
 
 /**
