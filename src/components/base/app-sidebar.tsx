@@ -90,7 +90,8 @@ export function AppSidebar() {
     },
   ];
 
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "/sigin" || pathname === "/signup")
+    return null;
 
   return (
     <Sidebar>
