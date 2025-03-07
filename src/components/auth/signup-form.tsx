@@ -2,7 +2,6 @@
 
 // Core React and Next.js imports
 import type React from "react";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // UI component imports
@@ -35,69 +34,29 @@ import {
 
 // Toast Import
 import { toast } from "sonner";
+import { useSignupStore } from "@/store/(auth)/auth-store";
 
 /**
  * SignupForm Component - Handles user registration with password strength validation
- * and confirmation checks. Provides visual feedback for password requirements
- * and form validation errors.
+ * and confirmation checks using Zustand for state management.
  */
 export function SignupForm() {
   const router = useRouter();
 
   // Form state management
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const name = useSignupStore((state) => state.name);
+  const email = useSignupStore((state) => state.email);
+  const password = useSignupStore((state) => state.password);
+  const confirmPassword = useSignupStore((state) => state.confirmPassword);
 
   // Password strength indicators
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [passwordChecks, setPasswordChecks] = useState({
-    length: false,
-    lowercase: false,
-    uppercase: false,
-    number: false,
-    special: false,
-  });
+  const passwordStrength = useSignupStore((state) => state.passwordStrength);
+  const passwordChecks = useSignupStore((state) => state.passwordChecks);
 
   // UI state management
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Effect to calculate password strength when password changes
-  useEffect(() => {
-    const { password } = formData;
-
-    const checks = {
-      length: password.length >= 8,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      number: /[0-9]/.test(password),
-      special: /[^A-Za-z0-9]/.test(password),
-    };
-
-    setPasswordChecks(checks);
-
-    // Calculate strength percentage based on passed checks
-    const passedChecks = Object.values(checks).filter(Boolean).length;
-    const strengthPercentage = (passedChecks / 5) * 100;
-    setPasswordStrength(strengthPercentage);
-  }, [formData]);
-
-  /**
-   * Handles form input changes and updates form state
-   * @param e - React change event from input elements
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const isLoading = useSignupStore((state) => state.isLoading);
+  const showPassword = useSignupStore((state) => state.showPassword);
+  const showConfirmPassword = useSignupStore((state) => state.showConfirmPassword);
 
   /**
    * Handles form submission with validation checks
@@ -107,7 +66,7 @@ export function SignupForm() {
     e.preventDefault();
 
     // Validate password match
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       toast.error("Passwords don't match", {
         description: "Please make sure your passwords match",
       });
@@ -122,7 +81,7 @@ export function SignupForm() {
       return;
     }
 
-    setIsLoading(true);
+    useSignupStore.getState().setIsLoading(true);
 
     // Simulate API call for registration
     setTimeout(() => {
@@ -130,31 +89,10 @@ export function SignupForm() {
         description: "You can now log in with your credentials",
       });
 
-      setIsLoading(false);
+      useSignupStore.getState().setIsLoading(false);
+      useSignupStore.getState().resetForm();
       router.push("/signin");
     }, 1500);
-  };
-
-  /**
-   * Determines progress bar color based on password strength
-   * @returns Tailwind CSS class for the strength color
-   */
-  const getStrengthColor = () => {
-    if (passwordStrength < 30) return "bg-destructive";
-    if (passwordStrength < 60) return "bg-amber-500";
-    if (passwordStrength < 80) return "bg-blue-500";
-    return "bg-green-500";
-  };
-
-  /**
-   * Generates strength description text based on password strength
-   * @returns Strength level description
-   */
-  const getStrengthText = () => {
-    if (passwordStrength < 30) return "Weak";
-    if (passwordStrength < 60) return "Fair";
-    if (passwordStrength < 80) return "Good";
-    return "Strong";
   };
 
   return (
@@ -190,8 +128,8 @@ export function SignupForm() {
               name="name"
               type="text"
               placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
+              value={name}
+              onChange={(e) => useSignupStore.getState().setName(e.target.value)}
               required
             />
           </div>
@@ -210,8 +148,9 @@ export function SignupForm() {
               name="email"
               type="email"
               placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => useSignupStore.getState().setEmail(e.target.value
+              )}
               required
             />
           </div>
@@ -230,8 +169,8 @@ export function SignupForm() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => useSignupStore.getState().setPassword(e.target.value)}
                 className="pr-10"
                 required
               />
@@ -241,7 +180,7 @@ export function SignupForm() {
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => useSignupStore.getState().toggleShowPassword()}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -252,7 +191,7 @@ export function SignupForm() {
             </div>
 
             {/* Password Strength Indicator */}
-            {formData.password && (
+            {password && (
               <div className="space-y-1 rounded-md bg-muted/50 p-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">
@@ -269,7 +208,7 @@ export function SignupForm() {
                         : "text-green-500"
                     }`}
                   >
-                    {getStrengthText()}
+                    {useSignupStore.getState().getStrengthText()}
                   </span>
                 </div>
                 <Progress
@@ -277,7 +216,7 @@ export function SignupForm() {
                   className="h-1.5 w-full bg-muted"
                 >
                   <div
-                    className={`h-full ${getStrengthColor()}`}
+                    className={`h-full ${useSignupStore.getState().getStrengthColor()}`}
                     style={{ width: `${passwordStrength}%` }}
                   />
                 </Progress>
@@ -343,11 +282,11 @@ export function SignupForm() {
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={handleChange}
+                value={confirmPassword}
+                onChange={(e) => useSignupStore.getState().setConfirmPassword(e.target.value)}
                 className={`pr-10 ${
-                  formData.confirmPassword &&
-                  formData.password !== formData.confirmPassword
+                  confirmPassword &&
+                  password !== confirmPassword
                     ? "border-destructive focus:ring-destructive/50"
                     : ""
                 }`}
@@ -359,7 +298,7 @@ export function SignupForm() {
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                onClick={() => useSignupStore.getState().toggleShowConfirmPassword()}
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -370,9 +309,9 @@ export function SignupForm() {
             </div>
 
             {/* Password Match Indicator */}
-            {formData.confirmPassword && (
+            {confirmPassword && (
               <div className="flex items-center gap-1.5 text-xs">
-                {formData.password === formData.confirmPassword ? (
+                {password === confirmPassword ? (
                   <>
                     <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
                     <span className="text-green-500">Passwords match</span>
@@ -398,7 +337,7 @@ export function SignupForm() {
             disabled={
               isLoading ||
               passwordStrength < 60 ||
-              formData.password !== formData.confirmPassword
+              password !== confirmPassword
             }
           >
             {isLoading ? (

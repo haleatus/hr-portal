@@ -127,7 +127,7 @@ export function LoginForm() {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) =>
-                  useLoginStore.getState().changeEmail(e.target.value)
+                  useLoginStore.getState().setEmail(e.target.value)
                 }
                 className="pl-3 pr-10"
                 required
@@ -146,7 +146,7 @@ export function LoginForm() {
                 variant="link"
                 className="h-auto p-0 text-xs font-medium text-primary"
                 onClick={() =>
-                  useLoginStore.getState().changeEmail("admin@example.com")
+                  useLoginStore.getState().setEmail("admin@example.com")
                 }
               >
                 admin
@@ -157,7 +157,7 @@ export function LoginForm() {
                 variant="link"
                 className="h-auto p-0 text-xs font-medium text-primary"
                 onClick={() =>
-                  useLoginStore.getState().changeEmail("manager@example.com")
+                  useLoginStore.getState().setEmail("manager@example.com")
                 }
               >
                 manager
@@ -168,7 +168,7 @@ export function LoginForm() {
                 variant="link"
                 className="h-auto p-0 text-xs font-medium text-primary"
                 onClick={() =>
-                  useLoginStore.getState().changeEmail("employee@example.com")
+                  useLoginStore.getState().setEmail("employee@example.com")
                 }
               >
                 employee
@@ -197,7 +197,7 @@ export function LoginForm() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) =>
-                  useLoginStore.getState().changePassword(e.target.value)
+                  useLoginStore.getState().setPassword(e.target.value)
                 }
                 placeholder="Password"
                 className="pr-10"
