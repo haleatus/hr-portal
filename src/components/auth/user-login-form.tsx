@@ -95,7 +95,7 @@ export function UserLoginForm() {
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 flex justify-center py-1 rounded mb-4">
               {error}
             </div>
           )}
@@ -121,7 +121,7 @@ export function UserLoginForm() {
               />
               {email && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 transform">
-                  <User className="h-4 w-4 text-red-500" />
+                  <User className="h-4 w-4 text-blue-500" />
                 </div>
               )}
             </div>
