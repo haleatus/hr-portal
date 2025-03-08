@@ -221,19 +221,6 @@ export function UserLoginForm() {
             </svg>
             Sign in with Google
           </Button>
-
-          {/* Sign-up Navigation Link */}
-          <p className="text-center text-xs text-muted-foreground">
-            {`Don't have an account? `}
-            <Button
-              variant="link"
-              className="h-auto p-0 text-xs"
-              onClick={() => router.push("/signup")}
-              type="button"
-            >
-              Sign up
-            </Button>
-          </p>
         </CardFooter>
       </form>
     </Card>
