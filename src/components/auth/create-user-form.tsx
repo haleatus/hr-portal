@@ -143,8 +143,11 @@ export default function CreateUserForm() {
     try {
       const response = await createUser(data);
 
+      // Add a console.log to inspect the actual response structure
+      // console.log("Admin creation response:", response);
+
       // Check if response is the successful format
-      if (response && response.statusCode === 200) {
+      if (response && response.statusCode) {
         toast.success(response.message || "User created successfully");
         reset(); // Reset the form
       } else {
@@ -259,7 +262,7 @@ export default function CreateUserForm() {
               }
             />
             {errors.email && (
-              <div className="flex items-center gap-1.5 text-xs text-destructive">
+              <div className="flex lowercase items-center gap-1.5 text-xs text-destructive">
                 <X className="h-3.5 w-3.5" />
                 <span>{errors.email.message}</span>
               </div>

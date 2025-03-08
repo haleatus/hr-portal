@@ -74,13 +74,11 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false });
           return response;
         } catch (error: any) {
-          const errorMessage =
-            error.response?.data?.message || "Failed to create admin";
           set({
             isLoading: false,
-            error: errorMessage,
+            error: error.response?.data?.message || "Failed to create admin",
           });
-          // throw new Error(errorMessage);
+          throw error; // Propagate the original error with response data
         }
       },
 

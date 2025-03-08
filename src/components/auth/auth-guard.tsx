@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/(auth)/auth-store';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/(auth)/auth-store";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     // Add a small delay to ensure the Zustand store is properly hydrated from localStorage
     const checkAuth = setTimeout(() => {
       if (!useAuthStore.getState().isAuthenticated) {
-        router.push('/signin');
+        router.push("/signin");
       } else {
         setIsLoading(false);
       }
@@ -29,7 +29,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   // Once we know auth state has stabilized, we can respond to changes
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/signin');
+      router.push("/signin");
     }
   }, [isAuthenticated, isLoading, router]);
 
