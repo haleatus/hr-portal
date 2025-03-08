@@ -21,14 +21,6 @@ export default function SettingsPage() {
     }
   }, []);
 
-  if (!userRole) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto p-6">
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
