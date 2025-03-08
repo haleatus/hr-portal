@@ -154,7 +154,7 @@ export default function CreateUserForm() {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      // Handle the specific error format from your backend
+      // Handle the specific error format from backend
       const errorResponse = error.response?.data as
         | ICreateUserResponse
         | undefined;
