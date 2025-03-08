@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/sidebar";
 import LogoutButton from "../auth/logout-button";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/auth/auth-store";
 
 // Define the navigation item type for better type safety
 type NavItem = {
@@ -87,6 +88,8 @@ export function AppSidebar() {
 
   // Access sidebar context to manage collapsible state and mobile responsiveness
   const { setOpenMobile, isMobile, state } = useSidebar();
+
+  const user = useAuthStore((state) => state.user);
 
   // Track the user's role to show appropriate navigation items
   const [userRole, setUserRole] = useState<string>("EMPLOYEE");
@@ -190,7 +193,7 @@ export function AppSidebar() {
                   >
                     <span className="font-semibold">HR Portal</span>
                     <span className="text-xs text-muted-foreground">
-                      {userRole}
+                      {user.name || user.fullname} | {userRole}
                     </span>
                   </div>
                 </Link>
