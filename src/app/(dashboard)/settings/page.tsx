@@ -35,16 +35,20 @@ export default function SettingsPage() {
 
       <Tabs defaultValue="profile">
         <TabsList className="mb-4">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
+          {userRole !== "ADMIN" && (
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+          )}
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           {userRole === "ADMIN" && (
             <TabsTrigger value="ADMIN">Admin Settings</TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="profile">
-          <ProfileSettings />
-        </TabsContent>
+        {userRole !== "ADMIN" && (
+          <TabsContent value="profile">
+            <ProfileSettings />
+          </TabsContent>
+        )}
 
         <TabsContent value="notifications">
           <NotificationSettings />
