@@ -1,28 +1,5 @@
 import { create } from "zustand";
 
-type loginStore = {
-  email: string;
-  password: string;
-  showPassword: boolean;
-  isLoading: boolean;
-  setEmail: (email: string) => void;
-  setPassword: (password: string) => void;
-  toggleShowPassword: () => void;
-  toggleLoading: () => void;
-};
-
-export const useLoginStore = create<loginStore>((set) => ({
-  email: "",
-  password: "",
-  showPassword: false,
-  isLoading: false,
-  setEmail: (email: string) => set({ email }),
-  setPassword: (password: string) => set({ password }),
-  toggleShowPassword: () =>
-    set((state) => ({ showPassword: !state.showPassword })),
-  toggleLoading: () => set((state) => ({ isLoading: !state.isLoading })),
-}));
-
 // Define the signup store type
 type SignupStore = {
   // Form data

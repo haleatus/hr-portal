@@ -17,7 +17,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
 
-  signIn: (credentials: ISignInCredentials) => Promise<void>;
+  adminSignIn: (credentials: ISignInCredentials) => Promise<void>;
   signOut: () => void;
   createAdmin: (adminData: ICreateAdminRequest) => Promise<any>;
   createUser: (userData: ICreateUserRequest) => Promise<any>;
@@ -35,10 +35,10 @@ export const useAuthStore = create<AuthState>()(
 
       clearError: () => set({ error: null }),
 
-      signIn: async (credentials: ISignInCredentials) => {
+      adminSignIn: async (credentials: ISignInCredentials) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authService.signIn(credentials);
+          const response = await authService.adminSignIn(credentials);
 
           set({
             user: response.data.user,

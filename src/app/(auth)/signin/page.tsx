@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { LoginForm } from "@/components/auth/login-form";
+import { AdminLoginForm } from "@/components/auth/admin-login-form";
 
 export default function SignInPage() {
   // In a real app, check if user is authenticated and redirect to their dashboard
@@ -14,7 +14,7 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center">
-      <LoginForm />
+      <AdminLoginForm />
     </div>
   );
 }

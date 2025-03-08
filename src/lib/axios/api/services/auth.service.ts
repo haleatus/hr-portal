@@ -2,18 +2,31 @@ import apiClient from "../client";
 
 // Import Interfaces
 import {
-  IAuthResponse,
+  IAdminAuthResponse,
   ICreateAdminRequest,
   ICreateAdminResponse,
   ICreateUserRequest,
   ICreateUserResponse,
   ISignInCredentials,
+  IUserAuthResponse,
 } from "@/interfaces/auth.interface";
 
 export const authService = {
-  signIn: async (credentials: ISignInCredentials): Promise<IAuthResponse> => {
+  adminSignIn: async (
+    credentials: ISignInCredentials
+  ): Promise<IAdminAuthResponse> => {
     const response = await apiClient.post(
       "/hr-hub/auth/admin/signin",
+      credentials
+    );
+    return response.data;
+  },
+
+  userSignIn: async (
+    credentials: ISignInCredentials
+  ): Promise<IUserAuthResponse> => {
+    const response = await apiClient.post(
+      "/hr-hub/auth/user/signin",
       credentials
     );
     return response.data;

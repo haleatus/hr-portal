@@ -16,7 +16,7 @@ export interface ICreateUserRequest {
   role: "MANAGER" | "EMPLOYEE";
 }
 
-export interface IAuthResponse {
+export interface IAdminAuthResponse {
   data: {
     accessToken: string;
     user: {
@@ -24,6 +24,23 @@ export interface IAuthResponse {
       email: string;
       role: string;
       name: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
+  message: string;
+  statusCode: number;
+  timestamp: string;
+}
+
+export interface IUserAuthResponse {
+  data: {
+    accessToken: string;
+    user: {
+      id: string;
+      email: string;
+      role: string;
+      fullname: string;
       createdAt: string;
       updatedAt: string;
     };
