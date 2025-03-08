@@ -49,7 +49,10 @@ export const useAuthStore = create<AuthState>()(
           });
 
           // Store token in local storage or httpOnly cookie for API client
-          localStorage.setItem("token", response.data.accessToken);
+          localStorage.setItem("token", response.data.accessToken); // Add this after setting localStorage
+          document.cookie = `token=${
+            response.data.accessToken
+          }; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days expiry
         } catch (error: any) {
           set({
             isLoading: false,
@@ -72,7 +75,10 @@ export const useAuthStore = create<AuthState>()(
           });
 
           // Store token in local storage or httpOnly cookie for API client
-          localStorage.setItem("token", response.data.accessToken);
+          localStorage.setItem("token", response.data.accessToken); // Add this after setting localStorage
+          document.cookie = `token=${
+            response.data.accessToken
+          }; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days expiry
         } catch (error: any) {
           set({
             isLoading: false,
@@ -84,6 +90,7 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: () => {
         localStorage.removeItem("token");
+        document.cookie = "token=; path=/; max-age=0"; // Clear the cookie
         set({
           user: null,
           token: null,
