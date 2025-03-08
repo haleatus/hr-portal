@@ -47,6 +47,11 @@ export interface ICreateUserResponse {
   message: string;
   statusCode: number;
   timestamp: string;
+  error?: {
+    email?: string;
+    password?: string;
+    role?: string;
+  };
 }
 
 export interface ICreateAdminResponse {
@@ -63,4 +68,9 @@ export interface ICreateAdminResponse {
   message: string;
   statusCode: number;
   timestamp: string;
+  error?: {
+    email?: string;
+    password?: string;
+    role?: string;
+  };
 }

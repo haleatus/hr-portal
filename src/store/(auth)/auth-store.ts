@@ -21,6 +21,7 @@ interface AuthState {
   signOut: () => void;
   createAdmin: (adminData: ICreateAdminRequest) => Promise<any>;
   createUser: (userData: ICreateUserRequest) => Promise<any>;
+  clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -31,6 +32,8 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+
+      clearError: () => set({ error: null }),
 
       signIn: async (credentials: ISignInCredentials) => {
         set({ isLoading: true, error: null });
@@ -51,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: error.response?.data?.message || "Failed to sign in",
           });
+          // throw error;
         }
       },
 
@@ -70,10 +74,13 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false });
           return response;
         } catch (error: any) {
+          const errorMessage =
+            error.response?.data?.message || "Failed to create admin";
           set({
             isLoading: false,
-            error: error.response?.data?.message || "Failed to create admin",
+            error: errorMessage,
           });
+          // throw new Error(errorMessage);
         }
       },
 
@@ -88,6 +95,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: error.response?.data?.message || "Failed to create user",
           });
+          throw error; // Propagate the original error with response data
         }
       },
     }),

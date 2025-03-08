@@ -1,50 +1,96 @@
 "use client";
 
 import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useAuthStore } from "@/store/(auth)/auth-store";
 import { toast } from "sonner";
+import { ICreateUserResponse } from "@/interfaces/auth.interface";
+
+// Define the form input types
+type FormInputs = {
+  fullname: string;
+  email: string;
+  password: string;
+  role: "MANAGER" | "EMPLOYEE";
+};
 
 export default function CreateUserForm() {
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    password: "",
-    role: "EMPLOYEE" as "MANAGER" | "EMPLOYEE",
-  });
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const { createUser, isLoading } = useAuthStore();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // Initialize React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<FormInputs>({
+    defaultValues: {
+      fullname: "",
+      email: "",
+      password: "",
+      role: "EMPLOYEE",
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+    // Clear previous errors
+    setGeneralError(null);
 
     try {
-      await createUser(formData);
-      toast.success("User created successfully");
-      setFormData({
-        fullname: "",
-        email: "",
-        password: "",
-        role: "EMPLOYEE",
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("Failed to create user");
+      const response = await createUser(data);
+
+      // Check if response is the successful format
+      if (response && response.statusCode === 200) {
+        toast.success(response.message || "User created successfully");
+        reset(); // Reset the form
+      } else {
+        // Handle unexpected response format
+        setGeneralError("An unexpected error occurred");
+        toast.error("Failed to create user");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Handle the specific error format from your backend
+      const errorResponse = error.response?.data as
+        | ICreateUserResponse
+        | undefined;
+
+      if (errorResponse?.error) {
+        // Also set errors in react-hook-form for each field
+        Object.entries(errorResponse.error).forEach(([field, message]) => {
+          if (field in data) {
+            setError(field as keyof FormInputs, {
+              type: "server",
+              message: message,
+            });
+          }
+        });
+
+        toast.error(errorResponse.message || "Validation failed");
+      } else {
+        // General error message
+        setGeneralError(error.message || "Failed to create user");
+        toast.error(error.message || "Failed to create user");
+      }
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
       >
         <h2 className="text-2xl font-bold mb-6">Create User</h2>
+
+        {/* Display general error if any */}
+        {generalError && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {generalError}
+          </div>
+        )}
 
         <div className="mb-4">
           <label
@@ -54,15 +100,18 @@ export default function CreateUserForm() {
             Full Name
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`shadow appearance-none border ${
+              errors.fullname ? "border-red-500" : ""
+            } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
             id="fullname"
-            name="fullname"
-            type="text"
             placeholder="Full Name"
-            value={formData.fullname}
-            onChange={handleChange}
-            required
+            {...register("fullname", { required: "Full name is required" })}
           />
+          {errors.fullname && (
+            <p className="text-red-500 text-xs italic">
+              {errors.fullname.message}
+            </p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -73,15 +122,24 @@ export default function CreateUserForm() {
             Email
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`shadow appearance-none border ${
+              errors.email ? "border-red-500" : ""
+            } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
             id="email"
-            name="email"
-            type="email"
             placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "Please enter a valid email address",
+              },
+            })}
           />
+          {errors.email && (
+            <p className="text-red-500 text-xs italic">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -92,15 +150,25 @@ export default function CreateUserForm() {
             Password
           </label>
           <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`shadow appearance-none border ${
+              errors.password ? "border-red-500" : ""
+            } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
             id="password"
-            name="password"
             type="password"
             placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters",
+              },
+            })}
           />
+          {errors.password && (
+            <p className="text-red-500 text-xs italic">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -111,16 +179,18 @@ export default function CreateUserForm() {
             Role
           </label>
           <select
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`shadow appearance-none border ${
+              errors.role ? "border-red-500" : ""
+            } rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
             id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
+            {...register("role")}
           >
             <option value="EMPLOYEE">Employee</option>
             <option value="MANAGER">Manager</option>
           </select>
+          {errors.role && (
+            <p className="text-red-500 text-xs italic">{errors.role.message}</p>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
