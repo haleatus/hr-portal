@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { authService, SignInCredentials } from '@/lib/api/services/auth.service';
 
 interface AuthState {
@@ -56,6 +56,8 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage', // name of the item in storage
+      storage: createJSONStorage(() => localStorage),
+      // Only persist these specific properties
       partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
     }
   )

@@ -44,12 +44,15 @@ export function LoginForm() {
   const password = useLoginStore((state) => state.password);
   // const [email, setEmail] = React.useState('');
   // const [password, setPassword] = React.useState('');
-  
+
   // UI state management
   const showPassword = useLoginStore((state) => state.showPassword);
-  
-  const { signIn, isLoading, error } = useAuthStore();
-  
+
+  // Auth store state management
+  const signIn = useAuthStore((state) => state.signIn);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+
   const router = useRouter();
 
   /**
@@ -60,35 +63,18 @@ export function LoginForm() {
     e.preventDefault();
     useLoginStore.getState().toggleLoading();
 
-    // Simulate login - in a real app, this would call your auth API
-    // setTimeout(() => {
-    //   // For demo purposes, set role based on email
-    //   let role = "employee";
-    //   if (email.includes("admin")) {
-    //     role = "admin";
-    //   } else if (email.includes("manager")) {
-    //     role = "manager";
-    //   }
-
-    //   localStorage.setItem("userRole", role);
-
-    //   toast.success(`Login successful! Welcome back!`, {
-    //     description: `You are logged in as ${role}.`,
-    //   });
-
-    //   useLoginStore.getState().toggleLoading();
-    //   router.push("/dashboard");
-    // }, 1000);
-
     await signIn({ email, password });
 
-    // If no error in the store after sign-in attempt, redirect
-     if (!useAuthStore.getState().error) {
-      toast.success(`Login successful! Welcome back!`);
-      router.push('/dashboard');
-    } else {
-      toast.error(useAuthStore.getState().error);
-    }
+    // Add a small delay to ensure state is updated before checking and redirecting
+    setTimeout(() => {
+      // If no error in the store after sign-in attempt, redirect
+      if (!useAuthStore.getState().error) {
+        toast.success(`Login successful! Welcome back!`);
+        router.push("/dashboard");
+      } else {
+        toast.error(useAuthStore.getState().error);
+      }
+    }, 100);
   };
 
   // /**
@@ -125,12 +111,12 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-        
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
           {/* Email Input Field */}
           <div className="space-y-2">
             <Label

@@ -10,7 +10,6 @@ import {
   ClipboardList,
   Cog,
   Home,
-  LogOut,
   Menu,
   User,
   Users,
@@ -26,7 +25,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +37,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import LogoutButton from "../auth/logout-button";
 
 // Define the navigation item type for better type safety
 type NavItem = {
@@ -94,15 +93,6 @@ export function AppSidebar() {
     const role = localStorage.getItem("userRole") || "employee";
     setUserRole(role);
   }, []);
-
-  /**
-   * Handles user logout by clearing storage and redirecting
-   */
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    toast.success("Logged out. You have been successfully logged out.");
-    window.location.href = "/";
-  };
 
   // Navigation items with their respective roles, icons and paths
   const navItems: NavItem[] = [
@@ -265,9 +255,8 @@ export function AppSidebar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                  <DropdownMenuItem className="p-0.5">
+                    <LogoutButton />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
