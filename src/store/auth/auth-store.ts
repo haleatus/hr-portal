@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { authService } from "@/lib/api/services/auth.service";
+import { authService } from "@/lib/axios/api/services/auth.service";
 
 // Import Interfaces
 import {

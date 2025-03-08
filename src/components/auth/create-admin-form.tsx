@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 
 // Store and interfaces
-import { useAuthStore } from "@/store/(auth)/auth-store";
+import { useAuthStore } from "@/store/auth/auth-store";
 import { ICreateAdminResponse } from "@/interfaces/auth.interface";
 
 // Toast Import

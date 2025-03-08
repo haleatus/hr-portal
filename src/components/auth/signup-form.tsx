@@ -34,7 +34,7 @@ import {
 
 // Toast Import
 import { toast } from "sonner";
-import { useSignupStore } from "@/store/(auth)/auth-form-store";
+import { useSignupStore } from "@/store/auth/auth-form-store";
 
 /**
  * SignupForm Component - Handles user registration with password strength validation
@@ -56,7 +56,9 @@ export function SignupForm() {
   // UI state management
   const isLoading = useSignupStore((state) => state.isLoading);
   const showPassword = useSignupStore((state) => state.showPassword);
-  const showConfirmPassword = useSignupStore((state) => state.showConfirmPassword);
+  const showConfirmPassword = useSignupStore(
+    (state) => state.showConfirmPassword
+  );
 
   /**
    * Handles form submission with validation checks
@@ -129,7 +131,9 @@ export function SignupForm() {
               type="text"
               placeholder="John Doe"
               value={name}
-              onChange={(e) => useSignupStore.getState().setName(e.target.value)}
+              onChange={(e) =>
+                useSignupStore.getState().setName(e.target.value)
+              }
               required
             />
           </div>
@@ -149,8 +153,9 @@ export function SignupForm() {
               type="email"
               placeholder="name@example.com"
               value={email}
-              onChange={(e) => useSignupStore.getState().setEmail(e.target.value
-              )}
+              onChange={(e) =>
+                useSignupStore.getState().setEmail(e.target.value)
+              }
               required
             />
           </div>
@@ -170,7 +175,9 @@ export function SignupForm() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => useSignupStore.getState().setPassword(e.target.value)}
+                onChange={(e) =>
+                  useSignupStore.getState().setPassword(e.target.value)
+                }
                 className="pr-10"
                 required
               />
@@ -216,7 +223,9 @@ export function SignupForm() {
                   className="h-1.5 w-full bg-muted"
                 >
                   <div
-                    className={`h-full ${useSignupStore.getState().getStrengthColor()}`}
+                    className={`h-full ${useSignupStore
+                      .getState()
+                      .getStrengthColor()}`}
                     style={{ width: `${passwordStrength}%` }}
                   />
                 </Progress>
@@ -283,10 +292,11 @@ export function SignupForm() {
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
-                onChange={(e) => useSignupStore.getState().setConfirmPassword(e.target.value)}
+                onChange={(e) =>
+                  useSignupStore.getState().setConfirmPassword(e.target.value)
+                }
                 className={`pr-10 ${
-                  confirmPassword &&
-                  password !== confirmPassword
+                  confirmPassword && password !== confirmPassword
                     ? "border-destructive focus:ring-destructive/50"
                     : ""
                 }`}
@@ -298,7 +308,9 @@ export function SignupForm() {
                 variant="ghost"
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
-                onClick={() => useSignupStore.getState().toggleShowConfirmPassword()}
+                onClick={() =>
+                  useSignupStore.getState().toggleShowConfirmPassword()
+                }
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -335,9 +347,7 @@ export function SignupForm() {
             type="submit"
             className="w-full cursor-pointer"
             disabled={
-              isLoading ||
-              passwordStrength < 60 ||
-              password !== confirmPassword
+              isLoading || passwordStrength < 60 || password !== confirmPassword
             }
           >
             {isLoading ? (
@@ -387,7 +397,7 @@ export function SignupForm() {
             </svg>
             Sign in with Google
           </Button>
-          
+
           {/* Sign-in Navigation Link */}
           <p className="text-center text-xs text-muted-foreground">
             Already have an account?{" "}

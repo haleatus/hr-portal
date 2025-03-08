@@ -32,8 +32,8 @@ import {
 
 // Toast Import
 import { toast } from "sonner";
-import { useLoginStore } from "@/store/(auth)/auth-form-store";
-import { useAuthStore } from "@/store/(auth)/auth-store";
+import { useLoginStore } from "@/store/auth/auth-form-store";
+import { useAuthStore } from "@/store/auth/auth-store";
 
 /**
  * SigninForm Component - Handles user login.
