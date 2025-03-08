@@ -44,9 +44,10 @@ export function UserLoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
 
   // Auth store state management
-  const adminSignIn = useAuthStore((state) => state.adminSignIn);
+  const userSignIn = useAuthStore((state) => state.userSignIn);
   const isLoading = useAuthStore((state) => state.isLoading);
   const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const router = useRouter();
 
@@ -57,13 +58,14 @@ export function UserLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await adminSignIn({ email, password });
+    await userSignIn({ email, password });
 
     // Add a small delay to ensure state is updated before checking and redirecting
     setTimeout(() => {
       // If no error in the store after sign-in attempt, redirect
       if (!useAuthStore.getState().error) {
         toast.success(`Login successful! Welcome back!`);
+        clearError();
         router.push("/dashboard");
       } else {
         toast.error(useAuthStore.getState().error);

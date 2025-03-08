@@ -47,6 +47,7 @@ export function AdminLoginForm() {
   const adminSignIn = useAuthStore((state) => state.adminSignIn);
   const isLoading = useAuthStore((state) => state.isLoading);
   const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const router = useRouter();
 
@@ -64,6 +65,7 @@ export function AdminLoginForm() {
       // If no error in the store after sign-in attempt, redirect
       if (!useAuthStore.getState().error) {
         toast.success(`Login successful! Welcome back!`);
+        clearError();
         router.push("/dashboard");
       } else {
         toast.error(useAuthStore.getState().error);

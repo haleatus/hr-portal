@@ -17,6 +17,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
 
+  userSignIn: (credentials: ISignInCredentials) => Promise<void>;
   adminSignIn: (credentials: ISignInCredentials) => Promise<void>;
   signOut: () => void;
   createAdmin: (adminData: ICreateAdminRequest) => Promise<any>;
@@ -34,6 +35,29 @@ export const useAuthStore = create<AuthState>()(
       error: null,
 
       clearError: () => set({ error: null }),
+
+      userSignIn: async (credentials: ISignInCredentials) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await authService.userSignIn(credentials);
+
+          set({
+            user: response.data.user,
+            token: response.data.accessToken,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+
+          // Store token in local storage or httpOnly cookie for API client
+          localStorage.setItem("token", response.data.accessToken);
+        } catch (error: any) {
+          set({
+            isLoading: false,
+            error: error.response?.data?.message || "Failed to sign in",
+          });
+          // throw error;
+        }
+      },
 
       adminSignIn: async (credentials: ISignInCredentials) => {
         set({ isLoading: true, error: null });
