@@ -1,29 +1,17 @@
 import apiClient from "../client";
 
-export interface SignInCredentials {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  data: {
-    accessToken: string;
-    user: {
-      id: string;
-      email: string;
-      role: string;
-      name: string;
-      createdAt: string;
-      updatedAt: string;
-    };
-  };
-  message: string;
-  statusCode: number;
-  timestamp: string;
-}
+// Import Interfaces
+import {
+  IAuthResponse,
+  ICreateAdminRequest,
+  ICreateAdminResponse,
+  ICreateUserRequest,
+  ICreateUserResponse,
+  ISignInCredentials,
+} from "@/interfaces/auth.interface";
 
 export const authService = {
-  signIn: async (credentials: SignInCredentials): Promise<AuthResponse> => {
+  signIn: async (credentials: ISignInCredentials): Promise<IAuthResponse> => {
     const response = await apiClient.post(
       "/hr-hub/auth/admin/signin",
       credentials
@@ -31,5 +19,20 @@ export const authService = {
     return response.data;
   },
 
-  // Add other auth-related endpoints (signup, logout, etc.)
+  createAdmin: async (
+    adminData: ICreateAdminRequest
+  ): Promise<ICreateAdminResponse> => {
+    const response = await apiClient.post("/hr-hub/admin/create", adminData);
+    return response.data;
+  },
+
+  createUser: async (
+    userData: ICreateUserRequest
+  ): Promise<ICreateUserResponse> => {
+    const response = await apiClient.post(
+      "/hr-hub/auth/admin/user/signup",
+      userData
+    );
+    return response.data;
+  },
 };

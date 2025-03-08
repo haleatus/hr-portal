@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { authService, SignInCredentials } from '@/lib/api/services/auth.service';
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { authService } from "@/lib/api/services/auth.service";
+
+// Import Interfaces
+import { ISignInCredentials } from "@/interfaces/auth.interface";
 
 interface AuthState {
   user: any | null;
@@ -9,8 +12,8 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
-  signIn: (credentials: SignInCredentials) => Promise<void>;
+
+  signIn: (credentials: ISignInCredentials) => Promise<void>;
   signOut: () => void;
 }
 
@@ -22,8 +25,8 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
-      
-      signIn: async (credentials: SignInCredentials) => {
+
+      signIn: async (credentials: ISignInCredentials) => {
         set({ isLoading: true, error: null });
         try {
           const response = await authService.signIn(credentials);
@@ -34,19 +37,19 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
-          
+
           // Store token in local storage or httpOnly cookie for API client
-          localStorage.setItem('token', response.data.accessToken);
+          localStorage.setItem("token", response.data.accessToken);
         } catch (error: any) {
           set({
             isLoading: false,
-            error: error.response?.data?.message || 'Failed to sign in',
+            error: error.response?.data?.message || "Failed to sign in",
           });
         }
       },
-      
+
       signOut: () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem("token");
         set({
           user: null,
           token: null,
@@ -55,10 +58,14 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage', // name of the item in storage
+      name: "auth-storage", // name of the item in storage
       storage: createJSONStorage(() => localStorage),
       // Only persist these specific properties
-      partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );
