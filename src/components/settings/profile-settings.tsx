@@ -52,22 +52,39 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileSettings() {
   const [isLoading, setIsLoading] = useState(false);
+  const { user, fetchMeUser, isLoading: isUserLoading } = useUserStore();
 
   // Default values for the form
   const defaultValues: Partial<ProfileFormValues> = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    title: "Software Engineer",
-    department: "Engineering",
-    bio: "Experienced software engineer with a passion for building user-friendly applications.",
+    name: "",
+    email: "",
+    title: "",
+    department: "",
+    bio: "",
   };
 
-  const { user, fetchMeUser, isLoading: isUserLoading } = useUserStore();
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues,
+  });
+
   // Fetch user data on component mount
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        await fetchMeUser();
+        // Only force refresh if no user data is present
+        await fetchMeUser(user === null);
+
+        // Update form values with user data
+        if (user) {
+          form.reset({
+            name: user.fullname || user.name || "",
+            email: user.email || "",
+            title: "",
+            department: "",
+            bio: "",
+          });
+        }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast.error("Failed to load user profile");
@@ -75,12 +92,9 @@ export function ProfileSettings() {
     };
 
     loadUserData();
-  }, [fetchMeUser]);
-
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues,
-  });
+    // Add form.reset as dependency to prevent warning
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchMeUser, user?.id]);
 
   function onSubmit(data: ProfileFormValues) {
     setIsLoading(true);
@@ -89,6 +103,9 @@ export function ProfileSettings() {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
+
+      // Invalidate cache after successful update
+      useUserStore.getState().invalidateCache();
 
       toast.success("Your profile has been updated successfully.");
     }, 1000);
@@ -160,7 +177,9 @@ export function ProfileSettings() {
                 src="/placeholder.svg?height=64&width=64"
                 alt="Profile"
               />
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarFallback>
+                {user?.fullname?.[0] || user?.name?.[0] || "U"}
+              </AvatarFallback>
             </Avatar>
             <div>
               <Button size="sm">Change Avatar</Button>
