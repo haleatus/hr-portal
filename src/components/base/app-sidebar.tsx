@@ -11,7 +11,9 @@ import {
   Cog,
   Home,
   Menu,
+  ShieldPlus,
   User,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import LogoutButton from "../auth/logout-button";
+import { toast } from "sonner";
 
 // Define the navigation item type for better type safety
 type NavItem = {
@@ -86,12 +89,17 @@ export function AppSidebar() {
   const { setOpenMobile, isMobile, state } = useSidebar();
 
   // Track the user's role to show appropriate navigation items
-  const [userRole, setUserRole] = useState<string>("employee");
+  const [userRole, setUserRole] = useState<string>("EMPLOYEE");
 
   // Load user role from localStorage on component mount
   useEffect(() => {
-    const role = localStorage.getItem("userRole") || "employee";
-    setUserRole(role);
+    const authData = localStorage.getItem("auth-storage");
+    if (authData) {
+      const parsedAuth = JSON.parse(authData); // Parse stored string into JSON
+      setUserRole(parsedAuth.state.user.role);
+    } else {
+      toast.error("No role found in localStorage.");
+    }
   }, []);
 
   // Navigation items with their respective roles, icons and paths
@@ -100,31 +108,43 @@ export function AppSidebar() {
       title: "Dashboard",
       href: "/dashboard",
       icon: Home,
-      roles: ["admin", "manager", "employee"],
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {
       title: "Reviews",
       href: "/reviews",
       icon: ClipboardList,
-      roles: ["admin", "manager", "employee"],
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {
       title: "Reports",
       href: "/reports",
       icon: BarChart3,
-      roles: ["admin", "manager"],
+      roles: ["ADMIN", "MANAGER"],
     },
     {
       title: "Users",
       href: "/users",
       icon: Users,
-      roles: ["admin"],
+      roles: ["ADMIN"],
     },
     {
       title: "Settings",
       href: "/settings",
       icon: Cog,
-      roles: ["admin", "manager", "employee"],
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
+    },
+    {
+      title: "Create User",
+      href: "/create-user",
+      icon: UserPlus,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Create Admin",
+      href: "/create-admin",
+      icon: ShieldPlus,
+      roles: ["ADMIN"],
     },
   ];
 

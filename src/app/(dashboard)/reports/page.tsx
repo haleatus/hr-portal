@@ -5,6 +5,7 @@ import { ReportsList } from "@/components/reports/reports-list";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ReportsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -16,9 +17,13 @@ export default function ReportsPage() {
   });
 
   useEffect(() => {
-    // Simulate fetching user role
-    const role = localStorage.getItem("userRole") || "employee";
-    setUserRole(role);
+    const authData = localStorage.getItem("auth-storage");
+    if (authData) {
+      const parsedAuth = JSON.parse(authData); // Parse stored string into JSON
+      setUserRole(parsedAuth.state.user.role);
+    } else {
+      toast.error("No role found in localStorage.");
+    }
 
     // Mock data - in a real app, this would come from an API
     setReports([
@@ -44,7 +49,7 @@ export default function ReportsPage() {
   }, []);
 
   // Only admin and managers can access reports
-  if (userRole !== "admin" && userRole !== "manager") {
+  if (userRole !== "ADMIN" && userRole !== "MANAGER") {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold">Access Denied</h1>

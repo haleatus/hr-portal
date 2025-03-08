@@ -5,14 +5,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileSettings } from "@/components/settings/profile-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { AdminSettings } from "@/components/settings/admin-settings";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     // Simulate fetching user role
-    const role = localStorage.getItem("userRole") || "employee";
-    setUserRole(role);
+    const authData = localStorage.getItem("auth-storage");
+    if (authData) {
+      const parsedAuth = JSON.parse(authData); // Parse stored string into JSON
+      setUserRole(parsedAuth.state.user.role);
+    } else {
+      toast.error("No role found in localStorage.");
+    }
   }, []);
 
   if (!userRole) {
@@ -31,8 +37,8 @@ export default function SettingsPage() {
         <TabsList className="mb-4">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          {userRole === "admin" && (
-            <TabsTrigger value="admin">Admin Settings</TabsTrigger>
+          {userRole === "ADMIN" && (
+            <TabsTrigger value="ADMIN">Admin Settings</TabsTrigger>
           )}
         </TabsList>
 
@@ -44,8 +50,8 @@ export default function SettingsPage() {
           <NotificationSettings />
         </TabsContent>
 
-        {userRole === "admin" && (
-          <TabsContent value="admin">
+        {userRole === "ADMIN" && (
+          <TabsContent value="ADMIN">
             <AdminSettings />
           </TabsContent>
         )}

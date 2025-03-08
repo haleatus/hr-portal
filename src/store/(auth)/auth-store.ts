@@ -4,7 +4,11 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { authService } from "@/lib/api/services/auth.service";
 
 // Import Interfaces
-import { ISignInCredentials } from "@/interfaces/auth.interface";
+import {
+  ICreateAdminRequest,
+  ICreateUserRequest,
+  ISignInCredentials,
+} from "@/interfaces/auth.interface";
 
 interface AuthState {
   user: any | null;
@@ -15,6 +19,8 @@ interface AuthState {
 
   signIn: (credentials: ISignInCredentials) => Promise<void>;
   signOut: () => void;
+  createAdmin: (adminData: ICreateAdminRequest) => Promise<any>;
+  createUser: (userData: ICreateUserRequest) => Promise<any>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -55,6 +61,34 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           isAuthenticated: false,
         });
+      },
+
+      createAdmin: async (adminData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await authService.createAdmin(adminData);
+          set({ isLoading: false });
+          return response;
+        } catch (error: any) {
+          set({
+            isLoading: false,
+            error: error.response?.data?.message || "Failed to create admin",
+          });
+        }
+      },
+
+      createUser: async (userData) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await authService.createUser(userData);
+          set({ isLoading: false });
+          return response;
+        } catch (error: any) {
+          set({
+            isLoading: false,
+            error: error.response?.data?.message || "Failed to create user",
+          });
+        }
       },
     }),
     {
