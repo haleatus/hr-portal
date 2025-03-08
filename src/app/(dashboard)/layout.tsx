@@ -1,6 +1,7 @@
 import type React from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/base/app-sidebar";
+import AuthGuard from "@/components/auth/auth-guard";
 
 /**
  * DashboardLayout Component
@@ -17,6 +18,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <SidebarProvider>
+      <AuthGuard>
       {/* Sidebar component */}
       <AppSidebar />
       {/* 
@@ -26,6 +28,7 @@ export default function DashboardLayout({
           - Maintains consistent padding
         */}
       <main className="relative flex-1 w-full ">{children}</main>
+      </AuthGuard>
     </SidebarProvider>
   );
 }

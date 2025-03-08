@@ -1,7 +1,7 @@
 "use client";
 
 // Core React and Next.js imports
-import type React from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 
 // UI component imports
@@ -23,72 +23,86 @@ import {
   Mail,
   Lock,
   ArrowRight,
-  User,
+  // User,
   Shield,
-  Users,
+  // Users,
   Eye,
   EyeOff,
 } from "lucide-react";
 
 // Toast Import
 import { toast } from "sonner";
-import { useLoginStore } from "@/store/(auth)/auth-store";
+import { useLoginStore } from "@/store/(auth)/auth-form-store";
+import { useAuthStore } from "@/store/(auth)/auth-store";
 
 /**
  * SigninForm Component - Handles user login.
  */
 export function LoginForm() {
-  const router = useRouter();
-
   // Form state management
   const email = useLoginStore((state) => state.email);
   const password = useLoginStore((state) => state.password);
-
+  // const [email, setEmail] = React.useState('');
+  // const [password, setPassword] = React.useState('');
+  
   // UI state management
-  const isLoading = useLoginStore((state) => state.isLoading);
   const showPassword = useLoginStore((state) => state.showPassword);
+  
+  const { signIn, isLoading, error } = useAuthStore();
+  
+  const router = useRouter();
 
   /**
    * Handles form submission
    * @param e - React form submission event
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     useLoginStore.getState().toggleLoading();
 
     // Simulate login - in a real app, this would call your auth API
-    setTimeout(() => {
-      // For demo purposes, set role based on email
-      let role = "employee";
-      if (email.includes("admin")) {
-        role = "admin";
-      } else if (email.includes("manager")) {
-        role = "manager";
-      }
+    // setTimeout(() => {
+    //   // For demo purposes, set role based on email
+    //   let role = "employee";
+    //   if (email.includes("admin")) {
+    //     role = "admin";
+    //   } else if (email.includes("manager")) {
+    //     role = "manager";
+    //   }
 
-      localStorage.setItem("userRole", role);
+    //   localStorage.setItem("userRole", role);
 
-      toast.success(`Login successful! Welcome back!`, {
-        description: `You are logged in as ${role}.`,
-      });
+    //   toast.success(`Login successful! Welcome back!`, {
+    //     description: `You are logged in as ${role}.`,
+    //   });
 
-      useLoginStore.getState().toggleLoading();
-      router.push("/dashboard");
-    }, 1000);
-  };
+    //   useLoginStore.getState().toggleLoading();
+    //   router.push("/dashboard");
+    // }, 1000);
 
-  /**
-   * Gets icons based on the role
-   * @returns Role Based Icon
-   */
-  const getRoleIcon = (emailInput: string) => {
-    if (emailInput.includes("admin")) {
-      return <Shield className="h-4 w-4 text-red-500" />;
-    } else if (emailInput.includes("manager")) {
-      return <Users className="h-4 w-4 text-blue-500" />;
+    await signIn({ email, password });
+
+    // If no error in the store after sign-in attempt, redirect
+     if (!useAuthStore.getState().error) {
+      toast.success(`Login successful! Welcome back!`);
+      router.push('/dashboard');
+    } else {
+      toast.error(useAuthStore.getState().error);
     }
-    return <User className="h-4 w-4 text-green-500" />;
   };
+
+  // /**
+  //  * Gets icons based on the role
+  //  * @returns Role Based Icon
+  //  */
+  // const getRoleIcon = (emailInput: string) => {
+  //   if (emailInput.includes("admin")) {
+  //     return <Shield className="h-4 w-4 text-red-500" />;
+  //   } else if (emailInput.includes("manager")) {
+  //     return <Users className="h-4 w-4 text-blue-500" />;
+  //   }
+  //   return <User className="h-4 w-4 text-green-500" />;
+  // };
 
   return (
     <Card className="w-full max-w-md border-2 shadow-xl">
@@ -111,6 +125,12 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+        
           {/* Email Input Field */}
           <div className="space-y-2">
             <Label
@@ -134,7 +154,7 @@ export function LoginForm() {
               />
               {email && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 transform">
-                  {getRoleIcon(email)}
+                  <Shield className="h-4 w-4 text-red-500" />
                 </div>
               )}
             </div>

@@ -34,7 +34,7 @@ import {
 
 // Toast Import
 import { toast } from "sonner";
-import { useSignupStore } from "@/store/(auth)/auth-store";
+import { useSignupStore } from "@/store/(auth)/auth-form-store";
 
 /**
  * SignupForm Component - Handles user registration with password strength validation
