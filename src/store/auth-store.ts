@@ -8,6 +8,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  userRole: string | null;
 
   setUser: (user: any) => void;
   setToken: (token: string) => void;
@@ -27,6 +28,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      userRole: null,
 
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
@@ -38,10 +40,11 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("userRole");
         document.cookie = "token=; path=/; max-age=0"; // Clear the cookie
         set({
-          user: null,
           token: null,
+          userRole: null,
           isAuthenticated: false,
         });
       },
@@ -51,8 +54,8 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
       // Only persist these specific properties
       partialize: (state) => ({
-        user: state.user,
         token: state.token,
+        userRole: state.user?.role,
         isAuthenticated: state.isAuthenticated,
       }),
     }
