@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 // Core React and Next.js imports
@@ -69,6 +68,7 @@ export function UserLoginForm() {
           clearError();
           router.push("/dashboard");
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
           toast.error(error.response?.data?.message || "Failed to sign in");
         },

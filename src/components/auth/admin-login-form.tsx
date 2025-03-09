@@ -31,6 +31,7 @@ import {
 // Toast Import
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
+import { useAdminSignIn } from "@/hooks/auth.hooks";
 
 /**
  * SigninForm Component - Handles user login.
@@ -44,10 +45,11 @@ export function AdminLoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
 
   // Auth store state management
-  const adminSignIn = useAuthStore((state) => state.adminSignIn);
-  const isLoading = useAuthStore((state) => state.isLoading);
   const error = useAuthStore((state) => state.error);
   const clearError = useAuthStore((state) => state.clearError);
+
+  // TanStack Query mutation
+  const { mutate: adminSignIn, isPending } = useAdminSignIn();
 
   const router = useRouter();
 
@@ -58,19 +60,20 @@ export function AdminLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await adminSignIn({ email, password });
-
-    // Add a small delay to ensure state is updated before checking and redirecting
-    setTimeout(() => {
-      // If no error in the store after sign-in attempt, redirect
-      if (!useAuthStore.getState().error) {
-        toast.success(`Login successful! Welcome back!`);
-        clearError();
-        router.push("/dashboard");
-      } else {
-        toast.error(useAuthStore.getState().error);
+    adminSignIn(
+      { email, password },
+      {
+        onSuccess: () => {
+          toast.success(`Login successful! Welcome back!`);
+          clearError();
+          router.push("/dashboard");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+          toast.error(error.response?.data?.message || "Failed to sign in");
+        },
       }
-    }, 100);
+    );
   };
 
   return (
@@ -174,9 +177,9 @@ export function AdminLoginForm() {
           <Button
             type="submit"
             className="w-full cursor-pointer"
-            disabled={isLoading || email.length < 1 || password.length < 1}
+            disabled={isPending || email.length < 1 || password.length < 1}
           >
-            {isLoading ? (
+            {isPending ? (
               <div className="flex items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
                 <span className="ml-2">Signing in...</span>
