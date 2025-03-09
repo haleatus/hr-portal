@@ -153,7 +153,7 @@ export function AppSidebar() {
       title: "Profile",
       href: "/profile",
       icon: User,
-      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
+      roles: ["MANAGER", "EMPLOYEE"],
     },
   ];
 
