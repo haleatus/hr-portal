@@ -199,9 +199,7 @@ export default function AdminsPage() {
     <div className="container mx-auto py-8 px-4 sm:px-6">
       <div className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Admins</h1>
-        <p className="text-muted-foreground">
-          View and manage administrator accounts
-        </p>
+        <p className="text-muted-foreground">View administrator accounts</p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row justify-between gap-2">
