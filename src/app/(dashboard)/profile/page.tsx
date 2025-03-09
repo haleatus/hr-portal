@@ -1,7 +1,6 @@
 "use client";
 
 // Hooks
-import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/hooks/user.hooks";
 
 // UI Components
@@ -14,10 +13,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function ProfilePage() {
   // Get current user data from the hook
   const { data: userData, isLoading, isError } = useCurrentUser();
-
-  const queryClient = useQueryClient();
-  const cachedData = queryClient.getQueryData(["currentUser"]);
-  console.log("Cached User Data:", cachedData);
 
   // Loading state
   if (isLoading) {
