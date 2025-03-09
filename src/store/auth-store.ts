@@ -40,7 +40,6 @@ export const useAuthStore = create<AuthState>()(
         localStorage.removeItem("token");
         document.cookie = "token=; path=/; max-age=0"; // Clear the cookie
         set({
-          user: null,
           token: null,
           isAuthenticated: false,
         });
@@ -51,7 +50,6 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
       // Only persist these specific properties
       partialize: (state) => ({
-        user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),

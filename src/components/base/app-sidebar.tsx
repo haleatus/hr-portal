@@ -1,8 +1,6 @@
 "use client";
 
 import type React from "react";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -41,7 +39,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import LogoutButton from "../auth/logout-button";
-import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 
 // Define the navigation item type for better type safety
@@ -91,20 +88,6 @@ export function AppSidebar() {
   const { setOpenMobile, isMobile, state } = useSidebar();
 
   const user = useAuthStore((state) => state.user);
-
-  // Track the user's role to show appropriate navigation items
-  const [userRole, setUserRole] = useState<string>("EMPLOYEE");
-
-  // Load user role from localStorage on component mount
-  useEffect(() => {
-    const authData = localStorage.getItem("auth-storage");
-    if (authData) {
-      const parsedAuth = JSON.parse(authData); // Parse stored string into JSON
-      setUserRole(parsedAuth.state.user.role);
-    } else {
-      toast.error("No role found in localStorage.");
-    }
-  }, []);
 
   // Navigation items with their respective roles, icons and paths
   const navItems: NavItem[] = [
@@ -166,7 +149,7 @@ export function AppSidebar() {
 
   // Filter navigation items based on user role
   const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(userRole)
+    item.roles.includes(user.role)
   );
 
   return (
@@ -206,7 +189,7 @@ export function AppSidebar() {
                   >
                     <span className="font-semibold">HR Portal</span>
                     <span className="text-xs text-muted-foreground">
-                      {user.name || user.fullname} | {userRole}
+                      {user.name || user.fullname} | {user.role}
                     </span>
                   </div>
                 </Link>
@@ -264,14 +247,10 @@ export function AppSidebar() {
                       }`}
                     >
                       <span className="truncate font-semibold">
-                        {userRole === "admin"
-                          ? "Admin User"
-                          : userRole === "manager"
-                          ? "Manager User"
-                          : "Employee User"}
+                        {user.name || user.fullname}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        {userRole}@example.com
+                        {user.email}
                       </span>
                     </div>
                   </SidebarMenuButton>
