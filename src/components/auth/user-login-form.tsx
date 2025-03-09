@@ -1,8 +1,7 @@
 "use client";
 
 // Core React and Next.js imports
-import type React from "react";
-import { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 
 // UI component imports
@@ -25,69 +24,56 @@ import {
   Lock,
   ArrowRight,
   User,
-  Shield,
-  Users,
   Eye,
   EyeOff,
 } from "lucide-react";
 
 // Toast Import
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/auth-store";
+import { useUserSignIn } from "@/hooks/auth.hooks";
 
 /**
  * SigninForm Component - Handles user login.
  */
-export function LoginForm() {
-  const router = useRouter();
-
+export function UserLoginForm() {
   // Form state management
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
 
   // UI state management
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  // Auth store state management
+  const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
+
+  // TanStack Query mutation
+  const { mutate: userSignIn, isPending } = useUserSignIn();
+
+  const router = useRouter();
 
   /**
    * Handles form submission
    * @param e - React form submission event
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Simulate login - in a real app, this would call your auth API
-    setTimeout(() => {
-      // For demo purposes, set role based on email
-      let role = "employee";
-      if (email.includes("admin")) {
-        role = "admin";
-      } else if (email.includes("manager")) {
-        role = "manager";
+    userSignIn(
+      { email, password },
+      {
+        onSuccess: () => {
+          toast.success(`Login successful! Welcome back!`);
+          clearError();
+          router.push("/dashboard");
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+          toast.error(error.response?.data?.message || "Failed to sign in");
+        },
       }
-
-      localStorage.setItem("userRole", role);
-
-      toast.success(`Login successful! Welcome back!`, {
-        description: `You are logged in as ${role}.`,
-      });
-
-      setIsLoading(false);
-      router.push("/dashboard");
-    }, 1000);
-  };
-
-  /**
-   * Gets icons based on the role
-   * @returns Role Based Icon
-   */
-  const getRoleIcon = (emailInput: string) => {
-    if (emailInput.includes("admin")) {
-      return <Shield className="h-4 w-4 text-red-500" />;
-    } else if (emailInput.includes("manager")) {
-      return <Users className="h-4 w-4 text-blue-500" />;
-    }
-    return <User className="h-4 w-4 text-green-500" />;
+    );
   };
 
   return (
@@ -111,6 +97,12 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 flex justify-center py-1 rounded mb-4">
+              {error}
+            </div>
+          )}
+
           {/* Email Input Field */}
           <div className="space-y-2">
             <Label
@@ -132,40 +124,9 @@ export function LoginForm() {
               />
               {email && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 transform">
-                  {getRoleIcon(email)}
+                  <User className="h-4 w-4 text-blue-500" />
                 </div>
               )}
-            </div>
-            {/* Demo Emails to login */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span>Demo: Use</span>
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto p-0 text-xs font-medium text-primary"
-                onClick={() => setEmail("admin@example.com")}
-              >
-                admin
-              </Button>
-              <span>,</span>
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto p-0 text-xs font-medium text-primary"
-                onClick={() => setEmail("manager@example.com")}
-              >
-                manager
-              </Button>
-              <span>, or</span>
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto p-0 text-xs font-medium text-primary"
-                onClick={() => setEmail("employee@example.com")}
-              >
-                employee
-              </Button>
-              <span>@example.com</span>
             </div>
           </div>
 
@@ -189,6 +150,7 @@ export function LoginForm() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
                 className="pr-10"
                 required
               />
@@ -207,9 +169,6 @@ export function LoginForm() {
                 )}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Any password will work for the demo
-            </p>
           </div>
         </CardContent>
 
@@ -217,10 +176,10 @@ export function LoginForm() {
         <CardFooter className="flex-col gap-4 pb-8">
           <Button
             type="submit"
-            className="w-full"
-            disabled={isLoading || email.length < 1 || password.length < 1}
+            className="w-full cursor-pointer"
+            disabled={isPending || email.length < 1 || password.length < 1}
           >
-            {isLoading ? (
+            {isPending ? (
               <div className="flex items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
                 <span className="ml-2">Signing in...</span>
@@ -233,22 +192,40 @@ export function LoginForm() {
           </Button>
 
           {/* TODO: OAuth Google */}
-          <Button>
-            Google TODO
-          </Button>
-
-          {/* Sign-up Navigation Link */}
-          <p className="text-center text-xs text-muted-foreground">
-            {`Don't have an account? `}
-            <Button
-              variant="link"
-              className="h-auto p-0 text-xs"
-              onClick={() => router.push("/signup")}
-              type="button"
+          <Button
+            variant="outline"
+            className="flex items-center cursor-pointer gap-2 w-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            onClick={() => {
+              // TODO: Implement Google OAuth logic
+              console.log("Google OAuth initiated");
+            }}
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
             >
-              Sign up
-            </Button>
-          </p>
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
+            </svg>
+            Sign in with Google
+          </Button>
         </CardFooter>
       </form>
     </Card>

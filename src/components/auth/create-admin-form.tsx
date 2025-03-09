@@ -1,9 +1,14 @@
 "use client";
 
-// Core React and Next.js imports
-import type React from "react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// Core React imports
+import { useEffect, useState } from "react";
+
+// Store and interfaces
+import { ICreateAdminResponse } from "@/interfaces/auth.interface";
+
+// Toast Import
+import { toast } from "sonner";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 // UI component imports
 import { Button } from "@/components/ui/button";
@@ -18,41 +23,35 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-
-// Icon imports
 import {
-  ClipboardList,
-  Mail,
-  Lock,
-  User,
-  ArrowRight,
-  CheckCircle2,
-  X,
   Check,
   Eye,
   EyeOff,
+  Lock,
+  Mail,
+  Shield,
+  ShieldPlus,
+  X,
 } from "lucide-react";
+import { useCreateAdmin } from "@/hooks/auth.hooks";
 
-// Toast Import
-import { toast } from "sonner";
+// Define the form input types
+type FormInputs = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 /**
- * SignupForm Component - Handles user registration with password strength validation
- * and confirmation checks. Provides visual feedback for password requirements
- * and form validation errors.
+ * CreateAdminForm component
+ * @returns JSX.Element
  */
-export function SignupForm() {
-  const router = useRouter();
+export default function CreateAdminForm() {
+  // UI state management
+  const [showPassword, setShowPassword] = useState(false);
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
-  // Form state management
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  // Password strength indicators
+  // Password strength state
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordChecks, setPasswordChecks] = useState({
     length: false,
@@ -62,15 +61,41 @@ export function SignupForm() {
     special: false,
   });
 
-  // UI state management
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // Auth store
+  const createAdminMutation = useCreateAdmin();
 
-  // Effect to calculate password strength when password changes
+  // Initialize React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    watch,
+    formState: { errors },
+  } = useForm<FormInputs>({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  // Watch password for strength calculation
+  const password = watch("password");
+
+  // Calculate password strength whenever password changes
   useEffect(() => {
-    const { password } = formData;
-
+    if (!password) {
+      setPasswordStrength(0);
+      setPasswordChecks({
+        length: false,
+        lowercase: false,
+        uppercase: false,
+        number: false,
+        special: false,
+      });
+      return;
+    }
     const checks = {
       length: password.length >= 8,
       lowercase: /[a-z]/.test(password),
@@ -79,66 +104,15 @@ export function SignupForm() {
       special: /[^A-Za-z0-9]/.test(password),
     };
 
-    setPasswordChecks(checks);
-
     // Calculate strength percentage based on passed checks
     const passedChecks = Object.values(checks).filter(Boolean).length;
     const strengthPercentage = (passedChecks / 5) * 100;
+
+    setPasswordChecks(checks);
     setPasswordStrength(strengthPercentage);
-  }, [formData]);
+  }, [password]);
 
-  /**
-   * Handles form input changes and updates form state
-   * @param e - React change event from input elements
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  /**
-   * Handles form submission with validation checks
-   * @param e - React form submission event
-   */
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate password match
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords don't match", {
-        description: "Please make sure your passwords match",
-      });
-      return;
-    }
-
-    // Validate minimum password strength
-    if (passwordStrength < 60) {
-      toast.error("Password is too weak", {
-        description: "Please create a stronger password",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Simulate API call for registration
-    setTimeout(() => {
-      toast.success("Account created successfully!", {
-        description: "You can now log in with your credentials",
-      });
-
-      setIsLoading(false);
-      router.push("/signin");
-    }, 1500);
-  };
-
-  /**
-   * Determines progress bar color based on password strength
-   * @returns Tailwind CSS class for the strength color
-   */
+  // Get strength color based on password strength
   const getStrengthColor = () => {
     if (passwordStrength < 30) return "bg-destructive";
     if (passwordStrength < 60) return "bg-amber-500";
@@ -146,10 +120,7 @@ export function SignupForm() {
     return "bg-green-500";
   };
 
-  /**
-   * Generates strength description text based on password strength
-   * @returns Strength level description
-   */
+  // Get strength text based on password strength
   const getStrengthText = () => {
     if (passwordStrength < 30) return "Weak";
     if (passwordStrength < 60) return "Fair";
@@ -157,43 +128,100 @@ export function SignupForm() {
     return "Strong";
   };
 
+  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+    // Clear previous errors
+    setGeneralError(null);
+
+    createAdminMutation.mutate(data, {
+      onSuccess: (response) => {
+        if (response && response.statusCode) {
+          toast.success(response.message || "Admin created successfully");
+          reset(); // Reset the form
+        } else {
+          setGeneralError("An unexpected error occurred");
+          toast.error("Failed to create user");
+        }
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        // Handle the specific error format from backend
+        const errorResponse = error.response?.data as
+          | ICreateAdminResponse
+          | undefined;
+
+        if (errorResponse?.error) {
+          // Also set errors in react-hook-form for each field
+          Object.entries(errorResponse.error).forEach(([field, message]) => {
+            if (field in data) {
+              setError(field as keyof FormInputs, {
+                type: "server",
+                message: message,
+              });
+            }
+          });
+
+          toast.error(errorResponse.message || "Validation failed");
+        } else {
+          // General error message
+          setGeneralError(error.message || "Failed to create user");
+          toast.error(error.message || "Failed to create user");
+        }
+      },
+    });
+  };
+
   return (
     <Card className="w-full max-w-md border-2 shadow-xl">
-      <CardHeader className="space-y-1 pb-4 pt-6">
+      <CardHeader className="space-y-1 pb-4 pt-4">
         <div className="flex items-center justify-center gap-3">
           {/* Application Logo and Title */}
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary p-2 shadow-md">
-            <ClipboardList className="h-7 w-7 text-primary-foreground" />
+            <ShieldPlus className="h-7 w-7 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+            <CardTitle className="text-2xl font-bold">Create Admin</CardTitle>
             <CardDescription className="text-sm">
-              Join the HR Performance Portal
+              Add a new admin to the system
             </CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-5 pb-6">
-          {/* Name Input Field */}
+          {/* Display general error if any */}
+          {generalError && (
+            <div className="rounded-md bg-destructive/10 p-3 text-destructive flex items-center gap-2">
+              <X className="h-4 w-4" />
+              <span>{generalError}</span>
+            </div>
+          )}
+
+          {/* Full Name Input Field */}
           <div className="space-y-2">
             <Label
               htmlFor="name"
               className="flex items-center gap-2 text-sm font-medium"
             >
-              <User className="h-4 w-4 text-muted-foreground" />
-              Full Name
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              Name
             </Label>
             <Input
               id="name"
-              name="name"
-              type="text"
               placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              required
+              {...register("name", { required: "Name is required" })}
+              className={
+                errors.name
+                  ? "border-destructive focus:ring-destructive/50"
+                  : ""
+              }
             />
+            {errors.name && (
+              <div className="flex items-center gap-1.5 text-xs text-destructive">
+                <X className="h-3.5 w-3.5" />
+                <span>{errors.name.message}</span>
+              </div>
+            )}
           </div>
 
           {/* Email Input Field */}
@@ -207,13 +235,26 @@ export function SignupForm() {
             </Label>
             <Input
               id="email"
-              name="email"
-              type="email"
               placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Please enter a valid email address",
+                },
+              })}
+              className={
+                errors.email
+                  ? "border-destructive focus:ring-destructive/50"
+                  : ""
+              }
             />
+            {errors.email && (
+              <div className="flex lowercase items-center gap-1.5 text-xs text-destructive">
+                <X className="h-3.5 w-3.5" />
+                <span>{errors.email.message}</span>
+              </div>
+            )}
           </div>
 
           {/* Password Input Field with Strength Indicator */}
@@ -228,19 +269,27 @@ export function SignupForm() {
             <div className="relative">
               <Input
                 id="password"
-                name="password"
                 type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={handleChange}
-                className="pr-10"
-                required
+                placeholder="••••••••"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+                className={`pr-10 ${
+                  errors.password
+                    ? "border-destructive focus:ring-destructive/50"
+                    : ""
+                }`}
               />
               {/* Toggle Password Visibility Button */}
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
+                className="absolute right-0 cursor-pointer top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -250,9 +299,15 @@ export function SignupForm() {
                 )}
               </Button>
             </div>
+            {errors.password && (
+              <div className="flex items-center gap-1.5 text-xs text-destructive">
+                <X className="h-3.5 w-3.5" />
+                <span>{errors.password.message}</span>
+              </div>
+            )}
 
             {/* Password Strength Indicator */}
-            {formData.password && (
+            {password && (
               <div className="space-y-1 rounded-md bg-muted/50 p-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">
@@ -274,14 +329,8 @@ export function SignupForm() {
                 </div>
                 <Progress
                   value={passwordStrength}
-                  className="h-1.5 w-full bg-muted"
-                >
-                  <div
-                    className={`h-full ${getStrengthColor()}`}
-                    style={{ width: `${passwordStrength}%` }}
-                  />
-                </Progress>
-
+                  className={`h-1.5 w-full ${getStrengthColor()}`}
+                />
                 {/* Password Requirement Checklist */}
                 <div className="grid grid-cols-2 gap-0.5">
                   <div className="flex items-center gap-1.5">
@@ -328,109 +377,27 @@ export function SignupForm() {
               </div>
             )}
           </div>
-
-          {/* Confirm Password Input Field */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="confirmPassword"
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <Lock className="h-4 w-4 text-muted-foreground" />
-              Confirm Password
-            </Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`pr-10 ${
-                  formData.confirmPassword &&
-                  formData.password !== formData.confirmPassword
-                    ? "border-destructive focus:ring-destructive/50"
-                    : ""
-                }`}
-                required
-              />
-              {/* Toggle Confirm Password Visibility Button */}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-
-            {/* Password Match Indicator */}
-            {formData.confirmPassword && (
-              <div className="flex items-center gap-1.5 text-xs">
-                {formData.password === formData.confirmPassword ? (
-                  <>
-                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                    <span className="text-green-500">Passwords match</span>
-                  </>
-                ) : (
-                  <>
-                    <X className="h-3.5 w-3.5 text-destructive" />
-                    <span className="text-destructive">
-                      Passwords don&apos;t match
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
         </CardContent>
 
-        {/* Form Submission and Navigation */}
-        <CardFooter className="flex-col gap-4 pb-8">
+        {/* Form Submission */}
+        <CardFooter className="flex-col gap-2 pb-4">
           <Button
             type="submit"
-            className="w-full"
-            disabled={
-              isLoading ||
-              passwordStrength < 60 ||
-              formData.password !== formData.confirmPassword
-            }
+            className="w-full cursor-pointer"
+            disabled={createAdminMutation.isPending || passwordStrength < 60}
           >
-            {isLoading ? (
+            {createAdminMutation.isPending ? (
               <div className="flex items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                <span className="ml-2">Creating Account...</span>
+                <span className="ml-2">Creating Admin...</span>
               </div>
             ) : (
               <span className="flex items-center justify-center gap-2">
-                Create Account <ArrowRight className="h-4 w-4" />
+                <ShieldPlus className="h-4 w-4" />
+                Create Admin
               </span>
             )}
           </Button>
-
-          {/* TODO: OAuth Google */}
-          <Button>
-            Google TODO
-          </Button>
-
-          
-          {/* Sign-in Navigation Link */}
-          <p className="text-center text-xs text-muted-foreground">
-            Already have an account?{" "}
-            <Button
-              variant="link"
-              className="h-auto p-0 text-xs"
-              onClick={() => router.push("/signin")}
-              type="button"
-            >
-              Sign in
-            </Button>
-          </p>
         </CardFooter>
       </form>
     </Card>
