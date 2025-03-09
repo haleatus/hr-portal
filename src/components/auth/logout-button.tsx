@@ -2,13 +2,13 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/auth-store";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";
+import { useSignOut } from "@/hooks/auth.hooks";
 
 export default function LogoutButton() {
-  const { signOut } = useAuthStore();
+  const signOut = useSignOut();
   const router = useRouter();
 
   const handleLogout = useCallback(() => {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import apiClient from "../lib/api/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 
 // Import Interfaces
@@ -14,13 +14,17 @@ import {
   IUserAuthResponse,
 } from "@/interfaces/auth.interface";
 
-// User Sign In Hook
+/**
+ * Hook for user sign in
+ */
 export const useUserSignIn = () => {
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const setError = useAuthStore((state) => state.setError);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
+
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (
@@ -41,11 +45,16 @@ export const useUserSignIn = () => {
       setToken(response.data.accessToken);
       setIsAuthenticated(true);
 
-      // Store token in local storage or httpOnly cookie for API client
+      // Set token in localStorage for persistence
       localStorage.setItem("token", response.data.accessToken);
+
+      // Also set secure HTTP only cookie (if your backend sets cookies, this isn't needed)
       document.cookie = `token=${response.data.accessToken}; path=/; max-age=${
         60 * 60 * 24 * 7
-      }`; // 7 days expiry
+      }; SameSite=Strict`; // 7 days
+
+      // Invalidate any user-related queries to force a refetch
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to sign in");
@@ -56,13 +65,17 @@ export const useUserSignIn = () => {
   });
 };
 
-// Admin Sign In Hook
+/**
+ * Hook for admin sign in
+ */
 export const useAdminSignIn = () => {
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const setError = useAuthStore((state) => state.setError);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
+
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (
@@ -88,6 +101,9 @@ export const useAdminSignIn = () => {
       document.cookie = `token=${response.data.accessToken}; path=/; max-age=${
         60 * 60 * 24 * 7
       }`; // 7 days expiry
+
+      // Invalidate any user-related queries
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to sign in");
@@ -98,10 +114,14 @@ export const useAdminSignIn = () => {
   });
 };
 
-// Create Admin Hook
+/**
+ * Hook for admin user creation
+ */
 export const useCreateAdmin = () => {
   const setError = useAuthStore((state) => state.setError);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
+
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (
@@ -114,6 +134,10 @@ export const useCreateAdmin = () => {
       setIsLoading(true);
       setError(null);
     },
+    onSuccess: () => {
+      // Invalidate relevant queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["admins"] });
+    },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to create admin");
     },
@@ -123,10 +147,14 @@ export const useCreateAdmin = () => {
   });
 };
 
-// Create User Hook
+/**
+ * Hook for user creation
+ */
 export const useCreateUser = () => {
   const setError = useAuthStore((state) => state.setError);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
+
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (
@@ -142,6 +170,10 @@ export const useCreateUser = () => {
       setIsLoading(true);
       setError(null);
     },
+    onSuccess: () => {
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to create user");
     },
@@ -149,4 +181,18 @@ export const useCreateUser = () => {
       setIsLoading(false);
     },
   });
+};
+
+/**
+ * Hook for signing out
+ */
+export const useSignOut = () => {
+  const signOut = useAuthStore((state) => state.signOut);
+  const queryClient = useQueryClient();
+
+  return () => {
+    signOut();
+    // Remove all cached queries when signing out
+    queryClient.clear();
+  };
 };

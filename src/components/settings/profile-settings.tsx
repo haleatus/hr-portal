@@ -29,7 +29,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import Image from "next/image";
-import { useGetCurrentUser } from "@/hooks/user.hooks";
+import { useCurrentUser } from "@/hooks/user.hooks";
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -52,7 +52,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileSettings() {
   const [isLoading, setIsLoading] = useState(false);
-  const { data: user, isLoading: userDataLoading } = useGetCurrentUser();
+  const { data: user, isLoading: userDataLoading } = useCurrentUser();
 
   // Default values for the form
   const defaultValues: Partial<ProfileFormValues> = {

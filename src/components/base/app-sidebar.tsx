@@ -149,6 +149,12 @@ export function AppSidebar() {
       icon: ShieldPlus,
       roles: ["ADMIN"],
     },
+    {
+      title: "Profile",
+      href: "/profile",
+      icon: User,
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
+    },
   ];
 
   // Filter navigation items based on user role

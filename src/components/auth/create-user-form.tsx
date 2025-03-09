@@ -1,12 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-// Core React imports
 import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-
-// Store and interfaces
-import { useAuthStore } from "@/store/auth-store";
-import type { ICreateUserResponse } from "@/interfaces/auth.interface";
+import { toast } from "sonner";
 
 // UI component imports
 import { Button } from "@/components/ui/button";
@@ -35,9 +32,9 @@ import {
   Users,
 } from "lucide-react";
 
-// Toast Import
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useCreateUser } from "@/hooks/auth.hooks";
+import type { ICreateUserResponse } from "@/interfaces/auth.interface";
 
 // Define the form input types
 type FormInputs = {
@@ -47,10 +44,6 @@ type FormInputs = {
   role: "MANAGER" | "EMPLOYEE";
 };
 
-/**
- * CreateUserForm Component - Handles user creation with password strength validation
- * using React Hook Form for form management.
- */
 export default function CreateUserForm() {
   // UI state management
   const [showPassword, setShowPassword] = useState(false);
@@ -66,9 +59,8 @@ export default function CreateUserForm() {
     special: false,
   });
 
-  // Auth store
-  const createUser = useAuthStore((state) => state.createUser);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  // Use our improved mutation hook
+  const createUserMutation = useCreateUser();
 
   // Initialize React Hook Form
   const {
@@ -140,46 +132,41 @@ export default function CreateUserForm() {
     // Clear previous errors
     setGeneralError(null);
 
-    try {
-      const response = await createUser(data);
+    createUserMutation.mutate(data, {
+      onSuccess: (response) => {
+        if (response && response.statusCode) {
+          toast.success(response.message || "User created successfully");
+          reset(); // Reset the form
+        } else {
+          setGeneralError("An unexpected error occurred");
+          toast.error("Failed to create user");
+        }
+      },
+      onError: (error: any) => {
+        // Handle the specific error format from backend
+        const errorResponse = error.response?.data as
+          | ICreateUserResponse
+          | undefined;
 
-      // Add a console.log to inspect the actual response structure
-      // console.log("Admin creation response:", response);
+        if (errorResponse?.error) {
+          // Also set errors in react-hook-form for each field
+          Object.entries(errorResponse.error).forEach(([field, message]) => {
+            if (field in data) {
+              setError(field as keyof FormInputs, {
+                type: "server",
+                message: message,
+              });
+            }
+          });
 
-      // Check if response is the successful format
-      if (response && response.statusCode) {
-        toast.success(response.message || "User created successfully");
-        reset(); // Reset the form
-      } else {
-        // Handle unexpected response format
-        setGeneralError("An unexpected error occurred");
-        toast.error("Failed to create user");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      // Handle the specific error format from backend
-      const errorResponse = error.response?.data as
-        | ICreateUserResponse
-        | undefined;
-
-      if (errorResponse?.error) {
-        // Also set errors in react-hook-form for each field
-        Object.entries(errorResponse.error).forEach(([field, message]) => {
-          if (field in data) {
-            setError(field as keyof FormInputs, {
-              type: "server",
-              message: message,
-            });
-          }
-        });
-
-        toast.error(errorResponse.message || "Validation failed");
-      } else {
-        // General error message
-        setGeneralError(error.message || "Failed to create user");
-        toast.error(error.message || "Failed to create user");
-      }
-    }
+          toast.error(errorResponse.message || "Validation failed");
+        } else {
+          // General error message
+          setGeneralError(error.message || "Failed to create user");
+          toast.error(error.message || "Failed to create user");
+        }
+      },
+    });
   };
 
   return (
@@ -222,11 +209,11 @@ export default function CreateUserForm() {
               id="fullname"
               placeholder="John Doe"
               {...register("fullname", { required: "Full name is required" })}
-              className={
+              className={cn(
                 errors.fullname
                   ? "border-destructive focus:ring-destructive/50"
                   : ""
-              }
+              )}
             />
             {errors.fullname && (
               <div className="flex items-center gap-1.5 text-xs text-destructive">
@@ -255,11 +242,11 @@ export default function CreateUserForm() {
                   message: "Please enter a valid email address",
                 },
               })}
-              className={
+              className={cn(
                 errors.email
                   ? "border-destructive focus:ring-destructive/50"
                   : ""
-              }
+              )}
             />
             {errors.email && (
               <div className="flex lowercase items-center gap-1.5 text-xs text-destructive">
@@ -290,11 +277,12 @@ export default function CreateUserForm() {
                     message: "Password must be at least 6 characters",
                   },
                 })}
-                className={`pr-10 ${
+                className={cn(
+                  "pr-10",
                   errors.password
                     ? "border-destructive focus:ring-destructive/50"
                     : ""
-                }`}
+                )}
               />
               {/* Toggle Password Visibility Button */}
               <Button
@@ -326,7 +314,8 @@ export default function CreateUserForm() {
                     Password Strength:
                   </span>
                   <span
-                    className={`text-xs font-semibold ${
+                    className={cn(
+                      "text-xs font-semibold",
                       passwordStrength < 30
                         ? "text-destructive"
                         : passwordStrength < 60
@@ -334,14 +323,14 @@ export default function CreateUserForm() {
                         : passwordStrength < 80
                         ? "text-blue-500"
                         : "text-green-500"
-                    }`}
+                    )}
                   >
                     {getStrengthText()}
                   </span>
                 </div>
                 <Progress
                   value={passwordStrength}
-                  className={`h-1.5 w-full ${getStrengthColor()}`}
+                  className={cn("h-1.5 w-full", getStrengthColor())}
                 />
                 {/* Password Requirement Checklist */}
                 <div className="grid grid-cols-2 gap-0.5">
@@ -446,9 +435,9 @@ export default function CreateUserForm() {
           <Button
             type="submit"
             className="w-full cursor-pointer"
-            disabled={isLoading || passwordStrength < 60}
+            disabled={createUserMutation.isPending || passwordStrength < 60}
           >
-            {isLoading ? (
+            {createUserMutation.isPending ? (
               <div className="flex items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
                 <span className="ml-2">Creating User...</span>
