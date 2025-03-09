@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 // Core React and Next.js imports
@@ -31,6 +32,7 @@ import {
 // Toast Import
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth/auth-store";
+import { useUserSignIn } from "@/lib/axios/api/services/auth.service";
 
 /**
  * SigninForm Component - Handles user login.
@@ -44,10 +46,11 @@ export function UserLoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
 
   // Auth store state management
-  const userSignIn = useAuthStore((state) => state.userSignIn);
-  const isLoading = useAuthStore((state) => state.isLoading);
   const error = useAuthStore((state) => state.error);
   const clearError = useAuthStore((state) => state.clearError);
+
+  // TanStack Query mutation
+  const { mutate: userSignIn, isPending } = useUserSignIn();
 
   const router = useRouter();
 
@@ -58,19 +61,19 @@ export function UserLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await userSignIn({ email, password });
-
-    // Add a small delay to ensure state is updated before checking and redirecting
-    setTimeout(() => {
-      // If no error in the store after sign-in attempt, redirect
-      if (!useAuthStore.getState().error) {
-        toast.success(`Login successful! Welcome back!`);
-        clearError();
-        router.push("/dashboard");
-      } else {
-        toast.error(useAuthStore.getState().error);
+    userSignIn(
+      { email, password },
+      {
+        onSuccess: () => {
+          toast.success(`Login successful! Welcome back!`);
+          clearError();
+          router.push("/dashboard");
+        },
+        onError: (error: any) => {
+          toast.error(error.response?.data?.message || "Failed to sign in");
+        },
       }
-    }, 100);
+    );
   };
 
   return (
@@ -174,9 +177,9 @@ export function UserLoginForm() {
           <Button
             type="submit"
             className="w-full cursor-pointer"
-            disabled={isLoading || email.length < 1 || password.length < 1}
+            disabled={isPending || email.length < 1 || password.length < 1}
           >
-            {isLoading ? (
+            {isPending ? (
               <div className="flex items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
                 <span className="ml-2">Signing in...</span>
