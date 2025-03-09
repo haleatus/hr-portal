@@ -168,7 +168,7 @@ export function ReviewsList({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Edit</DropdownMenuItem>
-              {(userRole === "admin" || userRole === "manager") && (
+              {(userRole === "ADMIN" || userRole === "MANAGER") && (
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               )}
             </DropdownMenuContent>

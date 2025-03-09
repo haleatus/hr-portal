@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import AuthProvider from "@/providers/auth-provider";
+import QueryProvider from "@/providers/tanstack-query-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,16 +27,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* 
+        <QueryProvider>
+          <AuthProvider>
+            {/* 
               Main content area that adjusts based on sidebar state
               - Properly responds to sidebar expansion/collapse
               - Takes full available width
               - Maintains consistent padding
-            */}
-        <main className="relative flex-1 w-full ">{children}</main>
+              */}
+            <main className="relative flex-1 w-full ">{children}</main>
 
-        {/* Toast notifications */}
-        <Toaster richColors position="bottom-left" />
+            {/* Toast notifications */}
+            <Toaster richColors position="bottom-left" />
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -1,14 +1,13 @@
-import { redirect } from "next/navigation";
+"use client";
+
 import LandingPage from "@/components/base/landing-page/landing-page";
+import { useAuth } from "@/providers/auth-provider";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  // In a real app, check if user is authenticated and redirect to their dashboard
-  // For demo purposes, we'll just show the login form
-  const isAuthenticated = false;
+  const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
-    // Redirect to appropriate dashboard based on user role
-    // This would be determined from the auth state
     redirect("/dashboard");
   }
 

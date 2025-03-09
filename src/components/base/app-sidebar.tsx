@@ -10,9 +10,10 @@ import {
   ClipboardList,
   Cog,
   Home,
-  LogOut,
   Menu,
+  ShieldPlus,
   User,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +39,9 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import LogoutButton from "../auth/logout-button";
+import { toast } from "sonner";
+import { useAuthStore } from "@/store/auth-store";
 
 // Define the navigation item type for better type safety
 type NavItem = {
@@ -86,23 +89,21 @@ export function AppSidebar() {
   // Access sidebar context to manage collapsible state and mobile responsiveness
   const { setOpenMobile, isMobile, state } = useSidebar();
 
+  const user = useAuthStore((state) => state.user);
+
   // Track the user's role to show appropriate navigation items
-  const [userRole, setUserRole] = useState<string>("employee");
+  const [userRole, setUserRole] = useState<string>("EMPLOYEE");
 
   // Load user role from localStorage on component mount
   useEffect(() => {
-    const role = localStorage.getItem("userRole") || "employee";
-    setUserRole(role);
+    const authData = localStorage.getItem("auth-storage");
+    if (authData) {
+      const parsedAuth = JSON.parse(authData); // Parse stored string into JSON
+      setUserRole(parsedAuth.state.user.role);
+    } else {
+      toast.error("No role found in localStorage.");
+    }
   }, []);
-
-  /**
-   * Handles user logout by clearing storage and redirecting
-   */
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    toast.success("Logged out. You have been successfully logged out.");
-    window.location.href = "/";
-  };
 
   // Navigation items with their respective roles, icons and paths
   const navItems: NavItem[] = [
@@ -110,31 +111,49 @@ export function AppSidebar() {
       title: "Dashboard",
       href: "/dashboard",
       icon: Home,
-      roles: ["admin", "manager", "employee"],
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {
       title: "Reviews",
       href: "/reviews",
       icon: ClipboardList,
-      roles: ["admin", "manager", "employee"],
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {
       title: "Reports",
       href: "/reports",
       icon: BarChart3,
-      roles: ["admin", "manager"],
+      roles: ["ADMIN", "MANAGER"],
     },
     {
       title: "Users",
       href: "/users",
       icon: Users,
-      roles: ["admin"],
+      roles: ["ADMIN"],
     },
     {
       title: "Settings",
       href: "/settings",
       icon: Cog,
-      roles: ["admin", "manager", "employee"],
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
+    },
+    {
+      title: "Create User",
+      href: "/create-user",
+      icon: UserPlus,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Create Admin",
+      href: "/create-admin",
+      icon: ShieldPlus,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Profile",
+      href: "/profile",
+      icon: User,
+      roles: ["MANAGER", "EMPLOYEE"],
     },
   ];
 
@@ -180,7 +199,7 @@ export function AppSidebar() {
                   >
                     <span className="font-semibold">HR Portal</span>
                     <span className="text-xs text-muted-foreground">
-                      {userRole}
+                      {user.name || user.fullname} | {userRole}
                     </span>
                   </div>
                 </Link>
@@ -265,9 +284,8 @@ export function AppSidebar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                  <DropdownMenuItem className="p-0.5">
+                    <LogoutButton />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
