@@ -39,7 +39,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import LogoutButton from "../auth/logout-button";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuth } from "@/providers/auth-provider";
 
 // Define the navigation item type for better type safety
 type NavItem = {
@@ -87,7 +87,11 @@ export function AppSidebar() {
   // Access sidebar context to manage collapsible state and mobile responsiveness
   const { setOpenMobile, isMobile, state } = useSidebar();
 
-  const user = useAuthStore((state) => state.user);
+  const { user, loading } = useAuth();
+
+  if (loading || !user) {
+    return null;
+  }
 
   // Navigation items with their respective roles, icons and paths
   const navItems: NavItem[] = [

@@ -43,7 +43,7 @@ export default function ReportsPage() {
     ]);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return <Loading />;
   }
 

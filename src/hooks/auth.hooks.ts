@@ -47,6 +47,7 @@ export const useUserSignIn = () => {
 
       // Set token in localStorage for persistence
       localStorage.setItem("token", response.data.accessToken);
+      localStorage.setItem("userRole", response.data.user.role);
 
       // Also set secure HTTP only cookie (if your backend sets cookies, this isn't needed)
       document.cookie = `token=${response.data.accessToken}; path=/; max-age=${
@@ -98,6 +99,8 @@ export const useAdminSignIn = () => {
 
       // Store token in local storage or httpOnly cookie for API client
       localStorage.setItem("token", response.data.accessToken);
+      localStorage.setItem("userRole", response.data.user.role);
+
       document.cookie = `token=${response.data.accessToken}; path=/; max-age=${
         60 * 60 * 24 * 7
       }`; // 7 days expiry

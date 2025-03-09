@@ -3,23 +3,24 @@
 import { AdminDashboard } from "@/components/dashboards/admin-dashboard";
 import { ManagerDashboard } from "@/components/dashboards/manager-dashboard";
 import { EmployeeDashboard } from "@/components/dashboards/employee-dashboard";
-import { useAuthStore } from "@/store/auth-store";
 import Loading from "@/app/loading";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function DashboardPage() {
-  const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const { user } = useAuth();
 
-  if (isLoading) {
+  if (!user) {
     return <Loading />;
   }
+
+  const userRole = user.role;
 
   // Render the appropriate dashboard based on user role
   return (
     <div className="container mx-auto p-6">
-      {user.role === "ADMIN" && <AdminDashboard />}
-      {user.role === "MANAGER" && <ManagerDashboard />}
-      {user.role === "EMPLOYEE" && <EmployeeDashboard />}
+      {userRole === "ADMIN" && <AdminDashboard />}
+      {userRole === "MANAGER" && <ManagerDashboard />}
+      {userRole === "EMPLOYEE" && <EmployeeDashboard />}
     </div>
   );
 }
