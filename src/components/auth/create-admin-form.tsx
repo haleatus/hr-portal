@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 
 // Store and interfaces
-import { useAuthStore } from "@/store/auth-store";
 import { ICreateAdminResponse } from "@/interfaces/auth.interface";
 
 // Toast Import
@@ -34,6 +33,7 @@ import {
   ShieldPlus,
   X,
 } from "lucide-react";
+import { useCreateAdmin } from "@/hooks/auth.hooks";
 
 // Define the form input types
 type FormInputs = {
@@ -62,8 +62,7 @@ export default function CreateAdminForm() {
   });
 
   // Auth store
-  const createAdmin = useAuthStore((state) => state.createAdmin);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const createAdminMutation = useCreateAdmin();
 
   // Initialize React Hook Form
   const {
@@ -133,47 +132,42 @@ export default function CreateAdminForm() {
     // Clear previous errors
     setGeneralError(null);
 
-    try {
-      const response = await createAdmin(data);
-
-      // Add a console.log to inspect the actual response structure
-      // console.log("Admin creation response:", response);
-
-      // Check if response is the successful format
-      if (response && response.statusCode) {
-        toast.success(response.message || "Admin created successfully");
-        reset(); // Reset the form
-      } else {
-        // Handle unexpected response format
-        setGeneralError("An unexpected error occurred");
-        toast.error("Failed to create admin");
-      }
-
+    createAdminMutation.mutate(data, {
+      onSuccess: (response) => {
+        if (response && response.statusCode) {
+          toast.success(response.message || "Admin created successfully");
+          reset(); // Reset the form
+        } else {
+          setGeneralError("An unexpected error occurred");
+          toast.error("Failed to create user");
+        }
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      // Handle the specific error format from backend
-      const errorResponse = error.response?.data as
-        | ICreateAdminResponse
-        | undefined;
+      onError: (error: any) => {
+        // Handle the specific error format from backend
+        const errorResponse = error.response?.data as
+          | ICreateAdminResponse
+          | undefined;
 
-      if (errorResponse?.error) {
-        // Also set errors in react-hook-form for each field
-        Object.entries(errorResponse.error).forEach(([field, message]) => {
-          if (field in data) {
-            setError(field as keyof FormInputs, {
-              type: "server",
-              message: message,
-            });
-          }
-        });
+        if (errorResponse?.error) {
+          // Also set errors in react-hook-form for each field
+          Object.entries(errorResponse.error).forEach(([field, message]) => {
+            if (field in data) {
+              setError(field as keyof FormInputs, {
+                type: "server",
+                message: message,
+              });
+            }
+          });
 
-        toast.error(errorResponse.message || "Validation failed");
-      } else {
-        // General error message
-        setGeneralError(error.message || "Failed to create admin");
-        toast.error(error.message || "Failed to create admin");
-      }
-    }
+          toast.error(errorResponse.message || "Validation failed");
+        } else {
+          // General error message
+          setGeneralError(error.message || "Failed to create user");
+          toast.error(error.message || "Failed to create user");
+        }
+      },
+    });
   };
 
   return (
@@ -390,9 +384,9 @@ export default function CreateAdminForm() {
           <Button
             type="submit"
             className="w-full cursor-pointer"
-            disabled={isLoading || passwordStrength < 60}
+            disabled={createAdminMutation.isPending || passwordStrength < 60}
           >
-            {isLoading ? (
+            {createAdminMutation.isPending ? (
               <div className="flex items-center justify-center">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
                 <span className="ml-2">Creating Admin...</span>
