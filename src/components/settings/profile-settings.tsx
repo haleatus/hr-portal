@@ -28,8 +28,8 @@ import {
 } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { useUserStore } from "@/store/users/user-store";
 import Image from "next/image";
+import { useGetCurrentUser } from "@/hooks/user.hooks";
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -52,7 +52,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileSettings() {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, fetchMeUser, isLoading: isUserLoading } = useUserStore();
+  const { data: user, isLoading: userDataLoading } = useGetCurrentUser();
 
   // Default values for the form
   const defaultValues: Partial<ProfileFormValues> = {
@@ -72,14 +72,11 @@ export function ProfileSettings() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // Only force refresh if no user data is present
-        await fetchMeUser(user === null);
-
         // Update form values with user data
         if (user) {
           form.reset({
-            name: user.fullname || user.name || "",
-            email: user.email || "",
+            name: user.data.fullname || user.data.name || "",
+            email: user.data.email || "",
             title: "",
             department: "",
             bio: "",
@@ -94,7 +91,7 @@ export function ProfileSettings() {
     loadUserData();
     // Add form.reset as dependency to prevent warning
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchMeUser, user?.id]);
+  }, [user?.id]);
 
   function onSubmit(data: ProfileFormValues) {
     setIsLoading(true);
@@ -103,9 +100,6 @@ export function ProfileSettings() {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-
-      // Invalidate cache after successful update
-      useUserStore.getState().invalidateCache();
 
       toast.success("Your profile has been updated successfully.");
     }, 1000);
@@ -123,7 +117,7 @@ export function ProfileSettings() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 w-full mb-6">
-            {isUserLoading ? (
+            {userDataLoading ? (
               <div className="flex items-center justify-center w-full p-6 min-h-[120px]">
                 <div className="flex flex-col items-center gap-2">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -146,10 +140,10 @@ export function ProfileSettings() {
                     </div>
                     <div>
                       <h3 className="font-medium text-lg">
-                        {user?.fullname || user?.name}
+                        {user.data.fullname || user.data.name}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {user?.role} | {user?.email}
+                        {user.data.role} | {user.data.email}
                       </p>
                     </div>
                   </div>

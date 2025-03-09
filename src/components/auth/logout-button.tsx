@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/auth/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";

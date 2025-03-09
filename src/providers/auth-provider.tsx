@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { useAuthStore } from "@/store/auth/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 import { IUser } from "@/interfaces/user.interface";
 
 type AuthContextType = {

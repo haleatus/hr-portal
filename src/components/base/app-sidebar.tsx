@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/sidebar";
 import LogoutButton from "../auth/logout-button";
 import { toast } from "sonner";
-import { useAuthStore } from "@/store/auth/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 
 // Define the navigation item type for better type safety
 type NavItem = {

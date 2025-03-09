@@ -31,7 +31,7 @@ import {
 
 // Toast Import
 import { toast } from "sonner";
-import { useAuthStore } from "@/store/auth/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 import { useUserSignIn } from "@/lib/axios/api/services/auth.service";
 
 /**

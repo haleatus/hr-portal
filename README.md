@@ -7,7 +7,7 @@ Axios, TanStack Query, and Zustand serve different purposes but work seamlessly 
 ### 🔹 **Axios (HTTP Client)**
 
 - Handles API requests (GET, POST, PUT, DELETE, etc.).
-- Supports request/response interceptors.
+- Supports request/response interceptors (An interceptor is a component that literally intercepts the API flow and applies policies to it.).
 - Manages authentication headers and tokens.
 - Handles HTTP errors and retry logic.
 

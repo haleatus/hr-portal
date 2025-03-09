@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import apiClient from "../client";
+import apiClient from "../lib/api/client";
 import { useMutation } from "@tanstack/react-query";
-import { useAuthStore } from "@/store/auth/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 
 // Import Interfaces
 import {

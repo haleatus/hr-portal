@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
 // Store and interfaces
-import { useAuthStore } from "@/store/auth/auth-store";
+import { useAuthStore } from "@/store/auth-store";
 import type { ICreateUserResponse } from "@/interfaces/auth.interface";
 
 // UI component imports
