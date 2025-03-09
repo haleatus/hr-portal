@@ -110,6 +110,7 @@ export default function AdminsPage() {
             <PaginationLink
               onClick={() => handlePageChange(i)}
               isActive={i === page}
+              className="cursor-pointer select-none"
             >
               {i}
             </PaginationLink>
@@ -203,8 +204,8 @@ export default function AdminsPage() {
         </p>
       </div>
 
-      <div className="mb-6 flex flex-col sm:flex-row justify-between gap-4">
-        <div className="relative w-full sm:w-72">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between gap-2">
+        <div className="relative w-full">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -214,7 +215,12 @@ export default function AdminsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button className="w-full sm:w-auto">
+        <Button
+          onClick={() => {
+            router.push("/create-admin");
+          }}
+          className="w-full sm:w-auto cursor-pointer"
+        >
           <UserCog className="mr-2 h-4 w-4" />
           Add New Admin
         </Button>
@@ -229,7 +235,7 @@ export default function AdminsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAdmins.map((admin: IAdmin) => (
             <Card
               key={admin.id}
@@ -277,7 +283,11 @@ export default function AdminsPage() {
               <PaginationItem>
                 <PaginationPrevious
                   onClick={handlePreviousPage}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                  className={
+                    page === 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer select-none"
+                  }
                 />
               </PaginationItem>
 
@@ -289,7 +299,7 @@ export default function AdminsPage() {
                   className={
                     page === meta.total_pages
                       ? "pointer-events-none opacity-50"
-                      : ""
+                      : "cursor-pointer select-none"
                   }
                 />
               </PaginationItem>
