@@ -5,10 +5,13 @@ import { ReportsList } from "@/components/reports/reports-list";
 import { ReportFilters } from "@/components/reports/report-filters";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import { toast } from "sonner";
+import Loading from "@/app/loading";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function ReportsPage() {
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [reports, setReports] = useState<any[]>([]);
   const [filters, setFilters] = useState({
@@ -17,14 +20,6 @@ export default function ReportsPage() {
   });
 
   useEffect(() => {
-    const authData = localStorage.getItem("auth-storage");
-    if (authData) {
-      const parsedAuth = JSON.parse(authData); // Parse stored string into JSON
-      setUserRole(parsedAuth.state.user.role);
-    } else {
-      toast.error("No role found in localStorage.");
-    }
-
     // Mock data - in a real app, this would come from an API
     setReports([
       {
@@ -48,8 +43,12 @@ export default function ReportsPage() {
     ]);
   }, []);
 
+  if (isLoading || !user) {
+    return <Loading />;
+  }
+
   // Only admin and managers can access reports
-  if (userRole !== "ADMIN" && userRole !== "MANAGER") {
+  if (user.role !== "ADMIN" && user.role !== "MANAGER") {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold">Access Denied</h1>
