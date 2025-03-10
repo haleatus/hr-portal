@@ -1,8 +1,13 @@
 "use client";
 
+// Core React imports
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+// Hook imports
 import { useGetAllUsersViaAdmin } from "@/hooks/admin.hooks";
+
+// UI components
 import { Search, UserCog, Calendar, Mail } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -24,11 +29,20 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
+
+// Interface imports
 import { IUser } from "@/interfaces/user.interface";
 
+/**
+ * UsersPage component
+ * @returns JSX.Element - List for all users
+ */
 export default function UsersPage() {
+  // Get router and search params
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Local state for page and search query
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const limit = 6;
@@ -65,6 +79,7 @@ export default function UsersPage() {
     return null;
   }
 
+  // Destructure users data
   const { data: users, meta } = usersData;
 
   // Filter admins based on search query
@@ -80,12 +95,14 @@ export default function UsersPage() {
     router.push(`/users?page=${newPage}`);
   };
 
+  // Function to handle next page
   const handleNextPage = () => {
     if (page < meta.total_pages) {
       handlePageChange(page + 1);
     }
   };
 
+  // Function to handle previous page
   const handlePreviousPage = () => {
     if (page > 1) {
       handlePageChange(page - 1);

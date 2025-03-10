@@ -1,9 +1,16 @@
 "use client";
 
+// Core React imports
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+// Hook imports
 import { useGetAllAdmins } from "@/hooks/admin.hooks";
+
+// Interface imports
 import type { IAdmin } from "@/interfaces/admin.interface";
+
+// UI component imports
 import { Search, UserCog, Calendar, Mail } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -26,9 +33,16 @@ import {
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 
+/**
+ * AdminsPage component
+ * @returns JSX.Element - List for all admins
+ */
 export default function AdminsPage() {
+  // Next.js router and search params hook
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Local state for page and search query
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const limit = 6;
@@ -61,6 +75,7 @@ export default function AdminsPage() {
     return null;
   }
 
+  // Destructure data and meta from the response
   const { data: admins, meta } = adminsData;
 
   // Filter admins based on search query
@@ -76,12 +91,14 @@ export default function AdminsPage() {
     router.push(`/admins?page=${newPage}`);
   };
 
+  // Function to handle next page
   const handleNextPage = () => {
     if (page < meta.total_pages) {
       handlePageChange(page + 1);
     }
   };
 
+  // Function to handle previous page
   const handlePreviousPage = () => {
     if (page > 1) {
       handlePageChange(page - 1);
