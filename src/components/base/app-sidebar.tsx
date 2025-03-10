@@ -9,6 +9,9 @@ import {
   Cog,
   Home,
   Menu,
+  Network,
+  NetworkIcon,
+  ShieldEllipsis,
   ShieldPlus,
   ShieldUser,
   User,
@@ -102,6 +105,12 @@ export function AppSidebar() {
       roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {
+      title: "My Teams",
+      href: "/my-teams",
+      icon: ShieldEllipsis,
+      roles: ["MANAGER", "EMPLOYEE"],
+    },
+    {
       title: "Reviews",
       href: "/reviews",
       icon: ClipboardList,
@@ -117,6 +126,18 @@ export function AppSidebar() {
       title: "Users",
       href: "/users",
       icon: Users,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Admins",
+      href: "/admins",
+      icon: ShieldUser,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Departments",
+      href: "/departments",
+      icon: Network,
       roles: ["ADMIN"],
     },
     {
@@ -138,16 +159,16 @@ export function AppSidebar() {
       roles: ["ADMIN"],
     },
     {
+      title: "Create Department",
+      href: "/department/create",
+      icon: NetworkIcon,
+      roles: ["ADMIN"],
+    },
+    {
       title: "Profile",
       href: "/profile",
       icon: User,
       roles: ["MANAGER", "EMPLOYEE"],
-    },
-    {
-      title: "Admins",
-      href: "/admins",
-      icon: ShieldUser,
-      roles: ["ADMIN"],
     },
   ];
 
@@ -269,8 +290,8 @@ export function AppSidebar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/settings">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <Cog className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

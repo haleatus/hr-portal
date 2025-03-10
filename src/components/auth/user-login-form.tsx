@@ -191,7 +191,7 @@ export function UserLoginForm() {
             )}
           </Button>
 
-          {/* TODO: OAuth Google */}
+          {/* TODO: OAuth Google
           <Button
             variant="outline"
             className="flex items-center cursor-pointer gap-2 w-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -225,7 +225,7 @@ export function UserLoginForm() {
               />
             </svg>
             Sign in with Google
-          </Button>
+          </Button> */}
         </CardFooter>
       </form>
     </Card>
