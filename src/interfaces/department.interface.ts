@@ -9,6 +9,7 @@ export interface IDepartmentResponse {
   statusCode: number;
   message: string;
   data: IDepartment[];
+  error?: object;
   meta: {
     limit: number;
     total: number;
@@ -18,4 +19,11 @@ export interface IDepartmentResponse {
     page: number;
     previous: number | null;
   };
+}
+
+export interface IDepartmentCreateResponse {
+  statusCode: number;
+  message: string;
+  data: IDepartment;
+  error?: object;
 }

@@ -6,7 +6,10 @@ import {
   IAdminDetailsUpdate,
   IAdminUpdateResponse,
 } from "@/interfaces/admin.interface";
-import { useAdminDetailUpdateStore } from "@/store/admin-store";
+import {
+  useAdminDetailUpdateStore,
+  useCreateDepartmentStore,
+} from "@/store/admin-store";
 
 /**
  * Custom hook that fetches all admins with pagination
@@ -118,6 +121,97 @@ export const useGetAllDepartments = (page: number, limit: number) => {
     queryFn: async () => {
       const response = await apiClient.get(
         `/hr-hub/admin/team/get-all?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    },
+    // Don't run this query if the user isn't authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useCreateDepartment hook
+ */
+export const useCreateDepartment = () => {
+  const setError = useCreateDepartmentStore((state) => state.setError);
+  const setIsLoading = useCreateDepartmentStore((state) => state.setIsLoading);
+  const setDepartment = useCreateDepartmentStore(
+    (state) => state.setDepartment
+  );
+  const setLeader = useCreateDepartmentStore((state) => state.setLeader);
+  const setMembers = useCreateDepartmentStore((state) => state.setMembers);
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (departmentData: any) => {
+      const response = await apiClient.post(
+        "/hr-hub/admin/team/create",
+        departmentData
+      );
+      return response.data;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+      setError(null);
+    },
+    onSuccess: (response) => {
+      setDepartment(response.data.department);
+      setLeader(response.data.leader);
+      setMembers(response.data.members);
+
+      // Invalidate allDepartments query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["allDepartments"],
+      });
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || "Failed to create department");
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+};
+
+/**
+ * useGetAllEmployees hook
+ */
+export const useGetAllEmployees = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["allEmployeesViaAdmin"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        `/hr-hub/admin/user/employee/get-all`
+      );
+      return response.data;
+    },
+    // Don't run this query if the user isn't authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useGetAllManagers hook
+ */
+export const useGetAllManagers = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["allManagersViaAdmin"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        `/hr-hub/admin/user/manager/get-all`
       );
       return response.data;
     },

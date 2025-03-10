@@ -207,7 +207,7 @@ const DepartmentsComponents = () => {
         </div>
         <Button
           onClick={() => {
-            router.push("/create-departments");
+            router.push("/departments/create");
           }}
           className="w-full sm:w-auto cursor-pointer"
         >
