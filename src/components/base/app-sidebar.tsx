@@ -9,6 +9,7 @@ import {
   Cog,
   Home,
   Menu,
+  ShieldEllipsis,
   ShieldPlus,
   ShieldUser,
   User,
@@ -100,6 +101,12 @@ export function AppSidebar() {
       href: "/dashboard",
       icon: Home,
       roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
+    },
+    {
+      title: "My Teams",
+      href: "/my-teams",
+      icon: ShieldEllipsis,
+      roles: ["MANAGER", "EMPLOYEE"],
     },
     {
       title: "Reviews",
