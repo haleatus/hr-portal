@@ -139,7 +139,7 @@ export const useCreateAdmin = () => {
     },
     onSuccess: () => {
       // Invalidate relevant queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: ["admins"] });
+      queryClient.invalidateQueries({ queryKey: ["allAdmins"] });
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to create admin");
@@ -175,7 +175,9 @@ export const useCreateUser = () => {
     },
     onSuccess: () => {
       // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({
+        queryKey: ["allUsersViaAdmin", "allUsers"],
+      });
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to create user");

@@ -1,16 +1,15 @@
-export interface IAdmin {
+export interface IDepartment {
   id: number;
   createdAt: string;
   updatedAt: string;
-  name: string;
-  email: string;
-  role: string;
+  department: string;
 }
 
-export interface IGetAllAdminResponse {
+export interface IDepartmentResponse {
   statusCode: number;
   message: string;
-  data: IAdmin[];
+  data: IDepartment[];
+  error?: object;
   meta: {
     limit: number;
     total: number;
@@ -22,14 +21,9 @@ export interface IGetAllAdminResponse {
   };
 }
 
-export interface IAdminDetailsUpdate {
-  name: string;
-}
-
-export interface IAdminUpdateResponse {
+export interface IDepartmentCreateResponse {
   statusCode: number;
-  timestamp: string;
   message: string;
-  data: IAdmin;
-  error: object;
+  data: IDepartment;
+  error?: object;
 }

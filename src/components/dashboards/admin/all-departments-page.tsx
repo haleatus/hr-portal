@@ -5,21 +5,11 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Hook imports
-import { useGetAllAdmins } from "@/hooks/admin.hooks";
+import { useGetAllDepartments } from "@/hooks/admin.hooks";
 
-// Interface imports
-import type { IAdmin } from "@/interfaces/admin.interface";
-
-// UI component imports
-import { Search, UserCog, Calendar, Mail } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+// UI imports
+import { Search, UserCog, Calendar } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,14 +21,16 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { Badge } from "@/components/ui/badge";
+
+// Interface imports
+import { IDepartment } from "@/interfaces/department.interface";
 
 /**
- * AdminsPage component
- * @returns JSX.Element - List for all admins
+ * DepartmentsComponents component
+ * @returns JSX.Element - List for all departments
  */
-export default function AdminsPage() {
-  // Next.js router and search params hook
+const DepartmentsComponents = () => {
+  // Get router and search params
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -55,15 +47,19 @@ export default function AdminsPage() {
     }
   }, [searchParams]);
 
-  // Get current user data from the hook
-  const { data: adminsData, isError, isLoading } = useGetAllAdmins(page, limit);
+  // Get departments data from the hook
+  const {
+    data: departmentsData,
+    isError,
+    isLoading,
+  } = useGetAllDepartments(page, limit);
 
   // Error state
   if (isError) {
     return (
       <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
         <div className="text-xl font-semibold text-destructive">
-          Error loading admin data
+          Error loading departments data
         </div>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
@@ -71,24 +67,22 @@ export default function AdminsPage() {
   }
 
   // If data is still loading or not available, return null (loading.tsx will handle the loading state)
-  if (isLoading || !adminsData) {
+  if (isLoading || !departmentsData) {
     return null;
   }
 
-  // Destructure data and meta from the response
-  const { data: admins, meta } = adminsData;
+  // Destructure departments data
+  const { data: departments, meta } = departmentsData;
 
-  // Filter admins based on search query
-  const filteredAdmins = admins.filter(
-    (admin: IAdmin) =>
-      admin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      admin.email.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter departments based on search query
+  const filteredDepartments = departments.filter((department: IDepartment) =>
+    department.department?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Update URL when page changes
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    router.push(`/admins?page=${newPage}`);
+    router.push(`/departments?page=${newPage}`);
   };
 
   // Function to handle next page
@@ -103,15 +97,6 @@ export default function AdminsPage() {
     if (page > 1) {
       handlePageChange(page - 1);
     }
-  };
-
-  // Function to get initials from name
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase();
   };
 
   // Function to generate pagination items
@@ -200,23 +185,13 @@ export default function AdminsPage() {
     return items;
   };
 
-  // Get role badge color
-  const getRoleBadgeColor = (role: string) => {
-    switch (role.toLowerCase()) {
-      case "super admin":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-      case "admin":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
-    }
-  };
-
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6">
       <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Admins</h1>
-        <p className="text-muted-foreground">View administrator accounts</p>
+        <h1 className="text-3xl font-bold tracking-tight">Departments</h1>
+        <p className="text-muted-foreground">
+          View all the departments in the organization
+        </p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row justify-between gap-2">
@@ -224,7 +199,7 @@ export default function AdminsPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search admins..."
+            placeholder="Search departments..."
             className="w-full pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -232,57 +207,49 @@ export default function AdminsPage() {
         </div>
         <Button
           onClick={() => {
-            router.push("/create-admin");
+            router.push("/departments/create");
           }}
           className="w-full sm:w-auto cursor-pointer"
         >
           <UserCog className="mr-2 h-4 w-4" />
-          Add New Admin
+          Add New Department
         </Button>
       </div>
 
-      {filteredAdmins.length === 0 ? (
+      {filteredDepartments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <UserCog className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No admins found</h3>
+          <h3 className="text-lg font-medium">No departments found</h3>
           <p className="text-muted-foreground mt-1">
             Try adjusting your search or filters
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAdmins.map((admin: IAdmin) => (
+          {filteredDepartments.map((department: IDepartment) => (
             <Card
-              key={admin.id}
-              className="overflow-hidden transition-all duration-200 hover:shadow-md"
+              key={department.id}
+              className="overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer"
+              onClick={() => router.push(`/departments/${department.id}`)}
             >
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <Avatar className="h-12 w-12 border-2 border-background">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {getInitials(admin.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Badge className={`${getRoleBadgeColor(admin.role)}`}>
-                    {admin.role}
-                  </Badge>
-                </div>
-                <CardTitle className="mt-2 text-xl">{admin.name}</CardTitle>
-                <CardDescription className="flex items-center">
-                  <Mail className="mr-1 h-3.5 w-3.5" />
-                  {admin.email}
-                </CardDescription>
+                <CardTitle className="mt-2 text-xl">
+                  {department.department}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="pb-4">
+              <CardContent>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Calendar className="mr-1 h-4 w-4" />
                   <span>
-                    Joined{" "}
-                    {new Date(admin.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    Created{" "}
+                    {new Date(department.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )}
                   </span>
                 </div>
               </CardContent>
@@ -324,8 +291,10 @@ export default function AdminsPage() {
       )}
 
       <div className="mt-4 text-center text-sm text-muted-foreground">
-        Showing {filteredAdmins.length} of {meta.total} admins
+        Showing {filteredDepartments.length} of {meta.total} departments
       </div>
     </div>
   );
-}
+};
+
+export default DepartmentsComponents;

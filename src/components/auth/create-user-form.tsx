@@ -35,6 +35,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCreateUser } from "@/hooks/auth.hooks";
 import type { ICreateUserResponse } from "@/interfaces/auth.interface";
+import { useRouter } from "next/navigation";
 
 // Define the form input types
 type FormInputs = {
@@ -45,6 +46,8 @@ type FormInputs = {
 };
 
 export default function CreateUserForm() {
+  const router = useRouter();
+
   // UI state management
   const [showPassword, setShowPassword] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -137,6 +140,7 @@ export default function CreateUserForm() {
         if (response && response.statusCode) {
           toast.success(response.message || "User created successfully");
           reset(); // Reset the form
+          router.push("/users"); // Redirect to users page
         } else {
           setGeneralError("An unexpected error occurred");
           toast.error("Failed to create user");
@@ -381,11 +385,14 @@ export default function CreateUserForm() {
 
           {/* Role Selection Field */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm font-medium">
+            <Label
+              htmlFor="user-role"
+              className="flex items-center gap-2 text-sm font-medium"
+            >
               <Users className="h-4 w-4 text-muted-foreground" />
               User Role
             </Label>
-            <div className="flex gap-3">
+            <div className="flex gap-3" id="user-role">
               <Button
                 type="button"
                 variant={watch("role") === "EMPLOYEE" ? "default" : "outline"}

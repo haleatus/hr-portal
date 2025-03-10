@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import AdminProfileSettings from "./admin-profile-settings";
 
 export function AdminSettings() {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,10 +34,11 @@ export function AdminSettings() {
 
   return (
     <Tabs defaultValue="general" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="review-process">Review Process</TabsTrigger>
         <TabsTrigger value="permissions">Permissions</TabsTrigger>
+        <TabsTrigger value="profile">Profile</TabsTrigger>
       </TabsList>
 
       <TabsContent value="general" className="space-y-6">
@@ -409,6 +411,10 @@ export function AdminSettings() {
             </Button>
           </CardFooter>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="profile" className="space-y-6">
+        <AdminProfileSettings />
       </TabsContent>
     </Tabs>
   );

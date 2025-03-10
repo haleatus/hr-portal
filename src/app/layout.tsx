@@ -38,7 +38,7 @@ export default function RootLayout({
             <main className="relative flex-1 w-full ">{children}</main>
 
             {/* Toast notifications */}
-            <Toaster richColors position="bottom-left" />
+            <Toaster richColors position="top-right" />
           </AuthProvider>
         </QueryProvider>
       </body>
