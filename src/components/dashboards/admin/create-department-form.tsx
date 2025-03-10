@@ -148,6 +148,15 @@ const CreateDepartmentForm = () => {
     // Clear previous errors
     setGeneralError(null);
 
+    // Validate that at least one member is selected
+    if (data.members.length === 0) {
+      setError("members", {
+        type: "manual",
+        message: "At least one member must be selected",
+      });
+      return;
+    }
+
     createDepartmentMutation.mutate(data, {
       onSuccess: (response) => {
         if (response && response.statusCode) {
