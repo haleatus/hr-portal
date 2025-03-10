@@ -114,7 +114,7 @@ export const useGetAllDepartments = (page: number, limit: number) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return useQuery({
-    queryKey: ["allTeams", page, limit],
+    queryKey: ["allDepartments", page, limit],
     queryFn: async () => {
       const response = await apiClient.get(
         `/hr-hub/admin/team/get-all?page=${page}&limit=${limit}`
