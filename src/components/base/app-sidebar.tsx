@@ -148,19 +148,19 @@ export function AppSidebar() {
     },
     {
       title: "Create User",
-      href: "/create-user",
+      href: "/users/create",
       icon: UserPlus,
       roles: ["ADMIN"],
     },
     {
       title: "Create Admin",
-      href: "/create-admin",
+      href: "/admins/create",
       icon: ShieldPlus,
       roles: ["ADMIN"],
     },
     {
       title: "Create Department",
-      href: "/department/create",
+      href: "/departments/create",
       icon: NetworkIcon,
       roles: ["ADMIN"],
     },
