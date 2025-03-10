@@ -5,18 +5,11 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Hook imports
-import { useGetAllUsersViaAdmin } from "@/hooks/admin.hooks";
+import { useGetAllDepartments } from "@/hooks/admin.hooks";
 
-// UI components
-import { Search, UserCog, Calendar, Mail } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+// UI imports
+import { Search, UserCog, Calendar } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,16 +21,15 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { Badge } from "@/components/ui/badge";
 
 // Interface imports
-import { IUser } from "@/interfaces/user.interface";
+import { IDepartment } from "@/interfaces/department.interface";
 
 /**
- * UsersPage component
- * @returns JSX.Element - List for all users
+ * DepartmentsComponents component
+ * @returns JSX.Element - List for all departments
  */
-export default function UsersPage() {
+const DepartmentsComponents = () => {
   // Get router and search params
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,19 +47,19 @@ export default function UsersPage() {
     }
   }, [searchParams]);
 
-  // Get users data from the hook
+  // Get departments data from the hook
   const {
-    data: usersData,
+    data: departmentsData,
     isError,
     isLoading,
-  } = useGetAllUsersViaAdmin(page, limit);
+  } = useGetAllDepartments(page, limit);
 
   // Error state
   if (isError) {
     return (
       <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
         <div className="text-xl font-semibold text-destructive">
-          Error loading users data
+          Error loading departments data
         </div>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
@@ -75,24 +67,22 @@ export default function UsersPage() {
   }
 
   // If data is still loading or not available, return null (loading.tsx will handle the loading state)
-  if (isLoading || !usersData) {
+  if (isLoading || !departmentsData) {
     return null;
   }
 
-  // Destructure users data
-  const { data: users, meta } = usersData;
+  // Destructure departments data
+  const { data: departments, meta } = departmentsData;
 
-  // Filter users based on search query
-  const filteredUsers = users.filter(
-    (user: IUser) =>
-      user.fullname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter departments based on search query
+  const filteredDepartments = departments.filter((department: IDepartment) =>
+    department.department?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Update URL when page changes
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    router.push(`/users?page=${newPage}`);
+    router.push(`/departments?page=${newPage}`);
   };
 
   // Function to handle next page
@@ -107,15 +97,6 @@ export default function UsersPage() {
     if (page > 1) {
       handlePageChange(page - 1);
     }
-  };
-
-  // Function to get initials from name
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase();
   };
 
   // Function to generate pagination items
@@ -204,24 +185,12 @@ export default function UsersPage() {
     return items;
   };
 
-  // Get role badge color
-  const getRoleBadgeColor = (role: string) => {
-    switch (role.toLowerCase()) {
-      case "manager":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-      case "employee":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
-    }
-  };
-
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6">
       <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Departments</h1>
         <p className="text-muted-foreground">
-          View managers and employees accounts
+          View all the departments in the organization
         </p>
       </div>
 
@@ -230,7 +199,7 @@ export default function UsersPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search users..."
+            placeholder="Search departments..."
             className="w-full pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -238,57 +207,48 @@ export default function UsersPage() {
         </div>
         <Button
           onClick={() => {
-            router.push("/create-user");
+            router.push("/create-departments");
           }}
           className="w-full sm:w-auto cursor-pointer"
         >
           <UserCog className="mr-2 h-4 w-4" />
-          Add New User
+          Add New Department
         </Button>
       </div>
 
-      {filteredUsers.length === 0 ? (
+      {filteredDepartments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <UserCog className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No users found</h3>
+          <h3 className="text-lg font-medium">No departments found</h3>
           <p className="text-muted-foreground mt-1">
             Try adjusting your search or filters
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredUsers.map((user: IUser) => (
+          {filteredDepartments.map((department: IDepartment) => (
             <Card
-              key={user.id}
+              key={department.id}
               className="overflow-hidden transition-all duration-200 hover:shadow-md"
             >
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <Avatar className="h-12 w-12 border-2 border-background">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {getInitials(user.fullname || "")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Badge className={`${getRoleBadgeColor(user.role)}`}>
-                    {user.role}
-                  </Badge>
-                </div>
-                <CardTitle className="mt-2 text-xl">{user.fullname}</CardTitle>
-                <CardDescription className="flex items-center">
-                  <Mail className="mr-1 h-3.5 w-3.5" />
-                  {user.email}
-                </CardDescription>
+                <CardTitle className="mt-2 text-xl">
+                  {department.department}
+                </CardTitle>
               </CardHeader>
               <CardContent className="pb-4">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Calendar className="mr-1 h-4 w-4" />
                   <span>
-                    Joined{" "}
-                    {new Date(user.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    Created{" "}
+                    {new Date(department.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    )}
                   </span>
                 </div>
               </CardContent>
@@ -330,8 +290,10 @@ export default function UsersPage() {
       )}
 
       <div className="mt-4 text-center text-sm text-muted-foreground">
-        Showing {filteredUsers.length} of {meta.total} users
+        Showing {filteredDepartments.length} of {meta.total} departments
       </div>
     </div>
   );
-}
+};
+
+export default DepartmentsComponents;
