@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import {
   Card,
   CardContent,
@@ -8,15 +9,19 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/providers/auth-provider";
 import Loading from "@/app/(dashboard)/loading";
 import { useUpdateAdminDetails } from "@/hooks/admin.hooks";
 import { toast } from "sonner";
 import { useAdminDetailUpdateStore } from "@/store/admin-store";
+import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import { CalendarClock, ShieldUser, User } from "lucide-react";
+import { IAdminDetailsUpdate } from "@/interfaces/admin.interface";
 
 const AdminProfileSettings = () => {
   const { user, loading: userLoading } = useAuth();
@@ -24,56 +29,50 @@ const AdminProfileSettings = () => {
   const error = useAdminDetailUpdateStore((state) => state.error);
   const clearError = useAdminDetailUpdateStore((state) => state.clearError);
 
-  // Local state for the form
-  const [formData, setFormData] = useState({
-    name: "",
+  // Initialize React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { isDirty, errors },
+  } = useForm<IAdminDetailsUpdate>({
+    defaultValues: {
+      name: "",
+    },
   });
 
-  // Initialize form data when user data is loaded
-  React.useEffect(() => {
+  // Watch the name field for the dynamic preview
+  const watchedName = watch("name");
+
+  // Set default values when user data is loaded
+  useEffect(() => {
     if (user) {
-      setFormData({
+      reset({
         name: user.fullname || user.name || "",
       });
     }
-  }, [user]);
+  }, [user, reset]);
 
   if (userLoading || !user) {
     return <Loading />;
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Prevent submission if form data hasn't changed
-    if (formData.name === (user.fullname || user.name)) {
-      toast.info(
-        "No changes detected, Please make changes before updating your profile."
-      );
-      clearError();
-      return;
-    }
-
+  const onSubmit = (data: IAdminDetailsUpdate) => {
     // Call the update mutation
     updateAdmin(
       {
         id: user.id,
         data: {
-          name: formData.name,
+          name: data.name,
         },
       },
       {
         onSuccess: () => {
           toast.success("Your profile has been updated successfully.");
           clearError();
+          // Reset the form's dirty state by setting new defaults
+          reset(data, { keepValues: true });
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
@@ -85,59 +84,147 @@ const AdminProfileSettings = () => {
     );
   };
 
+  const handleCancel = () => {
+    // Reset form to original values
+    reset({
+      name: user.fullname || user.name || "",
+    });
+    clearError();
+  };
+
+  // Format date to a readable format
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>My Profile</CardTitle>
-        <CardDescription>Update your profile information.</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        {error && (
-          <div className="p-4 bg-red-100 text-red-600 rounded-md mb-4">
-            {error}
-          </div>
-        )}
-        <CardContent>
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter your name"
-                />
+    <div className="space-y-6">
+      {/* Dynamic User Info Card */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-r from-primary/5 to-primary/10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left side - User profile */}
+              <div className="p-6 flex items-start gap-3">
+                <div className="bg-primary/10 text-primary rounded-full p-3 shrink-0">
+                  <ShieldUser className="h-8 w-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold tracking-tight">
+                    {watchedName || user.fullname || user.name}
+                  </h3>
+                  <p className="text-muted-foreground">{user.email}</p>
+                </div>
               </div>
 
-              {/* You can add more fields here as needed */}
+              {/* Right side - Badges and description */}
+              <div className="p-6 flex flex-col justify-between items-end">
+                <div className="flex flex-wrap gap-3">
+                  <Badge
+                    variant="outline"
+                    className="bg-background/80 flex items-center gap-1.5"
+                  >
+                    <User className="h-3.5 w-3.5" />
+                    <span className="capitalize">{user.role}</span>
+                  </Badge>
+                  {user.updatedAt && (
+                    <Badge
+                      variant="outline"
+                      className="bg-background/80 flex items-center gap-1.5"
+                    >
+                      <CalendarClock className="h-3.5 w-3.5" />
+                      <span>Last updated: {formatDate(user.updatedAt)}</span>
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="text-xs text-muted-foreground mt-4">
+                  <p>
+                    Update your profile information below. Your changes will be
+                    reflected across the system.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              setFormData({
-                name: user.fullname || user.name || "",
-              })
-            }
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={
-              isPending || formData.name === (user.fullname || user.name)
-            }
-          >
-            {isPending ? "Updating..." : "Update Profile"}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </Card>
+      </motion.div>
+
+      {/* Profile Edit Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Profile</CardTitle>
+          <CardDescription>
+            Updating your profile information below will be reflected across the
+            system.
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {error && (
+            <div className="px-6 py-3 mx-6 mb-4 bg-destructive/10 text-destructive rounded-md text-sm">
+              {error}
+            </div>
+          )}
+          <CardContent>
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    {...register("name", {
+                      required: "Name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Name must be at least 2 characters",
+                      },
+                    })}
+                    placeholder="Enter your name"
+                    className="transition-all"
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* You can add more fields here as needed */}
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={!isDirty}
+              className="transition-all"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || !isDirty}
+              className="transition-all"
+            >
+              {isPending ? "Updating..." : "Update Profile"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 };
 
