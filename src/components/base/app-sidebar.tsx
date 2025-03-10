@@ -276,8 +276,8 @@ export function AppSidebar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/settings">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <Cog className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
