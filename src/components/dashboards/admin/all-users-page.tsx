@@ -313,7 +313,7 @@ export default function UsersPage() {
       )}
 
       <div className="mt-4 text-center text-sm text-muted-foreground">
-        Showing {filteredUsers.length} of {meta.total} admins
+        Showing {filteredUsers.length} of {meta.total} users
       </div>
     </div>
   );
