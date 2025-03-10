@@ -10,6 +10,7 @@ import { IDepartmentCreateResponse } from "@/interfaces/department.interface";
 import React, { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation"; // Added for redirect functionality
 
 // UI component imports
 import { Button } from "@/components/ui/button";
@@ -33,14 +34,25 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
-// Define the form input types
+/**
+ * Form input interface for department creation
+ * @interface FormInputs
+ * @property {number} leader - ID of the department leader
+ * @property {string} department - Name of the department
+ * @property {number[]} members - Array of member IDs
+ */
 interface FormInputs {
   leader: number;
   department: string;
   members: number[];
 }
 
-// Interface for the selected member
+/**
+ * Interface for selected department members
+ * @interface SelectedMember
+ * @property {number} id - Employee ID
+ * @property {string} name - Employee full name
+ */
 interface SelectedMember {
   id: number;
   name: string;
@@ -48,14 +60,18 @@ interface SelectedMember {
 
 /**
  * CreateDepartmentForm component
- * @returns JSX.Element
+ * Provides a form for creating new departments with leader and members
+ * @returns {JSX.Element} The department creation form
  */
 const CreateDepartmentForm = () => {
+  // Initialize router for redirection
+  const router = useRouter();
+
   // UI state management
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [selectedMembers, setSelectedMembers] = useState<SelectedMember[]>([]);
 
-  // Fetch managers and employees data
+  // Fetch managers and employees data from API
   const managersQuery = useGetAllManagers();
   const employeesQuery = useGetAllEmployees();
 
@@ -79,14 +95,18 @@ const CreateDepartmentForm = () => {
   // Fetch the createDepartment mutation
   const createDepartmentMutation = useCreateDepartment();
 
-  // Handle adding a member
+  /**
+   * Handles adding a member to the department
+   * @param {string} employeeId - ID of the employee to add
+   */
   const handleAddMember = (employeeId: string) => {
     const id = parseInt(employeeId);
-    // Find employee details
+    // Find employee details in the fetched data
     const employee = employeesQuery.data?.data.find(
       (emp: any) => emp.id === id
     );
 
+    // Ensure employee exists and is not already added
     if (employee && !selectedMembers.some((member) => member.id === id)) {
       const newMember = {
         id,
@@ -104,7 +124,10 @@ const CreateDepartmentForm = () => {
     }
   };
 
-  // Handle removing a member
+  /**
+   * Handles removing a member from the department
+   * @param {number} id - ID of the member to remove
+   */
   const handleRemoveMember = (id: number) => {
     const updatedMembers = selectedMembers.filter((member) => member.id !== id);
     setSelectedMembers(updatedMembers);
@@ -116,6 +139,11 @@ const CreateDepartmentForm = () => {
     );
   };
 
+  /**
+   * Form submission handler
+   * Creates a new department, resets form, and redirects to departments page
+   * @param {FormInputs} data - Form data to submit
+   */
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     // Clear previous errors
     setGeneralError(null);
@@ -123,9 +151,17 @@ const CreateDepartmentForm = () => {
     createDepartmentMutation.mutate(data, {
       onSuccess: (response) => {
         if (response && response.statusCode) {
+          // Show success message
           toast.success(response.message || "Department created successfully");
-          reset(); // Reset the form
-          setSelectedMembers([]); // Clear selected members
+
+          // Reset the form
+          reset();
+
+          // Clear selected members
+          setSelectedMembers([]);
+
+          // Redirect to departments page
+          router.push("/departments");
         } else {
           setGeneralError("An unexpected error occurred");
           toast.error("Failed to create department");
@@ -138,7 +174,7 @@ const CreateDepartmentForm = () => {
           | undefined;
 
         if (errorResponse?.error) {
-          // Also set errors in react-hook-form for each field
+          // Set errors in react-hook-form for each field
           Object.entries(errorResponse.error).forEach(([field, message]) => {
             if (field in data) {
               setError(field as keyof FormInputs, {
@@ -158,13 +194,11 @@ const CreateDepartmentForm = () => {
     });
   };
 
-  // Loading states
+  // Determine loading states
   const isLoading = managersQuery.isLoading || employeesQuery.isLoading;
 
-  // Format managers for select component
+  // Format managers and employees for select components
   const managers = managersQuery.data?.data || [];
-
-  // Format employees for select component
   const employees = employeesQuery.data?.data || [];
 
   return (
@@ -186,6 +220,7 @@ const CreateDepartmentForm = () => {
         </div>
       </CardHeader>
 
+      {/* Show loading state while fetching data */}
       {isLoading ? (
         <CardContent className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center gap-2">

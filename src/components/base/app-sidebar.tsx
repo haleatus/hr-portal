@@ -9,6 +9,7 @@ import {
   Cog,
   Home,
   Menu,
+  Network,
   ShieldEllipsis,
   ShieldPlus,
   ShieldUser,
@@ -130,6 +131,12 @@ export function AppSidebar() {
       title: "Admins",
       href: "/admins",
       icon: ShieldUser,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Departments",
+      href: "/departments",
+      icon: Network,
       roles: ["ADMIN"],
     },
     {
