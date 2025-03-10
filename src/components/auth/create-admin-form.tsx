@@ -36,6 +36,7 @@ import {
 
 // Auth hook imports
 import { useCreateAdmin } from "@/hooks/auth.hooks";
+import { useRouter } from "next/navigation";
 
 // Define the form input types
 type FormInputs = {
@@ -49,6 +50,8 @@ type FormInputs = {
  * @returns JSX.Element
  */
 export default function CreateAdminForm() {
+  const router = useRouter();
+
   // UI state management
   const [showPassword, setShowPassword] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -139,6 +142,7 @@ export default function CreateAdminForm() {
         if (response && response.statusCode) {
           toast.success(response.message || "Admin created successfully");
           reset(); // Reset the form
+          router.push("/admins"); // Redirect to admins page
         } else {
           setGeneralError("An unexpected error occurred");
           toast.error("Failed to create user");
