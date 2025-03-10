@@ -229,14 +229,15 @@ const DepartmentsComponents = () => {
           {filteredDepartments.map((department: IDepartment) => (
             <Card
               key={department.id}
-              className="overflow-hidden transition-all duration-200 hover:shadow-md"
+              className="overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer"
+              onClick={() => router.push(`/departments/${department.id}`)}
             >
               <CardHeader className="pb-2">
                 <CardTitle className="mt-2 text-xl">
                   {department.department}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pb-4">
+              <CardContent>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Calendar className="mr-1 h-4 w-4" />
                   <span>
