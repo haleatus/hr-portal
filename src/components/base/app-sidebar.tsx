@@ -10,6 +10,7 @@ import {
   Home,
   Menu,
   Network,
+  NetworkIcon,
   ShieldEllipsis,
   ShieldPlus,
   ShieldUser,
@@ -155,6 +156,12 @@ export function AppSidebar() {
       title: "Create Admin",
       href: "/create-admin",
       icon: ShieldPlus,
+      roles: ["ADMIN"],
+    },
+    {
+      title: "Create Department",
+      href: "/department/create",
+      icon: NetworkIcon,
       roles: ["ADMIN"],
     },
     {
