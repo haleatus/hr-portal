@@ -21,3 +21,15 @@ export interface IGetAllAdminResponse {
     previous: number | null;
   };
 }
+
+export interface IAdminDetailsUpdate {
+  name: string;
+}
+
+export interface IAdminUpdateResponse {
+  statusCode: number;
+  timestamp: string;
+  message: string;
+  data: IAdmin;
+  error: object;
+}

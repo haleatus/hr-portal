@@ -1,14 +1,17 @@
-import { IAdmin } from "@/interfaces/admin.interface";
 import { create } from "zustand";
 
-interface AdminState {
-  admins: IAdmin[] | null;
+interface AdminDetailUpdateState {
+  error: string | null;
 
-  setAdmins: (admins: IAdmin[]) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
 }
 
-export const useAdminStore = create<AdminState>((set) => ({
-  admins: null,
+export const useAdminDetailUpdateStore = create<AdminDetailUpdateState>(
+  (set) => ({
+    error: null,
 
-  setAdmins: (admins) => set({ admins }),
-}));
+    setError: (error) => set({ error }),
+    clearError: () => set({ error: null }),
+  })
+);

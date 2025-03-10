@@ -382,13 +382,13 @@ export default function CreateUserForm() {
           {/* Role Selection Field */}
           <div className="space-y-2">
             <Label
-              htmlFor="user role"
+              htmlFor="user-role"
               className="flex items-center gap-2 text-sm font-medium"
             >
               <Users className="h-4 w-4 text-muted-foreground" />
               User Role
             </Label>
-            <div className="flex gap-3">
+            <div className="flex gap-3" id="user-role">
               <Button
                 type="button"
                 variant={watch("role") === "EMPLOYEE" ? "default" : "outline"}
