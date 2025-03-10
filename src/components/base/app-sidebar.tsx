@@ -120,6 +120,12 @@ export function AppSidebar() {
       roles: ["ADMIN"],
     },
     {
+      title: "Admins",
+      href: "/admins",
+      icon: ShieldUser,
+      roles: ["ADMIN"],
+    },
+    {
       title: "Settings",
       href: "/settings",
       icon: Cog,
@@ -142,12 +148,6 @@ export function AppSidebar() {
       href: "/profile",
       icon: User,
       roles: ["MANAGER", "EMPLOYEE"],
-    },
-    {
-      title: "Admins",
-      href: "/admins",
-      icon: ShieldUser,
-      roles: ["ADMIN"],
     },
   ];
 
