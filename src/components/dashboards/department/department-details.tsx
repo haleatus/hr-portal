@@ -405,15 +405,18 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  setIsComfirmDeletionOpen(true);
-                  setIsDialogOpen(false);
-                }}
-              >
-                Delete Member
-              </Button>
+              {selectedMember.role === "EMPLOYEE" && (
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setIsComfirmDeletionOpen(true);
+                    setIsDialogOpen(false);
+                  }}
+                  className="text-white"
+                >
+                  Delete Member
+                </Button>
+              )}
               <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
             </div>
           </DialogContent>
