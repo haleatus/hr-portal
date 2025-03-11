@@ -2,10 +2,10 @@
 "use client";
 
 import {
-  useCreateDepartment,
   useGetAllNonTeamEmployees,
   useGetAllNonTeamManagers,
 } from "@/hooks/admin.hooks";
+import { useCreateDepartment } from "@/hooks/department.hooks";
 import { IDepartmentCreateResponse } from "@/interfaces/department.interface";
 import React, { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";

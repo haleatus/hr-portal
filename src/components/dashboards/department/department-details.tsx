@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useGetDepartmentDetails } from "@/hooks/department.hooks";
+import {
+  useGetDepartmentDetails,
+  useUpdateDepartmentName,
+} from "@/hooks/department.hooks";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   UserCircle,
@@ -20,9 +24,23 @@ import {
   Calendar,
   ArrowLeft,
   Clock,
+  Edit,
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 interface IMember {
   id: string;
@@ -47,15 +65,61 @@ interface IDepartmentMembers {
   member: IMember;
 }
 
+// Form schema for department name update
+const departmentUpdateSchema = z.object({
+  department: z.string().min(1, "Department name is required"),
+});
+
 const DepartmentDetailPage = ({ id }: { id: string }) => {
   const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
 
   const {
     data: departmentDetailsData,
     isError,
     isLoading,
   } = useGetDepartmentDetails(id);
+
+  const updateDepartmentMutation = useUpdateDepartmentName();
+
+  const updateForm = useForm({
+    resolver: zodResolver(departmentUpdateSchema),
+    defaultValues: {
+      department: "",
+    },
+  });
+
+  // Handle when edit icon is clicked
+  const handleEditClick = () => {
+    if (departmentDetailsData) {
+      updateForm.reset({
+        department: departmentDetailsData.data.department,
+      });
+      setIsUpdateFormOpen(true);
+    }
+  };
+
+  // Handle form submission
+  const onUpdateSubmit = (values: z.infer<typeof departmentUpdateSchema>) => {
+    updateDepartmentMutation.mutate(
+      {
+        id: Number(id),
+        data: {
+          department: values.department,
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsUpdateFormOpen(false);
+          toast.success("Department name has been updated successfully.");
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to update department name.");
+        },
+      }
+    );
+  };
 
   const handleMemberClick = (member: IMember) => {
     setSelectedMember(member);
@@ -94,6 +158,13 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             <ArrowLeft className="mr-1 h-4 w-4" /> Back to Departments
           </Link>
           <h1 className="text-2xl font-bold">{department} Department</h1>
+          <button
+            onClick={handleEditClick}
+            className="p-1 rounded-md hover:bg-muted/80 transition-colors"
+            aria-label="Edit department name"
+          >
+            <Edit className="h-4 w-4 text-muted-foreground" />
+          </button>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
@@ -296,6 +367,59 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             </div>
           </DialogContent>
         )}
+      </Dialog>
+
+      {/* Department Name Update Dialog */}
+      <Dialog open={isUpdateFormOpen} onOpenChange={setIsUpdateFormOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Department Name</DialogTitle>
+            <DialogDescription>
+              Change the name of the department.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...updateForm}>
+            <form
+              onSubmit={updateForm.handleSubmit(onUpdateSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={updateForm.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter department name"
+                        {...field}
+                        autoFocus
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsUpdateFormOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateDepartmentMutation.isPending}
+                >
+                  {updateDepartmentMutation.isPending
+                    ? "Updating..."
+                    : "Update"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
       </Dialog>
     </div>
   );
