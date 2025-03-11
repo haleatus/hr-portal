@@ -86,6 +86,7 @@ const DepartmentDeletionDialog = ({
               variant="outline"
               onClick={() => setIsComfirmDeletionDepartmentOpen(false)}
               className="cursor-pointer"
+              disabled={deleteDepartmentMutation.isPending}
             >
               Cancel
             </Button>

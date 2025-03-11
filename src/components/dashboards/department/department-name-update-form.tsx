@@ -167,6 +167,7 @@ const DepartmentNameUpdateForm = ({
                   type="button"
                   variant="outline"
                   onClick={() => setIsUpdateFormOpen(false)}
+                  disabled={updateDepartmentMutation.isPending}
                   className="cursor-pointer"
                 >
                   Cancel

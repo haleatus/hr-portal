@@ -211,6 +211,7 @@ const DepartmentManagerChangeForm = ({
                   variant="outline"
                   onClick={() => setIsChangeManagerOpen(false)}
                   className="cursor-pointer"
+                  disabled={changeDepartmentManagerMutation.isPending}
                 >
                   Cancel
                 </Button>

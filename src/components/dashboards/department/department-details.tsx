@@ -443,6 +443,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               variant="outline"
               onClick={() => setIsComfirmDeletionOpen(false)}
               className="cursor-pointer"
+              disabled={memberDeleteMutation.isPending}
             >
               Cancel
             </Button>
