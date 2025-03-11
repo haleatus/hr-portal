@@ -1,6 +1,13 @@
 "use client";
 
+// Core imports
+import React from "react";
+import Link from "next/link";
+
+// Loading component import
 import Loading from "@/app/(dashboard)/loading";
+
+// UI Component imports
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +25,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/providers/auth-provider";
-import { AlertCircle, CheckCircle2, Clock, PlusCircle } from "lucide-react";
-import Link from "next/link";
-import React from "react";
 
+// Auth context import
+import { useAuth } from "@/providers/auth-provider";
+
+// Lucide icons import
+import { AlertCircle, CheckCircle2, Clock, PlusCircle } from "lucide-react";
+import { useGetMyDepartment } from "@/hooks/department.hooks";
+
+/**
+ * MyTeamsComponent component
+ * @returns {JSX.Element} MyTeamsComponent
+ */
 const MyTeamsComponent = () => {
+  // Get the user and loading state from the auth context
   const { user, loading } = useAuth();
+
+  const { data: departmentMembers } = useGetMyDepartment();
+
+  console.log("dep", departmentMembers);
 
   // In a real app, this data would come from your API
   const teamMembers = [
