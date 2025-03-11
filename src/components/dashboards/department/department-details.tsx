@@ -317,8 +317,10 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Department ID</p>
-              <p className="font-medium">{departmentDetailsData.data.id}</p>
+              <p className="text-sm text-muted-foreground">Department</p>
+              <p className="font-medium">
+                {departmentDetailsData.data.department}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground flex gap-2 items-center">
