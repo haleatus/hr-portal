@@ -132,7 +132,7 @@ export function AppSidebar() {
       title: "Admins",
       href: "/admins",
       icon: ShieldUser,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ["SUPER_ADMIN"],
     },
     {
       title: "Departments",
@@ -156,7 +156,7 @@ export function AppSidebar() {
       title: "Create Admin",
       href: "/admins/create",
       icon: ShieldPlus,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ["SUPER_ADMIN"],
     },
     {
       title: "Create Department",
