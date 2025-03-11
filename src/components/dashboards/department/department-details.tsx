@@ -7,28 +7,13 @@ import { useState } from "react";
 import {
   useDeleteDepartmentMember,
   useGetDepartmentDetails,
-  useUpdateDepartmentName,
 } from "@/hooks/department.hooks";
 import Link from "next/link";
 
 // UI components imports
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -46,21 +31,17 @@ import {
   Calendar,
   ArrowLeft,
   Clock,
-  Edit,
   Trash2,
 } from "lucide-react";
 
 // Third-party imports
 import { format } from "date-fns";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 // Local imports
 import DepartmentManagerChangeForm from "./department-manager-change-form";
 import AddDepartmentMembersForm from "./add-department-members-form";
-import DepartmentDeletionDialog from "./department-deletion-dialog";
+import DepartmentNameUpdateForm from "./department-name-update-form";
 
 // Types and interfaces
 interface IMember {
@@ -86,15 +67,9 @@ export interface IDepartmentMembers {
   member: IMember;
 }
 
-// Form schema for department name update
-const departmentUpdateSchema = z.object({
-  department: z.string().min(1, "Department name is required"),
-});
-
 const DepartmentDetailPage = ({ id }: { id: string }) => {
   const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
   const [isConfirmDeletionOpen, setIsComfirmDeletionOpen] = useState(false);
 
   const [selectedMemberMemberId, setSelectedMemberMemberId] = useState<
@@ -107,47 +82,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
     isLoading,
   } = useGetDepartmentDetails(id);
 
-  const updateDepartmentMutation = useUpdateDepartmentName();
-
   const memberDeleteMutation = useDeleteDepartmentMember();
-
-  const updateForm = useForm({
-    resolver: zodResolver(departmentUpdateSchema),
-    defaultValues: {
-      department: "",
-    },
-  });
-
-  // Handle when edit icon is clicked
-  const handleEditClick = () => {
-    if (departmentDetailsData) {
-      updateForm.reset({
-        department: departmentDetailsData.data.department,
-      });
-      setIsUpdateFormOpen(true);
-    }
-  };
-
-  // Handle form submission
-  const onUpdateSubmit = (values: z.infer<typeof departmentUpdateSchema>) => {
-    updateDepartmentMutation.mutate(
-      {
-        id: Number(id),
-        data: {
-          department: values.department,
-        },
-      },
-      {
-        onSuccess: () => {
-          setIsUpdateFormOpen(false);
-          toast.success("Department name has been updated successfully.");
-        },
-        onError: (error) => {
-          toast.error(error.message || "Failed to update department name.");
-        },
-      }
-    );
-  };
 
   const handleMemberClick = (member: IMember, memberId?: string) => {
     setSelectedMember(member);
@@ -190,25 +125,11 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           </Link>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">{department} Department</h1>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={handleEditClick}
-                    className="p-1 rounded-md hover:bg-muted/80 transition-colors cursor-pointer text-muted-foreground hover:text-blue-500"
-                    aria-label="Edit department name"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Change Department Name</p>
-                </TooltipContent>
-              </Tooltip>
-              {members.length === 0 && (
-                <DepartmentDeletionDialog departmentId={id} />
-              )}
-            </TooltipProvider>
+            <DepartmentNameUpdateForm
+              departmentDetailsData={departmentDetailsData}
+              departmentId={id}
+              members={members}
+            />
           </div>
         </div>
         <AddDepartmentMembersForm departmentId={Number(id)} />
@@ -445,58 +366,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             </div>
           </DialogContent>
         )}
-      </Dialog>
-      {/* Department Name Update Dialog */}
-      <Dialog open={isUpdateFormOpen} onOpenChange={setIsUpdateFormOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Update Department Name</DialogTitle>
-            <DialogDescription>
-              Change the name of the department.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...updateForm}>
-            <form
-              onSubmit={updateForm.handleSubmit(onUpdateSubmit)}
-              className="space-y-4"
-            >
-              <FormField
-                control={updateForm.control}
-                name="department"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Department Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter department name"
-                        {...field}
-                        autoFocus
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsUpdateFormOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={updateDepartmentMutation.isPending}
-                >
-                  {updateDepartmentMutation.isPending
-                    ? "Updating..."
-                    : "Update"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
       </Dialog>
 
       {/* Confirm Deletion Dialog */}
