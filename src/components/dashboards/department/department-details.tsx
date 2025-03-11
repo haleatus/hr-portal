@@ -41,6 +41,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface IMember {
   id: string;
@@ -157,14 +163,25 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           >
             <ArrowLeft className="mr-1 h-4 w-4" /> Back to Departments
           </Link>
-          <h1 className="text-2xl font-bold">{department} Department</h1>
-          <button
-            onClick={handleEditClick}
-            className="p-1 rounded-md hover:bg-muted/80 transition-colors"
-            aria-label="Edit department name"
-          >
-            <Edit className="h-4 w-4 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{department} Department</h1>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleEditClick}
+                    className="p-1 rounded-md hover:bg-muted/80 transition-colors cursor-pointer text-muted-foreground hover:text-blue-500"
+                    aria-label="Edit department name"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Change Department Name</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
