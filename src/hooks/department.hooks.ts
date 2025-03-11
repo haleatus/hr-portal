@@ -184,6 +184,35 @@ export const useChangeDepartmentManager = () => {
 /**
  * useDeleteDepartmentMember hook
  */
+export const useDeleteDepartment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(
+        `/hr-hub/admin/team/delete/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: (id) => {
+      // // This will invalidate ALL departmentDetails queries regardless of their ID
+      // queryClient.invalidateQueries({
+      //   queryKey: ["departmentDetails"],
+      //   exact: false,
+      // });
+      queryClient.invalidateQueries({
+        queryKey: ["departmentDetails", id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allDepartments"],
+      });
+    },
+  });
+};
+
+/**
+ * useDeleteDepartmentMember hook
+ */
 export const useDeleteDepartmentMember = () => {
   const queryClient = useQueryClient();
 

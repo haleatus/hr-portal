@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   useChangeDepartmentManager,
+  useDeleteDepartment,
   useDeleteDepartmentMember,
   useGetDepartmentDetails,
   useUpdateDepartmentName,
@@ -58,6 +59,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 interface IMember {
   id: string;
@@ -92,10 +94,14 @@ const departmentManagerChangeSchema = z.object({
 });
 
 const DepartmentDetailPage = ({ id }: { id: string }) => {
+  const router = useRouter();
+
   const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
   const [isConfirmDeletionOpen, setIsComfirmDeletionOpen] = useState(false);
+  const [isConfirmDeletionDepartmentOpen, setIsComfirmDeletionDepartmentOpen] =
+    useState(false);
   const [isChangeManagerOpen, setIsChangeManagerOpen] = useState(false);
 
   const [selectedMemberMemberId, setSelectedMemberMemberId] = useState<
@@ -110,6 +116,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
 
   const updateDepartmentMutation = useUpdateDepartmentName();
   const changeDepartmentManagerMutation = useChangeDepartmentManager();
+  const deleteDepartmentMutation = useDeleteDepartment();
 
   const managersQuery = useGetAllNonTeamManagers();
 
@@ -249,6 +256,26 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                   <p>Change Department Name</p>
                 </TooltipContent>
               </Tooltip>
+              {members.length === 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {/* Delete button */}
+                    <button
+                      className="p-1 rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the card click event from firing
+                        setIsComfirmDeletionDepartmentOpen(true);
+                      }}
+                      aria-label="Delete department"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Delete Department</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
             </TooltipProvider>
           </div>
         </div>
@@ -589,6 +616,53 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               className="text-white"
             >
               {memberDeleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Department Deletion Dialog */}
+      <Dialog
+        open={isConfirmDeletionDepartmentOpen}
+        onOpenChange={setIsComfirmDeletionDepartmentOpen}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Department</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this department? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsComfirmDeletionDepartmentOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (id) {
+                  deleteDepartmentMutation.mutate(id, {
+                    onSuccess: () => {
+                      setIsComfirmDeletionDepartmentOpen(false);
+                      router.push("/departments");
+                      toast.success("Department deleted successfully.");
+                    },
+                    onError: (error) => {
+                      toast.error(
+                        error.message || "Failed to delete department."
+                      );
+                    },
+                  });
+                }
+              }}
+              disabled={deleteDepartmentMutation.isPending}
+              className="text-white"
+            >
+              {deleteDepartmentMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
