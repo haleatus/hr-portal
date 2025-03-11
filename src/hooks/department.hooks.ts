@@ -206,6 +206,9 @@ export const useDeleteDepartment = () => {
       queryClient.invalidateQueries({
         queryKey: ["allDepartments"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamManagersViaAdmin"],
+      });
     },
   });
 };
@@ -234,6 +237,9 @@ export const useDeleteDepartmentMember = () => {
       // });
       queryClient.invalidateQueries({
         queryKey: ["allDepartments"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamEmployeesViaAdmin"],
       });
     },
   });

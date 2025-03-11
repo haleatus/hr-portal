@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  useChangeDepartmentManager,
   useDeleteDepartment,
   useDeleteDepartmentMember,
   useGetDepartmentDetails,
@@ -51,15 +50,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useGetAllNonTeamManagers } from "@/hooks/admin.hooks";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import DepartmentManagerChangeForm from "./department-manager-change-form";
 
 interface IMember {
   id: string;
@@ -70,7 +62,7 @@ interface IMember {
   role: string;
 }
 
-interface IDepartmentMembers {
+export interface IDepartmentMembers {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -89,10 +81,6 @@ const departmentUpdateSchema = z.object({
   department: z.string().min(1, "Department name is required"),
 });
 
-const departmentManagerChangeSchema = z.object({
-  leader: z.number().min(1, "Leader ID is required"),
-});
-
 const DepartmentDetailPage = ({ id }: { id: string }) => {
   const router = useRouter();
 
@@ -102,7 +90,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
   const [isConfirmDeletionOpen, setIsComfirmDeletionOpen] = useState(false);
   const [isConfirmDeletionDepartmentOpen, setIsComfirmDeletionDepartmentOpen] =
     useState(false);
-  const [isChangeManagerOpen, setIsChangeManagerOpen] = useState(false);
 
   const [selectedMemberMemberId, setSelectedMemberMemberId] = useState<
     string | null
@@ -115,10 +102,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
   } = useGetDepartmentDetails(id);
 
   const updateDepartmentMutation = useUpdateDepartmentName();
-  const changeDepartmentManagerMutation = useChangeDepartmentManager();
   const deleteDepartmentMutation = useDeleteDepartment();
-
-  const managersQuery = useGetAllNonTeamManagers();
 
   const memberDeleteMutation = useDeleteDepartmentMember();
 
@@ -129,13 +113,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
     },
   });
 
-  const changeManagerForm = useForm({
-    resolver: zodResolver(departmentManagerChangeSchema),
-    defaultValues: {
-      leader: 0,
-    },
-  });
-
   // Handle when edit icon is clicked
   const handleEditClick = () => {
     if (departmentDetailsData) {
@@ -143,16 +120,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
         department: departmentDetailsData.data.department,
       });
       setIsUpdateFormOpen(true);
-    }
-  };
-
-  // Handle when change manager icon is clicked
-  const handleChangeManagerClick = () => {
-    if (departmentDetailsData) {
-      changeManagerForm.reset({
-        leader: 0,
-      });
-      setIsChangeManagerOpen(true);
     }
   };
 
@@ -172,29 +139,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
         },
         onError: (error) => {
           toast.error(error.message || "Failed to update department name.");
-        },
-      }
-    );
-  };
-
-  // Handle change manager form submission
-  const onChangeManagerSubmit = (
-    values: z.infer<typeof departmentManagerChangeSchema>
-  ) => {
-    changeDepartmentManagerMutation.mutate(
-      {
-        id: Number(id),
-        data: {
-          leader: values.leader,
-        },
-      },
-      {
-        onSuccess: () => {
-          setIsChangeManagerOpen(false);
-          toast.success("Department manager has been updated successfully.");
-        },
-        onError: (error) => {
-          toast.error(error.message || "Failed to update department manager.");
         },
       }
     );
@@ -293,22 +237,10 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                 <UserCircle className="h-4 w-4 text-primary" />
                 Department Leader
               </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={handleChangeManagerClick}
-                      className="p-1 rounded-md hover:bg-muted/80 transition-colors cursor-pointer text-muted-foreground hover:text-blue-500"
-                      aria-label="Change department manager"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Change Department Manager</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <DepartmentManagerChangeForm
+                departmentDetailsData={departmentDetailsData}
+                id={id}
+              />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -665,93 +597,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               {deleteDepartmentMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Department Manager Change Dialog */}
-      <Dialog open={isChangeManagerOpen} onOpenChange={setIsChangeManagerOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Change Department Manager</DialogTitle>
-            <DialogDescription>
-              Assign a new manager to lead this department.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...changeManagerForm}>
-            <form
-              onSubmit={changeManagerForm.handleSubmit(onChangeManagerSubmit)}
-              className="space-y-4"
-            >
-              <FormField
-                control={changeManagerForm.control}
-                name="leader"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select New Manager</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) =>
-                          field.onChange(parseInt(value))
-                        }
-                        defaultValue={
-                          field.value ? field.value.toString() : undefined
-                        }
-                      >
-                        <SelectTrigger
-                          className={
-                            changeManagerForm.formState.errors.leader
-                              ? "border-destructive focus:ring-destructive/50"
-                              : ""
-                          }
-                        >
-                          <SelectValue placeholder="Select a manager" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {managersQuery.isLoading ? (
-                            <SelectItem disabled value="loading">
-                              Loading managers...
-                            </SelectItem>
-                          ) : managersQuery.data?.data.length === 0 ? (
-                            <SelectItem disabled value="no-managers">
-                              No managers available
-                            </SelectItem>
-                          ) : (
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            managersQuery.data?.data.map((manager: any) => (
-                              <SelectItem
-                                key={manager.id}
-                                value={manager.id.toString()}
-                              >
-                                {manager.fullname} | {manager.email}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsChangeManagerOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={changeDepartmentManagerMutation.isPending}
-                >
-                  {changeDepartmentManagerMutation.isPending
-                    ? "Updating..."
-                    : "Change Manager"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
         </DialogContent>
       </Dialog>
     </div>
