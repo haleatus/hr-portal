@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import DepartmentManagerChangeForm from "./department-manager-change-form";
+import AddDepartmentMembersForm from "./add-department-members-form";
 
 interface IMember {
   id: string;
@@ -227,6 +228,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           <Calendar className="h-4 w-4" />
           <span>Created {format(createdAt, "MMM d, yyyy")}</span>
         </div>
+        <AddDepartmentMembersForm departmentId={Number(id)} />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {/* Leader Card */}

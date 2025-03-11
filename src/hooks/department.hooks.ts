@@ -8,6 +8,7 @@ import apiClient from "@/lib/api/client";
 import { useCreateDepartmentStore } from "@/store/admin-store";
 import { useAuthStore } from "@/store/auth-store";
 import {
+  useAddDepartmentMembersStore,
   useDepartmentManagerChangeStore,
   useDepartmentNameUpdateStore,
 } from "@/store/department-store";
@@ -264,5 +265,57 @@ export const useGetDepartmentDetails = (id: string) => {
     retry: 1,
     // Consider data fresh for 5 minutes
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useAddDepartmentMembers hook
+ */
+export const useAddDepartmentMembers = () => {
+  const setError = useAddDepartmentMembersStore((state) => state.setError);
+  const setIsLoading = useAddDepartmentMembersStore(
+    (state) => state.setIsLoading
+  );
+
+  const setMembers = useAddDepartmentMembersStore((state) => state.setMembers);
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (addedMembersData: any) => {
+      const response = await apiClient.post(
+        "/hr-hub/admin/team/member/create",
+        addedMembersData
+      );
+      return response.data;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+      setError(null);
+    },
+    onSuccess: (response) => {
+      setMembers(response.data.members);
+
+      // Invalidate allDepartments query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["allDepartments"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["departmentDetails"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamEmployeesViaAdmin"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamManagersViaAdmin"],
+      });
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.message || "Failed to add members");
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
   });
 };
