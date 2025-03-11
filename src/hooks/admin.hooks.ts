@@ -202,6 +202,29 @@ export const useGetAllEmployees = () => {
 };
 
 /**
+ * useGetAllEmployees hook
+ */
+export const useGetAllNonTeamEmployees = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["allNonTeamEmployeesViaAdmin"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        `/hr-hub/admin/user/employee/non-team/get-all`
+      );
+      return response.data;
+    },
+    // Don't run this query if the user isn't authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
  * useGetAllManagers hook
  */
 export const useGetAllManagers = () => {
@@ -212,6 +235,29 @@ export const useGetAllManagers = () => {
     queryFn: async () => {
       const response = await apiClient.get(
         `/hr-hub/admin/user/manager/get-all`
+      );
+      return response.data;
+    },
+    // Don't run this query if the user isn't authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useGetAllManagers hook
+ */
+export const useGetAllNonTeamManagers = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["allNonTeamManagersViaAdmin"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        `/hr-hub/admin/user/manager/non-team/get-all`
       );
       return response.data;
     },

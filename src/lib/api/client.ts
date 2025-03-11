@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
+import { toast } from "sonner";
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -28,6 +29,11 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear auth state on 401
       useAuthStore.getState().signOut();
+
+      toast.error(
+        error.response?.data?.message ||
+          "You have been logged out. Please sign in again."
+      );
 
       // Only redirect to login if we're in a browser environment
       if (typeof window !== "undefined") {
