@@ -2,6 +2,7 @@
 
 // Core React imports
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 // hooks imports
 import {
@@ -47,6 +48,7 @@ import { toast } from "sonner";
 import DepartmentManagerChangeForm from "./department-manager-change-form";
 import AddDepartmentMembersForm from "./add-department-members-form";
 import DepartmentNameUpdateForm from "./department-name-update-form";
+import { ErrorState } from "@/components/base/error-state";
 
 // Interface for member data
 interface IMember {
@@ -79,6 +81,12 @@ export interface IDepartmentMembers {
  * @returns JSX.Element - Department details page
  */
 const DepartmentDetailPage = ({ id }: { id: string }) => {
+  // Router instance
+  const router = useRouter();
+
+  // Department ID
+  const departmentId = id;
+
   // State variables
   const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
 
@@ -98,7 +106,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
     data: departmentDetailsData,
     isError,
     isLoading,
-  } = useGetDepartmentDetails(id);
+  } = useGetDepartmentDetails(departmentId);
 
   // Mutation to delete a department member
   const memberDeleteMutation = useDeleteDepartmentMember();
@@ -115,12 +123,12 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
   // Error state
   if (isError) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
-        <div className="text-xl font-semibold text-destructive">
-          Error loading department data
-        </div>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
-      </div>
+      <ErrorState
+        title="Error loading department data"
+        description="We couldn't retrieve the department information. The department with this ID may not exist. Please try again later."
+        onRetry={() => window.location.reload()}
+        onBack={() => router.push("/departments")}
+      />
     );
   }
 
@@ -152,13 +160,13 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             {/* Department Name Update Form */}
             <DepartmentNameUpdateForm
               departmentDetailsData={departmentDetailsData}
-              departmentId={id}
+              departmentId={departmentId}
               members={members}
             />
           </div>
         </div>
         {/* Add Department Members Form */}
-        <AddDepartmentMembersForm departmentId={Number(id)} />
+        <AddDepartmentMembersForm departmentId={Number(departmentId)} />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {/* Leader Card */}
@@ -172,7 +180,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               {/* Department Manager Change Form */}
               <DepartmentManagerChangeForm
                 departmentDetailsData={departmentDetailsData}
-                id={id}
+                id={departmentId}
               />
             </CardTitle>
           </CardHeader>

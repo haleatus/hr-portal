@@ -52,7 +52,7 @@ const DepartmentDeletionDialog = ({
           <TooltipTrigger asChild>
             {/* Delete button */}
             <button
-              className="p-1 rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
+              className="p-1 rounded-md cursor-pointer hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
               onClick={(e) => {
                 e.stopPropagation(); // Prevent the card click event from firing
                 setIsComfirmDeletionDepartmentOpen(true);

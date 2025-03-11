@@ -32,6 +32,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
+import { ErrorState } from "@/components/base/error-state";
 
 /**
  * AdminsPage component
@@ -61,12 +62,11 @@ export default function AdminsPage() {
   // Error state
   if (isError) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
-        <div className="text-xl font-semibold text-destructive">
-          Error loading admin data
-        </div>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
-      </div>
+      <ErrorState
+        title="Error loading admin data"
+        description="We couldn't retrieve any admin information. Please try again later."
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 

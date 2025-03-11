@@ -126,7 +126,7 @@ const DepartmentNameUpdateForm = ({
           </TooltipContent>
         </Tooltip>
         {members.length === 0 && (
-          <DepartmentDeletionDialog departmentId={departmentDetailsData} />
+          <DepartmentDeletionDialog departmentId={departmentId} />
         )}
       </TooltipProvider>
 
