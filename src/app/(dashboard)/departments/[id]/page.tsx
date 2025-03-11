@@ -1,4 +1,5 @@
 import React from "react";
+import DepartmentDetailPage from "@/components/dashboards/department/department-details";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -6,7 +7,7 @@ interface PageProps {
 
 const DepartmentDetail = async ({ params }: PageProps) => {
   const { id } = await params;
-  return <div>DepartmentDetail {id}</div>;
+  return <DepartmentDetailPage id={id} />;
 };
 
 export default DepartmentDetail;

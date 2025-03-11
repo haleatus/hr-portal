@@ -2,10 +2,10 @@
 "use client";
 
 import {
-  useCreateDepartment,
-  useGetAllEmployees,
-  useGetAllManagers,
+  useGetAllNonTeamEmployees,
+  useGetAllNonTeamManagers,
 } from "@/hooks/admin.hooks";
+import { useCreateDepartment } from "@/hooks/department.hooks";
 import { IDepartmentCreateResponse } from "@/interfaces/department.interface";
 import React, { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -72,8 +72,8 @@ const CreateDepartmentForm = () => {
   const [selectedMembers, setSelectedMembers] = useState<SelectedMember[]>([]);
 
   // Fetch managers and employees data from API
-  const managersQuery = useGetAllManagers();
-  const employeesQuery = useGetAllEmployees();
+  const managersQuery = useGetAllNonTeamManagers();
+  const employeesQuery = useGetAllNonTeamEmployees();
 
   // Initialize React Hook Form
   const {
@@ -147,6 +147,15 @@ const CreateDepartmentForm = () => {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     // Clear previous errors
     setGeneralError(null);
+
+    // Validate that at least one member is selected
+    if (data.members.length === 0) {
+      setError("members", {
+        type: "manual",
+        message: "At least one member must be selected",
+      });
+      return;
+    }
 
     createDepartmentMutation.mutate(data, {
       onSuccess: (response) => {
@@ -298,14 +307,22 @@ const CreateDepartmentForm = () => {
                       <SelectValue placeholder="Select a manager" />
                     </SelectTrigger>
                     <SelectContent>
-                      {managers.map((manager: any) => (
-                        <SelectItem
-                          key={manager.id}
-                          value={manager.id.toString()}
-                        >
-                          {manager.fullname} | {manager.email}
+                      {managers.length === 0 ? (
+                        <SelectItem disabled value="No managers">
+                          No managers available
                         </SelectItem>
-                      ))}
+                      ) : (
+                        <>
+                          {managers.map((manager: any) => (
+                            <SelectItem
+                              key={manager.id}
+                              value={manager.id.toString()}
+                            >
+                              {manager.fullname} | {manager.email}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 )}
@@ -362,17 +379,25 @@ const CreateDepartmentForm = () => {
                   <SelectValue placeholder="Add employees" />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees.map((employee: any) => (
-                    <SelectItem
-                      key={employee.id}
-                      value={employee.id.toString()}
-                      disabled={selectedMembers.some(
-                        (member) => member.id === employee.id
-                      )}
-                    >
-                      {employee.fullname} | {employee.email}
+                  {employees.length === 0 ? (
+                    <SelectItem disabled value="No employees">
+                      No employees available
                     </SelectItem>
-                  ))}
+                  ) : (
+                    <>
+                      {employees.map((employee: any) => (
+                        <SelectItem
+                          key={employee.id}
+                          value={employee.id.toString()}
+                          disabled={selectedMembers.some(
+                            (member) => member.id === employee.id
+                          )}
+                        >
+                          {employee.fullname} | {employee.email}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
 

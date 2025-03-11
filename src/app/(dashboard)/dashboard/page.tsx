@@ -18,7 +18,9 @@ export default function DashboardPage() {
   // Render the appropriate dashboard based on user role
   return (
     <div className="container mx-auto p-6">
-      {userRole === "ADMIN" && <AdminDashboard />}
+      {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
+        <AdminDashboard />
+      )}
       {userRole === "MANAGER" && <ManagerDashboard />}
       {userRole === "EMPLOYEE" && <EmployeeDashboard />}
     </div>

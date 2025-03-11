@@ -176,7 +176,10 @@ export const useCreateUser = () => {
     onSuccess: () => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({
-        queryKey: ["allUsersViaAdmin", "allUsers"],
+        queryKey: ["allUsersViaAdmin"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allUsers"],
       });
     },
     onError: (error: any) => {

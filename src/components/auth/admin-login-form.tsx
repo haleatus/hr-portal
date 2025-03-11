@@ -140,9 +140,9 @@ export function AdminLoginForm() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
                 Password
               </Label>
-              <Button variant="link" className="h-auto p-0 text-xs">
+              {/* <Button variant="link" className="h-auto p-0 text-xs">
                 Forgot password?
-              </Button>
+              </Button> */}
             </div>
             <div className="relative">
               <Input
