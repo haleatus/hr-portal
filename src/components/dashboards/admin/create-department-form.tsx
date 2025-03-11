@@ -307,14 +307,22 @@ const CreateDepartmentForm = () => {
                       <SelectValue placeholder="Select a manager" />
                     </SelectTrigger>
                     <SelectContent>
-                      {managers.map((manager: any) => (
-                        <SelectItem
-                          key={manager.id}
-                          value={manager.id.toString()}
-                        >
-                          {manager.fullname} | {manager.email}
+                      {managers.length === 0 ? (
+                        <SelectItem disabled value="No managers">
+                          No managers available
                         </SelectItem>
-                      ))}
+                      ) : (
+                        <>
+                          {managers.map((manager: any) => (
+                            <SelectItem
+                              key={manager.id}
+                              value={manager.id.toString()}
+                            >
+                              {manager.fullname} | {manager.email}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 )}
@@ -371,17 +379,25 @@ const CreateDepartmentForm = () => {
                   <SelectValue placeholder="Add employees" />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees.map((employee: any) => (
-                    <SelectItem
-                      key={employee.id}
-                      value={employee.id.toString()}
-                      disabled={selectedMembers.some(
-                        (member) => member.id === employee.id
-                      )}
-                    >
-                      {employee.fullname} | {employee.email}
+                  {employees.length === 0 ? (
+                    <SelectItem disabled value="No employees">
+                      No employees available
                     </SelectItem>
-                  ))}
+                  ) : (
+                    <>
+                      {employees.map((employee: any) => (
+                        <SelectItem
+                          key={employee.id}
+                          value={employee.id.toString()}
+                          disabled={selectedMembers.some(
+                            (member) => member.id === employee.id
+                          )}
+                        >
+                          {employee.fullname} | {employee.email}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
 
