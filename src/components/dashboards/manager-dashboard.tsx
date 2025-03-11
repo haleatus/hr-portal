@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { RecentActivity } from "@/components/dashboards/recent-activity";
-import MyTeamsComponent from "./manager/my-teams";
+import MyTeamsComponent from "./manager/my-department";
 
 export function ManagerDashboard() {
   const reviewStats = {

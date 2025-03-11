@@ -55,7 +55,7 @@ interface DepartmentMember {
  * MyTeamsComponent component
  * @returns {JSX.Element} MyTeamsComponent
  */
-const MyTeamsComponent = (): JSX.Element => {
+const MyDepartmentComponent = (): JSX.Element => {
   // Get the user and loading state from the auth context
   const { user, loading } = useAuth();
 
@@ -320,4 +320,4 @@ const MyTeamsComponent = (): JSX.Element => {
   );
 };
 
-export default MyTeamsComponent;
+export default MyDepartmentComponent;
