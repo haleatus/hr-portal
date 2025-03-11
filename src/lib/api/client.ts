@@ -28,16 +28,13 @@ apiClient.interceptors.response.use(
     // Handle 401 unauthorized errors
     if (error.response?.status === 401) {
       // Clear auth state on 401
-      useAuthStore.getState().signOut();
+      // useAuthStore.getState().signOut();
 
-      toast.error(
-        error.response?.data?.message ||
-          "You have been logged out. Please sign in again."
-      );
+      toast.error("You are not authorized to view this page.");
 
       // Only redirect to login if we're in a browser environment
       if (typeof window !== "undefined") {
-        window.location.href = "/signin";
+        window.location.href = "/dashboard";
       }
     }
     return Promise.reject(error);

@@ -3,8 +3,8 @@
 
 import {
   useCreateDepartment,
-  useGetAllEmployees,
-  useGetAllManagers,
+  useGetAllNonTeamEmployees,
+  useGetAllNonTeamManagers,
 } from "@/hooks/admin.hooks";
 import { IDepartmentCreateResponse } from "@/interfaces/department.interface";
 import React, { useState } from "react";
@@ -72,8 +72,8 @@ const CreateDepartmentForm = () => {
   const [selectedMembers, setSelectedMembers] = useState<SelectedMember[]>([]);
 
   // Fetch managers and employees data from API
-  const managersQuery = useGetAllManagers();
-  const employeesQuery = useGetAllEmployees();
+  const managersQuery = useGetAllNonTeamManagers();
+  const employeesQuery = useGetAllNonTeamEmployees();
 
   // Initialize React Hook Form
   const {

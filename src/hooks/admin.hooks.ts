@@ -166,7 +166,11 @@ export const useCreateDepartment = () => {
 
       // Invalidate allDepartments query to refetch the updated data
       queryClient.invalidateQueries({
-        queryKey: ["allDepartments"],
+        queryKey: [
+          "allDepartments",
+          "allNonTeamEmployeesViaAdmin",
+          "allNonTeamManagersViaAdmin",
+        ],
       });
     },
     onError: (error: any) => {

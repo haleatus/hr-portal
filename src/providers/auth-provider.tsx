@@ -45,7 +45,11 @@ export default function AuthProvider({
         typeof window !== "undefined" ? localStorage.getItem("userRole") : null;
 
       const endpoint =
-        userRole === "ADMIN" ? "/hr-hub/auth/admin/me" : "/hr-hub/auth/user/me";
+        userRole === "ADMIN"
+          ? "/hr-hub/auth/admin/me"
+          : userRole === "SUPER_ADMIN"
+          ? "/hr-hub/auth/admin/me"
+          : "/hr-hub/auth/user/me";
 
       try {
         const response = await apiClient.get(endpoint);
