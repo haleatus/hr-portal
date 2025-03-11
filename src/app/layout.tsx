@@ -35,7 +35,9 @@ export default function RootLayout({
               - Takes full available width
               - Maintains consistent padding
               */}
-            <main className="relative flex-1 w-full ">{children}</main>
+            <main className="relative flex-1 w-full md:pt-0 pt-8">
+              {children}
+            </main>
 
             {/* Toast notifications */}
             <Toaster richColors position="top-right" />

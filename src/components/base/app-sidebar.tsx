@@ -105,8 +105,8 @@ export function AppSidebar() {
       roles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {
-      title: "My Teams",
-      href: "/my-teams",
+      title: "My Department",
+      href: "/my-department",
       icon: ShieldEllipsis,
       roles: ["MANAGER", "EMPLOYEE"],
     },

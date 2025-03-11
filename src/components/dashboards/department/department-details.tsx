@@ -168,7 +168,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
         {/* Add Department Members Form */}
         <AddDepartmentMembersForm departmentId={Number(departmentId)} />
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
         {/* Leader Card */}
         <Card className="md:col-span-1">
           <CardHeader className="pb-2">
@@ -265,7 +265,9 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="text-red-500">Delete Member</p>
+                          <p className="text-red-500">
+                            Delete {memberData.member.fullname}
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
