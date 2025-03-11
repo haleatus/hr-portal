@@ -132,11 +132,14 @@ export const useDeleteDepartmentMember = () => {
       return response.data;
     },
     onSuccess: () => {
-      // This will invalidate ALL departmentDetails queries regardless of their ID
+      // // This will invalidate ALL departmentDetails queries regardless of their ID
       queryClient.invalidateQueries({
         queryKey: ["departmentDetails"],
         exact: false,
       });
+      // queryClient.invalidateQueries({
+      //   queryKey: ["departmentDetails", id],
+      // });
       queryClient.invalidateQueries({
         queryKey: ["allDepartments"],
       });

@@ -260,11 +260,11 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div className="flex flex-wrap gap-4">
                 {members.map((memberData: IDepartmentMembers) => (
                   <div
                     key={memberData.id}
-                    className="relative p-3 rounded-md border border-black/20 hover:bg-muted/50 transition-colors cursor-pointer"
+                    className="relative p-3 w-60 rounded-md border border-black/20 hover:bg-muted/50 transition-colors cursor-pointer"
                     onClick={() => {
                       setSelectedMemberMemberId(memberData.id); // Store the memberId
                       handleMemberClick(memberData.member, memberData.id); // Pass member and memberId
