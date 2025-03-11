@@ -224,10 +224,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             </TooltipProvider>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-4 w-4" />
-          <span>Created {format(createdAt, "MMM d, yyyy")}</span>
-        </div>
         <AddDepartmentMembersForm departmentId={Number(id)} />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -366,8 +362,13 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               <p className="font-medium">{departmentDetailsData.data.id}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Created</p>
-              <p className="font-medium">{format(createdAt, "PPP")}</p>
+              <p className="text-sm text-muted-foreground flex gap-2 items-center">
+                <Calendar className="h-4 w-4" />
+                Created
+              </p>
+              <div className="font-medium">
+                <span>{format(createdAt, "MMM d, yyyy")}</span>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Last Updated</p>

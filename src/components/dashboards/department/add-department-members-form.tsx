@@ -10,14 +10,7 @@ import { toast } from "sonner";
 
 // UI component imports
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ShieldPlus, Users, X } from "lucide-react";
 import {
@@ -207,37 +200,20 @@ const AddDepartmentMembersForm = ({
   return (
     <>
       <Button
-        variant="destructive"
+        variant="default"
         onClick={() => {
           setIsOpen(true);
         }}
-        className="text-white"
+        className="text-white cursor-pointer"
       >
         Add Member
       </Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogTitle className="text-lg font-bold">
+        <DialogContent className="sm:max-w-lg p-0">
+          <DialogTitle className="text-lg font-bold px-6 pt-4">
             Add Department Members
           </DialogTitle>
-          <Card className="w-full max-w-md border-2 shadow-xl">
-            <CardHeader className="space-y-1 pb-4 pt-4">
-              <div className="flex items-center justify-center gap-3">
-                {/* Application Logo and Title */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary p-2 shadow-md">
-                  <ShieldPlus className="h-7 w-7 text-primary-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl font-bold">
-                    Add Department Members
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    Add new members in department
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-
+          <Card className="w-full shadow-none border-none">
             {/* Show loading state while fetching data */}
             {isLoading ? (
               <CardContent className="flex items-center justify-center py-12">
