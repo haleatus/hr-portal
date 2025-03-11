@@ -15,3 +15,18 @@ export const useDepartmentNameUpdateStore = create<DepartmentNameUpdateState>(
     clearError: () => set({ error: null }),
   })
 );
+
+interface DepartmentManagerChangeState {
+  error: string | null;
+
+  setError: (error: string | null) => void;
+  clearError: () => void;
+}
+
+export const useDepartmentManagerChangeStore =
+  create<DepartmentManagerChangeState>((set) => ({
+    error: null,
+
+    setError: (error) => set({ error }),
+    clearError: () => set({ error: null }),
+  }));

@@ -32,6 +32,10 @@ export interface IDepartmentNameUpdate {
   department: string;
 }
 
+export interface IDepartmentManagerChange {
+  leader: number;
+}
+
 export interface IDepartmentUpdateResponse {
   statusCode: number;
   timestamp: string;

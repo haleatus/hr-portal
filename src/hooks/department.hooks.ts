@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  IDepartmentManagerChange,
   IDepartmentNameUpdate,
   IDepartmentUpdateResponse,
 } from "@/interfaces/department.interface";
 import apiClient from "@/lib/api/client";
 import { useCreateDepartmentStore } from "@/store/admin-store";
 import { useAuthStore } from "@/store/auth-store";
-import { useDepartmentNameUpdateStore } from "@/store/department-store";
+import {
+  useDepartmentManagerChangeStore,
+  useDepartmentNameUpdateStore,
+} from "@/store/department-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -94,6 +98,65 @@ export const useUpdateDepartmentName = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["allDepartments"],
+      });
+
+      // Update cached admin data directly to prevent UI flicker
+      queryClient.setQueryData(
+        ["departmentDetails", variables.id],
+        (oldData: any) => {
+          if (oldData) {
+            return {
+              ...oldData,
+              ...response.data,
+            };
+          }
+          return undefined;
+        }
+      );
+    },
+    onError: (error: any) => {
+      setError(
+        error.response?.data?.message || "Failed to update admin details"
+      );
+    },
+  });
+};
+
+/**
+ * useUpdateDepartmentName hook
+ */
+export const useChangeDepartmentManager = () => {
+  const setLeader = useCreateDepartmentStore((state) => state.setLeader);
+  const setError = useDepartmentManagerChangeStore((state) => state.setError);
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number; // Admin ID
+      data: IDepartmentManagerChange;
+    }): Promise<IDepartmentUpdateResponse> => {
+      const response = await apiClient.patch(
+        `/hr-hub/admin/team/update/${id}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: (response, variables) => {
+      // Update the auth store with the new user data
+      setLeader(response.data.leader.id);
+
+      queryClient.invalidateQueries({
+        queryKey: ["departmentDetails", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allDepartments"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamManagersViaAdmin"],
       });
 
       // Update cached admin data directly to prevent UI flicker
