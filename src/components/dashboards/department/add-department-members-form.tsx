@@ -160,6 +160,7 @@ const AddDepartmentMembersForm = ({
           toast.success(
             response.message || "Department members added successfully"
           );
+          setIsOpen(false);
 
           // Reset the form
           reset();
