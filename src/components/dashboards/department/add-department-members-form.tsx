@@ -141,8 +141,6 @@ const AddDepartmentMembersForm = ({
    * @param {FormInputs} data - Form data to submit
    */
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
-    console.log("data", typeof data.members[0]);
-
     // Clear previous errors
     setGeneralError(null);
 
