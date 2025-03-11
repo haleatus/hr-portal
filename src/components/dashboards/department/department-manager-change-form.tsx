@@ -1,3 +1,9 @@
+"use client";
+
+// Core React imports
+import React, { useState } from "react";
+
+// UI components imports
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,23 +34,34 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+// Custom hooks imports
 import { useGetAllNonTeamManagers } from "@/hooks/admin.hooks";
 import { useChangeDepartmentManager } from "@/hooks/department.hooks";
+
+// Third party imports
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Edit } from "lucide-react";
-import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+
+// Interface imports
 import { IDepartmentMembers } from "./department-details";
 
+// Icons imports
+import { Edit } from "lucide-react";
+
+// Zod schema for department manager change form
 const departmentManagerChangeSchema = z.object({
   leader: z.number().min(1, "Leader ID is required"),
 });
 
-{
-  /* Department Manager Change Dialog */
-}
+/**
+ * DepartmentManagerChangeForm component
+ * @param {IDepartmentMembers} departmentDetailsData
+ * @param {string} id
+ * @returns {JSX.Element} JSX Element - Change department manager form
+ */
 const DepartmentManagerChangeForm = ({
   departmentDetailsData,
   id,
@@ -52,11 +69,14 @@ const DepartmentManagerChangeForm = ({
   departmentDetailsData: IDepartmentMembers;
   id: string;
 }) => {
+  // State variables
   const [isChangeManagerOpen, setIsChangeManagerOpen] = useState(false);
 
+  // Custom hooks
   const managersQuery = useGetAllNonTeamManagers();
   const changeDepartmentManagerMutation = useChangeDepartmentManager();
 
+  // Form hook
   const changeManagerForm = useForm({
     resolver: zodResolver(departmentManagerChangeSchema),
     defaultValues: {
@@ -99,6 +119,7 @@ const DepartmentManagerChangeForm = ({
 
   return (
     <>
+      {/* Change department manager icon */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -116,6 +137,7 @@ const DepartmentManagerChangeForm = ({
         </Tooltip>
       </TooltipProvider>
 
+      {/* Change department manager dialog  */}
       <Dialog open={isChangeManagerOpen} onOpenChange={setIsChangeManagerOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -124,6 +146,8 @@ const DepartmentManagerChangeForm = ({
               Assign a new manager to lead this department.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Change department manager form */}
           <Form {...changeManagerForm}>
             <form
               onSubmit={changeManagerForm.handleSubmit(onChangeManagerSubmit)}
@@ -181,16 +205,19 @@ const DepartmentManagerChangeForm = ({
                 )}
               />
               <DialogFooter>
+                {/* Cancel and Change Manager buttons */}
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsChangeManagerOpen(false)}
+                  className="cursor-pointer"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={changeDepartmentManagerMutation.isPending}
+                  className="cursor-pointer"
                 >
                   {changeDepartmentManagerMutation.isPending
                     ? "Updating..."

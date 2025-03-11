@@ -162,16 +162,19 @@ const DepartmentNameUpdateForm = ({
                 )}
               />
               <DialogFooter>
+                {/* Cancel and update button */}
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsUpdateFormOpen(false)}
+                  className="cursor-pointer"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={updateDepartmentMutation.isPending}
+                  className="cursor-pointer"
                 >
                   {updateDepartmentMutation.isPending
                     ? "Updating..."

@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+// Core React imports
+import React, { useState } from "react";
+
+// Hooks imports
 import { useGetAllNonTeamEmployees } from "@/hooks/admin.hooks";
 import { useAddDepartmentMembers } from "@/hooks/department.hooks";
+
+// Interfaces imports
 import { IDepartmentCreateResponse } from "@/interfaces/department.interface";
-import React, { useState } from "react";
+
+// Third-party imports
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -199,6 +206,7 @@ const AddDepartmentMembersForm = ({
 
   return (
     <>
+      {/* Add Member Button */}
       <Button
         variant="default"
         onClick={() => {
@@ -208,6 +216,8 @@ const AddDepartmentMembersForm = ({
       >
         Add Member
       </Button>
+
+      {/* Add Department Members Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-lg p-0">
           <DialogTitle className="text-lg font-bold px-6 pt-4">
@@ -278,6 +288,8 @@ const AddDepartmentMembersForm = ({
                       >
                         <SelectValue placeholder="Add employees" />
                       </SelectTrigger>
+
+                      {/* Display employees for selection */}
                       <SelectContent>
                         {employees.length === 0 ? (
                           <SelectItem disabled value="No employees">
@@ -304,6 +316,7 @@ const AddDepartmentMembersForm = ({
                     {/* Hidden input to keep track of members in form */}
                     <input type="hidden" {...register("members")} />
 
+                    {/* Display error message if any */}
                     {errors.members && (
                       <div className="flex items-center gap-1.5 text-xs text-destructive">
                         <X className="h-3.5 w-3.5" />
