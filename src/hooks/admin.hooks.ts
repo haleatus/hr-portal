@@ -166,12 +166,19 @@ export const useCreateDepartment = () => {
 
       // Invalidate allDepartments query to refetch the updated data
       queryClient.invalidateQueries({
-        queryKey: [
-          "allDepartments",
-          "allNonTeamEmployeesViaAdmin",
-          "allNonTeamManagersViaAdmin",
-        ],
+        queryKey: ["allDepartments"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamEmployeesViaAdmin"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allNonTeamManagersViaAdmin"],
+      });
+      // // This will invalidate ALL departmentDetails queries regardless of their ID
+      // queryClient.invalidateQueries({
+      //   queryKey: ["departmentDetails"],
+      //   exact: false,
+      // });
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || "Failed to create department");
