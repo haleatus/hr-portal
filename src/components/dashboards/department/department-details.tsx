@@ -14,6 +14,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -234,18 +240,27 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                     }}
                   >
                     {/* Delete Member button */}
-                    <button
-                      className="absolute top-2 right-2 p-1 cursor-pointer rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent the card click event from firing
-                        setIsComfirmDeletionOpen(true);
-                        setSelectedMember(memberData.member);
-                        setSelectedMemberMemberId(memberData.id); // Store the memberId
-                      }}
-                      aria-label="Delete member"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            className="absolute top-2 right-2 p-1 cursor-pointer rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent the card click event from firing
+                              setIsComfirmDeletionOpen(true);
+                              setSelectedMember(memberData.member);
+                              setSelectedMemberMemberId(memberData.id); // Store the memberId
+                            }}
+                            aria-label="Delete member"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-red-500">Delete Member</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
 
                     {/* Member details */}
                     <div className="flex items-center gap-3">
@@ -386,12 +401,17 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                     setIsComfirmDeletionOpen(true);
                     setIsDialogOpen(false);
                   }}
-                  className="text-white"
+                  className="text-white cursor-pointer"
                 >
                   Delete Member
                 </Button>
               )}
-              <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+              <Button
+                onClick={() => setIsDialogOpen(false)}
+                className="cursor-pointer"
+              >
+                Close
+              </Button>
             </div>
           </DialogContent>
         )}

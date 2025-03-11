@@ -63,7 +63,7 @@ const DepartmentDeletionDialog = ({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Delete Department</p>
+            <p className="text-red-500">Delete Department</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

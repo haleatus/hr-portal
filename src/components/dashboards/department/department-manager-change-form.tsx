@@ -132,7 +132,7 @@ const DepartmentManagerChangeForm = ({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Change Department Manager</p>
+            <p className="text-blue-500">Change Department Manager</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

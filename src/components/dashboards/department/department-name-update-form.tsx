@@ -122,7 +122,7 @@ const DepartmentNameUpdateForm = ({
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Change Department Name</p>
+            <p className="text-blue-500">Change Department Name</p>
           </TooltipContent>
         </Tooltip>
         {members.length === 0 && (
