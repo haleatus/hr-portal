@@ -265,7 +265,9 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="text-red-500">Delete Member</p>
+                          <p className="text-red-500">
+                            Delete {memberData.member.fullname}
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
