@@ -43,7 +43,7 @@ import DepartmentManagerChangeForm from "./department-manager-change-form";
 import AddDepartmentMembersForm from "./add-department-members-form";
 import DepartmentNameUpdateForm from "./department-name-update-form";
 
-// Types and interfaces
+// Interface for member data
 interface IMember {
   id: string;
   createdAt: string;
@@ -53,6 +53,7 @@ interface IMember {
   role: string;
 }
 
+// Interface for department members
 export interface IDepartmentMembers {
   id: string;
   createdAt: string;
@@ -67,23 +68,37 @@ export interface IDepartmentMembers {
   member: IMember;
 }
 
+/**
+ * DepartmentDetailPage component
+ * @param id
+ * @returns JSX.Element - Department details page
+ */
 const DepartmentDetailPage = ({ id }: { id: string }) => {
+  // State variables
   const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
+
+  // Member Detail Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Confirm deletion dialog state for Member
   const [isConfirmDeletionOpen, setIsComfirmDeletionOpen] = useState(false);
 
+  // State variable to store the memberId
   const [selectedMemberMemberId, setSelectedMemberMemberId] = useState<
     string | null
   >(null);
 
+  // Fetch department details
   const {
     data: departmentDetailsData,
     isError,
     isLoading,
   } = useGetDepartmentDetails(id);
 
+  // Mutation to delete a department member
   const memberDeleteMutation = useDeleteDepartmentMember();
 
+  // Function to handle member click
   const handleMemberClick = (member: IMember, memberId?: string) => {
     setSelectedMember(member);
     if (memberId) {
@@ -109,7 +124,10 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
     return null;
   }
 
+  // Destructure department details
   const { department, leader, members } = departmentDetailsData.data;
+
+  // Created at date
   const createdAt = new Date(departmentDetailsData.data.createdAt);
 
   return (
@@ -117,6 +135,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
       {/* Header with back button */}
       <div className="flex items-center justify-between mb-6">
         <div>
+          {/* Back button */}
           <Link
             href="/departments"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-2"
@@ -125,6 +144,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           </Link>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">{department} Department</h1>
+            {/* Department Name Update Form */}
             <DepartmentNameUpdateForm
               departmentDetailsData={departmentDetailsData}
               departmentId={id}
@@ -132,6 +152,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             />
           </div>
         </div>
+        {/* Add Department Members Form */}
         <AddDepartmentMembersForm departmentId={Number(id)} />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -143,12 +164,14 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                 <UserCircle className="h-4 w-4 text-primary" />
                 Department Leader
               </div>
+              {/* Department Manager Change Form */}
               <DepartmentManagerChangeForm
                 departmentDetailsData={departmentDetailsData}
                 id={id}
               />
             </CardTitle>
           </CardHeader>
+          {/* Leader Card Content */}
           <CardContent>
             <div
               className="flex flex-col gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
@@ -191,6 +214,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               </Badge>
             </CardTitle>
           </CardHeader>
+          {/* Team Members Card Content */}
           <CardContent>
             {members.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -210,9 +234,9 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                       handleMemberClick(memberData.member, memberData.id); // Pass member and memberId
                     }}
                   >
-                    {/* Delete button */}
+                    {/* Delete Member button */}
                     <button
-                      className="absolute top-2 right-2 p-1 rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
+                      className="absolute top-2 right-2 p-1 cursor-pointer rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent the card click event from firing
                         setIsComfirmDeletionOpen(true);
@@ -223,6 +247,8 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+
+                    {/* Member details */}
                     <div className="flex items-center gap-3">
                       <Avatar className="size-12 border-2 border-black/20">
                         <AvatarFallback className="bg-secondary/70 text-black">
@@ -255,6 +281,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           </CardContent>
         </Card>
       </div>
+
       {/* Department Info Card */}
       <Card className="mt-6">
         <CardHeader className="pb-2">
@@ -263,6 +290,8 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             Department Information
           </CardTitle>
         </CardHeader>
+
+        {/* Department Info Card Content */}
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1">
@@ -293,6 +322,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           </div>
         </CardContent>
       </Card>
+
       {/* Member Detail Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedMember && (
@@ -368,7 +398,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
         )}
       </Dialog>
 
-      {/* Confirm Deletion Dialog */}
+      {/* Confirm Deletion Dialog For Member */}
       <Dialog
         open={isConfirmDeletionOpen}
         onOpenChange={setIsComfirmDeletionOpen}
@@ -385,6 +415,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
             <Button
               variant="outline"
               onClick={() => setIsComfirmDeletionOpen(false)}
+              className="cursor-pointer"
             >
               Cancel
             </Button>
@@ -404,7 +435,7 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                 }
               }}
               disabled={memberDeleteMutation.isPending}
-              className="text-white"
+              className="text-white cursor-pointer"
             >
               {memberDeleteMutation.isPending ? "Deleting..." : "Delete"}
             </Button>

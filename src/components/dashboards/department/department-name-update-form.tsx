@@ -109,6 +109,7 @@ const DepartmentNameUpdateForm = ({
 
   return (
     <>
+      {/* Tooltip for edit and delete department name */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
