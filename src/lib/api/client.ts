@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
+import { toast } from "sonner";
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -29,9 +30,11 @@ apiClient.interceptors.response.use(
       // Clear auth state on 401
       useAuthStore.getState().signOut();
 
+      toast.error("You are not authorized to view this page.");
+
       // Only redirect to login if we're in a browser environment
       if (typeof window !== "undefined") {
-        window.location.href = "/signin";
+        window.location.href = "/";
       }
     }
     return Promise.reject(error);

@@ -48,7 +48,11 @@ export default function ReportsPage() {
   }
 
   // Only admin and managers can access reports
-  if (user.role !== "ADMIN" && user.role !== "MANAGER") {
+  if (
+    user.role !== "ADMIN" &&
+    user.role !== "SUPER_ADMIN" &&
+    user.role !== "MANAGER"
+  ) {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold">Access Denied</h1>

@@ -24,6 +24,7 @@ import {
 
 // Interface imports
 import { IDepartment } from "@/interfaces/department.interface";
+import { ErrorState } from "@/components/base/error-state";
 
 /**
  * DepartmentsComponents component
@@ -57,12 +58,11 @@ const DepartmentsComponents = () => {
   // Error state
   if (isError) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
-        <div className="text-xl font-semibold text-destructive">
-          Error loading departments data
-        </div>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
-      </div>
+      <ErrorState
+        title="Error loading departments data"
+        description="We couldn't retrieve any departments information. Please try again later."
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 

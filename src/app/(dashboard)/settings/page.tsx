@@ -16,7 +16,11 @@ export default function SettingsPage() {
     <div className="container mx-auto p-6">
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
 
-      {user.role === "ADMIN" ? <AdminSettings /> : <NotificationSettings />}
+      {user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? (
+        <AdminSettings />
+      ) : (
+        <NotificationSettings />
+      )}
     </div>
   );
 }
