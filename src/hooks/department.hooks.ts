@@ -89,11 +89,6 @@ export const useUpdateDepartmentName = () => {
       // Update the auth store with the new user data
       setDepartment(response.data.department);
 
-      // // This will invalidate ALL departmentDetails queries regardless of their ID
-      // queryClient.invalidateQueries({
-      //   queryKey: ["departmentDetails"],
-      //   exact: false,
-      // });
       queryClient.invalidateQueries({
         queryKey: ["departmentDetails", variables.id.toString()],
       });
@@ -119,6 +114,32 @@ export const useUpdateDepartmentName = () => {
       setError(
         error.response?.data?.message || "Failed to update admin details"
       );
+    },
+  });
+};
+
+/**
+ * useDeleteDepartmentMember hook
+ */
+export const useDeleteDepartmentMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(
+        `/hr-hub/admin/team/member/delete/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // This will invalidate ALL departmentDetails queries regardless of their ID
+      queryClient.invalidateQueries({
+        queryKey: ["departmentDetails"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allDepartments"],
+      });
     },
   });
 };

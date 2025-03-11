@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  useDeleteDepartmentMember,
   useGetDepartmentDetails,
   useUpdateDepartmentName,
 } from "@/hooks/department.hooks";
@@ -25,6 +26,7 @@ import {
   ArrowLeft,
   Clock,
   Edit,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -80,6 +82,11 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
   const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
+  const [isConfirmDeletionOpen, setIsComfirmDeletionOpen] = useState(false);
+
+  const [selectedMemberMemberId, setSelectedMemberMemberId] = useState<
+    string | null
+  >(null);
 
   const {
     data: departmentDetailsData,
@@ -88,6 +95,8 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
   } = useGetDepartmentDetails(id);
 
   const updateDepartmentMutation = useUpdateDepartmentName();
+
+  const memberDeleteMutation = useDeleteDepartmentMember();
 
   const updateForm = useForm({
     resolver: zodResolver(departmentUpdateSchema),
@@ -127,8 +136,11 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
     );
   };
 
-  const handleMemberClick = (member: IMember) => {
+  const handleMemberClick = (member: IMember, memberId?: string) => {
     setSelectedMember(member);
+    if (memberId) {
+      setSelectedMemberMemberId(memberId); // Store the memberId
+    }
     setIsDialogOpen(true);
   };
 
@@ -188,7 +200,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           <span>Created {format(createdAt, "MMM d, yyyy")}</span>
         </div>
       </div>
-
       <div className="grid gap-4 md:grid-cols-3">
         {/* Leader Card */}
         <Card className="md:col-span-1">
@@ -253,9 +264,25 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                 {members.map((memberData: IDepartmentMembers) => (
                   <div
                     key={memberData.id}
-                    className="p-3 rounded-md border border-black/20 hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => handleMemberClick(memberData.member)}
+                    className="relative p-3 rounded-md border border-black/20 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setSelectedMemberMemberId(memberData.id); // Store the memberId
+                      handleMemberClick(memberData.member, memberData.id); // Pass member and memberId
+                    }}
                   >
+                    {/* Delete button */}
+                    <button
+                      className="absolute top-2 right-2 p-1 rounded-md hover:bg-destructive/10 text-destructive hover:text-destructive/80 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the card click event from firing
+                        setIsComfirmDeletionOpen(true);
+                        setSelectedMember(memberData.member);
+                        setSelectedMemberMemberId(memberData.id); // Store the memberId
+                      }}
+                      aria-label="Delete member"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                     <div className="flex items-center gap-3">
                       <Avatar className="size-12 border-2 border-black/20">
                         <AvatarFallback className="bg-secondary/70 text-black">
@@ -288,7 +315,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           </CardContent>
         </Card>
       </div>
-
       {/* Department Info Card */}
       <Card className="mt-6">
         <CardHeader className="pb-2">
@@ -322,7 +348,6 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
           </div>
         </CardContent>
       </Card>
-
       {/* Member Detail Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         {selectedMember && (
@@ -379,13 +404,21 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
                 )}
               </div>
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setIsComfirmDeletionOpen(true);
+                  setIsDialogOpen(false);
+                }}
+              >
+                Delete Member
+              </Button>
               <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
             </div>
           </DialogContent>
         )}
       </Dialog>
-
       {/* Department Name Update Dialog */}
       <Dialog open={isUpdateFormOpen} onOpenChange={setIsUpdateFormOpen}>
         <DialogContent className="sm:max-w-md">
@@ -436,6 +469,50 @@ const DepartmentDetailPage = ({ id }: { id: string }) => {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Deletion Dialog */}
+      <Dialog
+        open={isConfirmDeletionOpen}
+        onOpenChange={setIsComfirmDeletionOpen}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Member</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this member? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsComfirmDeletionOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (selectedMemberMemberId) {
+                  memberDeleteMutation.mutate(selectedMemberMemberId, {
+                    onSuccess: () => {
+                      setIsComfirmDeletionOpen(false);
+                      toast.success("Member deleted successfully.");
+                    },
+                    onError: (error) => {
+                      toast.error(error.message || "Failed to delete member.");
+                    },
+                  });
+                }
+              }}
+              disabled={memberDeleteMutation.isPending}
+              className="text-white"
+            >
+              {memberDeleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
