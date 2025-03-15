@@ -4,7 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { ReviewsList } from "./reviews-list";
-import { useGetMySelfReviews } from "@/hooks/reviews.hooks";
+import {
+  useGetMySelfReviews,
+  useGetMyTeamSelfReviews,
+} from "@/hooks/reviews.hooks";
 import Link from "next/link";
 import { JSX } from "react";
 
@@ -73,7 +76,10 @@ export function ReviewsDashboard({
   const { data: managerReviews, isLoading: isManagerReviewsLoading } = {
     data: undefined,
     isLoading: false,
-  }; // Placeholder
+  };
+  // Placeholder
+  const { data: myTeamSelfReviews, isLoading: isMyTeamSelfReviewsLoading } =
+    useGetMyTeamSelfReviews();
 
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
@@ -104,6 +110,7 @@ export function ReviewsDashboard({
   const formattedSelfReviews = formatReviewsData(selfReviews);
   const formattedPeerReviews = formatReviewsData(peerReviews);
   const formattedManagerReviews = formatReviewsData(managerReviews);
+  const formattedMyTeamSelfReviews = formatReviewsData(myTeamSelfReviews);
 
   return (
     <div className="space-y-6">
@@ -127,6 +134,9 @@ export function ReviewsDashboard({
           <TabsTrigger value="self">Self Reviews</TabsTrigger>
           <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
           <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
+          {userRole === "MANAGER" && (
+            <TabsTrigger value="team-self">Team Self Reviews</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="self">
@@ -161,6 +171,20 @@ export function ReviewsDashboard({
             />
           )}
         </TabsContent>
+        {userRole === "MANAGER" && (
+          <TabsContent value="team-self">
+            {isMyTeamSelfReviewsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading team members self reviews...
+              </div>
+            ) : (
+              <ReviewsList
+                reviews={formattedMyTeamSelfReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

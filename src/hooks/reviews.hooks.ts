@@ -25,3 +25,27 @@ export const useGetMySelfReviews = () => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+/**
+ * Get my team self reviews (Manager only)
+ */
+export const useGetMyTeamSelfReviews = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  // Fetch my team self reviews
+  return useQuery({
+    queryKey: ["myTeamSelfReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/my-team/self/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
