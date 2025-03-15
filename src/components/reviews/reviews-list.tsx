@@ -14,7 +14,6 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,31 +58,9 @@ export function ReviewsList({
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState({});
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const columns: ColumnDef<Review>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: "type",
       header: "Type",
@@ -144,7 +121,6 @@ export function ReviewsList({
       },
       cell: ({ row }) => {
         const date = new Date(row.getValue("dueDate"));
-
         return <div>{date.toLocaleDateString()}</div>;
       },
     },
@@ -168,7 +144,9 @@ export function ReviewsList({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Edit</DropdownMenuItem>
-              {(userRole === "ADMIN" || userRole === "MANAGER") && (
+              {(userRole === "ADMIN" ||
+                userRole === "SUPER_ADMIN" ||
+                userRole === "MANAGER") && (
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -177,6 +155,17 @@ export function ReviewsList({
       },
     },
   ];
+
+  // Handle status filter change
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+
+    if (value === "all") {
+      table.getColumn("status")?.setFilterValue(undefined);
+    } else {
+      table.getColumn("status")?.setFilterValue(value);
+    }
+  };
 
   const table = useReactTable({
     data: reviews,
@@ -187,54 +176,37 @@ export function ReviewsList({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
-      rowSelection,
     },
   });
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Filter subjects..."
-            value={
-              (table.getColumn("subject")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("subject")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-          <Select
-            value={
-              (table.getColumn("status")?.getFilterValue() as string) ?? ""
-            }
-            onValueChange={(value) =>
-              table.getColumn("status")?.setFilterValue(value)
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-              <SelectItem value="Completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2">
-          {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <Button variant="outline" size="sm">
-              Export Selected
-            </Button>
-          )}
-        </div>
+      <div className="flex items-center gap-4">
+        <Input
+          placeholder="Filter subjects..."
+          value={(table.getColumn("subject")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("subject")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+        <Select
+          value={statusFilter || "all"}
+          onValueChange={handleStatusChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="In Progress">In Progress</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-md border">
@@ -262,7 +234,11 @@ export function ReviewsList({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => {
+                    // Optional: Navigate to details page on row click
+                    // router.push(`/reviews/${row.original.id}`);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -288,10 +264,9 @@ export function ReviewsList({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {table.getFilteredRowModel().rows.length} results
         </div>
         <div className="space-x-2">
           <Button

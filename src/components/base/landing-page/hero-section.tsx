@@ -41,13 +41,13 @@ const HeroSection = ({
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Link href={"/signin"}>
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2 cursor-pointer">
                 Login
               </Button>
             </Link>
 
             <Link href={"/signup"}>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="cursor-pointer">
                 Get Started <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
