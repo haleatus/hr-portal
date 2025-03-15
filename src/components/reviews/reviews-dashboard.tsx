@@ -68,9 +68,10 @@ export function ReviewsDashboard({
 }: ReviewsDashboardProps): JSX.Element {
   // Check if the user is a manager
   const isManager = userRole === "MANAGER";
+  const isEmployee = userRole === "EMPLOYEE";
 
   const { data: selfReviews, isLoading: isSelfReviewsLoading } =
-    useGetMySelfReviews();
+    useGetMySelfReviews({ isEmployee });
 
   // You would need to implement these hooks
   const { data: peerReviews, isLoading: isPeerReviewsLoading } = {

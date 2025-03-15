@@ -5,15 +5,19 @@ import { useQuery } from "@tanstack/react-query";
 /**
  * Hook options with isManager flag
  */
-interface ManagerHookOptions {
+interface HookOptions {
   isManager?: boolean;
+  isEmployee?: boolean;
 }
 
 /**
- * Get my self reviews
+ * Get my self reviews (Employee and Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with self reviews data
  */
-export const useGetMySelfReviews = () => {
+export const useGetMySelfReviews = (options: HookOptions = {}) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isEmployee = false } = options;
 
   // Fetch my self reviews
   return useQuery({
@@ -25,7 +29,7 @@ export const useGetMySelfReviews = () => {
       return response.data;
     },
     // Only fetch data if the user is authenticated
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && isEmployee,
     // Only retry once if the request fails
     retry: 1,
     // Consider data fresh for 5 minutes
@@ -34,18 +38,11 @@ export const useGetMySelfReviews = () => {
 };
 
 /**
- * Hook options with isManager flag
- */
-interface ManagerHookOptions {
-  isManager?: boolean;
-}
-
-/**
  * Get my team self reviews (Manager only)
  * @param options - Additional options for the query
  * @returns Query result with team self reviews data
  */
-export const useGetMyTeamSelfReviews = (options: ManagerHookOptions = {}) => {
+export const useGetMyTeamSelfReviews = (options: HookOptions = {}) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { isManager = false } = options;
 
@@ -73,9 +70,7 @@ export const useGetMyTeamSelfReviews = (options: ManagerHookOptions = {}) => {
  * @param options - Additional options for the query
  * @returns Query result with team manager reviews data
  */
-export const useGetMyTeamManagerReviews = (
-  options: ManagerHookOptions = {}
-) => {
+export const useGetMyTeamManagerReviews = (options: HookOptions = {}) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { isManager = false } = options;
 
