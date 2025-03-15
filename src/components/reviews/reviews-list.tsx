@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useGetMySelfReviews } from "@/hooks/reviews.hooks";
 
 type Review = {
   id: string;
@@ -60,6 +61,11 @@ export function ReviewsList({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
+
+  const { data: review, isLoading: isReviewLoading } = useGetMySelfReviews();
+
+  console.log("my review", review);
+  console.log("my revi", isReviewLoading);
 
   const columns: ColumnDef<Review>[] = [
     {
