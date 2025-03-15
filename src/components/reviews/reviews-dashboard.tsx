@@ -66,6 +66,9 @@ interface ReviewsDashboardProps {
 export function ReviewsDashboard({
   userRole,
 }: ReviewsDashboardProps): JSX.Element {
+  // Check if the user is a manager
+  const isManager = userRole === "MANAGER";
+
   const { data: selfReviews, isLoading: isSelfReviewsLoading } =
     useGetMySelfReviews();
 
@@ -80,14 +83,15 @@ export function ReviewsDashboard({
   }; // Placeholder
 
   // Get my team self reviews (Manager only)
+  // Pass isManager flag to conditionally enable these manager-specific queries
   const { data: myTeamSelfReviews, isLoading: isMyTeamSelfReviewsLoading } =
-    useGetMyTeamSelfReviews();
+    useGetMyTeamSelfReviews({ isManager });
 
   // Get my team manager reviews (Manager only)
   const {
     data: myTeamManagerReviews,
     isLoading: isMyTeamManagerReviewsLoading,
-  } = useGetMyTeamManagerReviews();
+  } = useGetMyTeamManagerReviews({ isManager });
 
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (

@@ -3,6 +3,13 @@ import { useAuthStore } from "@/store/auth-store";
 import { useQuery } from "@tanstack/react-query";
 
 /**
+ * Hook options with isManager flag
+ */
+interface ManagerHookOptions {
+  isManager?: boolean;
+}
+
+/**
  * Get my self reviews
  */
 export const useGetMySelfReviews = () => {
@@ -27,10 +34,20 @@ export const useGetMySelfReviews = () => {
 };
 
 /**
- * Get my team self reviews (Manager only)
+ * Hook options with isManager flag
  */
-export const useGetMyTeamSelfReviews = () => {
+interface ManagerHookOptions {
+  isManager?: boolean;
+}
+
+/**
+ * Get my team self reviews (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team self reviews data
+ */
+export const useGetMyTeamSelfReviews = (options: ManagerHookOptions = {}) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
 
   // Fetch my team self reviews
   return useQuery({
@@ -41,8 +58,9 @@ export const useGetMyTeamSelfReviews = () => {
       );
       return response.data;
     },
-    // Only fetch data if the user is authenticated
-    enabled: isAuthenticated,
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
     // Only retry once if the request fails
     retry: 1,
     // Consider data fresh for 5 minutes
@@ -52,11 +70,16 @@ export const useGetMyTeamSelfReviews = () => {
 
 /**
  * Get my team manager reviews (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team manager reviews data
  */
-export const useGetMyTeamManagerReviews = () => {
+export const useGetMyTeamManagerReviews = (
+  options: ManagerHookOptions = {}
+) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
 
-  // Fetch my team self reviews
+  // Fetch my team manager reviews
   return useQuery({
     queryKey: ["myTeamManagerReviews"],
     queryFn: async () => {
@@ -65,8 +88,9 @@ export const useGetMyTeamManagerReviews = () => {
       );
       return response.data;
     },
-    // Only fetch data if the user is authenticated
-    enabled: isAuthenticated,
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
     // Only retry once if the request fails
     retry: 1,
     // Consider data fresh for 5 minutes
