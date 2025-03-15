@@ -49,3 +49,27 @@ export const useGetMyTeamSelfReviews = () => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+/**
+ * Get my team manager reviews (Manager only)
+ */
+export const useGetMyTeamManagerReviews = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  // Fetch my team self reviews
+  return useQuery({
+    queryKey: ["myTeamManagerReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/my-team/manager/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};

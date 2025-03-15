@@ -6,6 +6,7 @@ import { PlusCircle } from "lucide-react";
 import { ReviewsList } from "./reviews-list";
 import {
   useGetMySelfReviews,
+  useGetMyTeamManagerReviews,
   useGetMyTeamSelfReviews,
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
@@ -76,10 +77,17 @@ export function ReviewsDashboard({
   const { data: managerReviews, isLoading: isManagerReviewsLoading } = {
     data: undefined,
     isLoading: false,
-  };
-  // Placeholder
+  }; // Placeholder
+
+  // Get my team self reviews (Manager only)
   const { data: myTeamSelfReviews, isLoading: isMyTeamSelfReviewsLoading } =
     useGetMyTeamSelfReviews();
+
+  // Get my team manager reviews (Manager only)
+  const {
+    data: myTeamManagerReviews,
+    isLoading: isMyTeamManagerReviewsLoading,
+  } = useGetMyTeamManagerReviews();
 
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
@@ -111,6 +119,7 @@ export function ReviewsDashboard({
   const formattedPeerReviews = formatReviewsData(peerReviews);
   const formattedManagerReviews = formatReviewsData(managerReviews);
   const formattedMyTeamSelfReviews = formatReviewsData(myTeamSelfReviews);
+  const formattedMyTeamManagerReviews = formatReviewsData(myTeamManagerReviews);
 
   return (
     <div className="space-y-6">
@@ -132,10 +141,19 @@ export function ReviewsDashboard({
       <Tabs defaultValue="self">
         <TabsList className="mb-4">
           <TabsTrigger value="self">Self Reviews</TabsTrigger>
-          <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
-          <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
+          {userRole === "EMPLOYEE" && (
+            <>
+              <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
+              <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
+            </>
+          )}
           {userRole === "MANAGER" && (
-            <TabsTrigger value="team-self">Team Self Reviews</TabsTrigger>
+            <>
+              <TabsTrigger value="team-manager-reviews">
+                My Team Manager Reviews
+              </TabsTrigger>
+              <TabsTrigger value="team-self">Team Self Reviews</TabsTrigger>
+            </>
           )}
         </TabsList>
 
@@ -159,18 +177,34 @@ export function ReviewsDashboard({
           )}
         </TabsContent>
 
-        <TabsContent value="manager">
-          {isManagerReviewsLoading ? (
-            <div className="flex justify-center p-8">
-              Loading manager reviews...
-            </div>
-          ) : (
-            <ReviewsList
-              reviews={formattedManagerReviews}
-              userRole={userRole}
-            />
-          )}
-        </TabsContent>
+        {userRole === "EMPLOYEE" && (
+          <TabsContent value="manager">
+            {isManagerReviewsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading manager reviews...
+              </div>
+            ) : (
+              <ReviewsList
+                reviews={formattedManagerReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+        {userRole === "MANAGER" && (
+          <TabsContent value="team-manager-reviews">
+            {isMyTeamManagerReviewsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading team members manager reviews...
+              </div>
+            ) : (
+              <ReviewsList
+                reviews={formattedMyTeamManagerReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
         {userRole === "MANAGER" && (
           <TabsContent value="team-self">
             {isMyTeamSelfReviewsLoading ? (

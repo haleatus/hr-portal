@@ -1,4 +1,4 @@
-import ReviewDetailComponent from "@/components/reviews/review-detail";
+import { ReviewDetail } from "@/components/reviews/review-detail";
 import React from "react";
 
 interface PageProps {
@@ -10,7 +10,7 @@ const ReviewDetailPage = async ({ params }: PageProps) => {
 
   return (
     <div>
-      <ReviewDetailComponent id={id} />
+      <ReviewDetail reviewId={id} />
     </div>
   );
 };
