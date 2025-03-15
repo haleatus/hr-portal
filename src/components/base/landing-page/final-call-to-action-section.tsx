@@ -32,7 +32,11 @@ const FinalCallToActionSection = ({ fadeIn }: { fadeIn: Variants }) => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link href={"/signup"}>
-              <Button size="lg" variant="secondary" className="gap-2">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="gap-2 cursor-pointer"
+              >
                 Get Started <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -41,7 +45,7 @@ const FinalCallToActionSection = ({ fadeIn }: { fadeIn: Variants }) => {
               <Button
                 variant="outline"
                 size="lg"
-                className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                className="bg-transparent cursor-pointer text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
               >
                 Login
               </Button>
