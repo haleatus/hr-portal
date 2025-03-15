@@ -131,15 +131,14 @@ export function ReviewsDashboard({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Performance Reviews</h1>
         <div className="flex gap-2">
-          {userRole === "EMPLOYEE" ||
-            (userRole === "MANAGER" && (
-              <Button asChild>
-                <Link href="/reviews/create">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create New Review
-                </Link>
-              </Button>
-            ))}
+          {(userRole === "EMPLOYEE" || userRole === "MANAGER") && (
+            <Button asChild>
+              <Link href="/reviews/create">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create New Review
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import apiClient from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
-import { useQuery } from "@tanstack/react-query";
+import { useSelfReviewStore } from "@/store/review-store";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 /**
  * Hook options with isManager flag
@@ -112,5 +114,56 @@ export const useGetReviewDetails = (id: string) => {
     retry: 1,
     // Consider data fresh for 5 minutes
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useCreateSelfReview hook
+ */
+export const useCreateSelfReview = () => {
+  const setError = useSelfReviewStore((state) => state.setError);
+  const setIsLoading = useSelfReviewStore((state) => state.setIsLoading);
+  const setSubject = useSelfReviewStore((state) => state.setSubject);
+  const setDescription = useSelfReviewStore((state) => state.setDescription);
+  const setDueDate = useSelfReviewStore((state) => state.setDueDate);
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reviewData: any) => {
+      const response = await apiClient.post(
+        "/hr-hub/user/review/self/create",
+        reviewData
+      );
+      return response.data;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+      setError(null);
+    },
+    onSuccess: (response) => {
+      setSubject(response.data.subject);
+      setDescription(response.data.description);
+      setDueDate(response.data.dueDate);
+
+      // Invalidate query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamManagerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamSelfReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["mySelfReviews"],
+      });
+    },
+    onError: (error: any) => {
+      setError(
+        error.response?.data?.message || "Failed to create a self review"
+      );
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
   });
 };
