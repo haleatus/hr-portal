@@ -43,6 +43,22 @@ interface ReviewData {
   subject: string;
   description: string;
   progressStatus: string;
+  reviewee: {
+    id: number;
+    fullname: string;
+    email: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  reviewer: {
+    id: number;
+    fullname: string;
+    email: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+  };
   dueDate: string;
   questionnaires: Questionnaire[];
 }
@@ -57,6 +73,8 @@ interface ReviewResponse {
 export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
   const [activeTab, setActiveTab] = useState("overview");
   const review = reviewData.data;
+
+  console.log("reviewDetails", review.reviewee.fullname);
 
   // Calculate average rating
   const ratedQuestionnaires = review.questionnaires.filter(
@@ -265,14 +283,17 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
               <Card key={questionnaire.id} className="overflow-hidden">
                 <CardHeader className="bg-muted/20">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <CardTitle className="text-base font-medium">
-                      {cleanQuestionText(questionnaire.question)}
-                      {requiresRating(questionnaire.question) && (
-                        <span className="text-sm text-muted-foreground ml-2">
-                          (1-5 scale)
-                        </span>
-                      )}
-                    </CardTitle>
+                    <CardTitle
+                      className="text-base font-medium"
+                      dangerouslySetInnerHTML={{
+                        __html: cleanQuestionText(
+                          questionnaire.question
+                        ).replace(
+                          review.reviewee.fullname,
+                          `<span class="text-blue-500 font-semibold">${review.reviewee.fullname}</span>`
+                        ),
+                      }}
+                    />
                     {questionnaire.ratings > 0 && (
                       <div className="flex shrink-0">
                         {renderRatingStars(questionnaire.ratings)}
