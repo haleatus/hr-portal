@@ -167,7 +167,7 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
         dueDate: defaultDueDate,
       });
     } catch (error: any) {
-      console.error("Review creation error:", error);
+      //   console.error("Review creation error:", error);
       toast.error(
         error?.response?.data?.message ||
           "Failed to create review. Please try again."
