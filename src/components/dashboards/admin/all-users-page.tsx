@@ -238,7 +238,7 @@ export default function UsersPage() {
         </div>
         <Button
           onClick={() => {
-            router.push("/create-user");
+            router.push("/users/create");
           }}
           className="w-full sm:w-auto cursor-pointer"
         >
