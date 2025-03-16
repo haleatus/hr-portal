@@ -1,11 +1,11 @@
 "use client";
 
 import { JSX, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateReviewForm from "./create-review-form";
+import Questionnaire from "./questionaires";
 
 /**
  * ReviewForm Component
@@ -32,10 +32,7 @@ export function ReviewForm(): JSX.Element {
    * Moves to the next tab or submits the form if on the last tab
    * Uses preventDefault to avoid default form submission behavior
    */
-  const handleNext = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    // Prevent default button behavior which might trigger form submission
-    e.preventDefault();
-
+  const handleNext = (): void => {
     if (activeTab === "details") {
       setActiveTab("criteria");
     } else if (activeTab === "criteria") {
@@ -49,16 +46,9 @@ export function ReviewForm(): JSX.Element {
    * Moves to the previous tab
    * Uses preventDefault to avoid default form submission behavior
    */
-  const handlePrevious = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    // Prevent default button behavior
-    e.preventDefault();
-
+  const handlePrevious = (): void => {
     if (activeTab === "criteria") {
       setActiveTab("details");
-    } else if (activeTab === "comments") {
-      setActiveTab("criteria");
-    } else if (activeTab === "notifications") {
-      setActiveTab("comments");
     }
   };
 
@@ -85,54 +75,14 @@ export function ReviewForm(): JSX.Element {
 
             {/* Details Tab Content */}
             <TabsContent value="details" className="space-y-4 pt-4">
-              <CreateReviewForm />
+              <CreateReviewForm handleNext={handleNext} />
             </TabsContent>
 
             {/* Criteria Tab Content */}
             <TabsContent value="criteria" className="space-y-4 pt-4">
-              <div className="space-y-8 pt-4">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-medium">Performance Criteria</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Rate the performance in each of the following areas on a
-                    scale of 1-5.
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  {/* Criteria rating cards */}
-                  <div className="space-y-6">nnn</div>
-                </div>
-              </div>
+              <Questionnaire handlePrevious={handlePrevious} />
             </TabsContent>
           </Tabs>
-
-          {/* Navigation buttons */}
-          <div className="flex justify-between pt-4">
-            <Button
-              type="button" // Important: type="button" prevents form submission
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={activeTab === "details"}
-              className="cursor-pointer"
-            >
-              Previous
-            </Button>
-
-            {activeTab === "notifications" ? (
-              <Button type="submit" className="cursor-pointer">
-                Submit Review
-              </Button>
-            ) : (
-              <Button
-                type="button" // Important: type="button" prevents form submission
-                className="cursor-pointer"
-                onClick={handleNext}
-              >
-                Next
-              </Button>
-            )}
-          </div>
         </div>
       </CardContent>
     </Card>

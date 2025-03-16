@@ -6,6 +6,7 @@ import {
   FormField,
   FormLabel,
 } from "@/components/ui/form";
+import { Button } from "../ui/button";
 
 /**
  * Type definitions for performance criteria and comment fields
@@ -42,7 +43,7 @@ const RATING_DESCRIPTIONS = {
   "5": "Outstanding performance",
 } as const;
 
-const questionaires = () => {
+const Questionnaire = ({ handlePrevious }: { handlePrevious: () => void }) => {
   /**
    * Criteria definitions with descriptions and related fields
    */
@@ -195,8 +196,17 @@ const questionaires = () => {
           </div>
         </div>
       </div>
+      <Button
+        type="button" // Important: type="button" prevents form submission
+        variant="outline"
+        onClick={handlePrevious}
+        disabled
+        className="cursor-pointer"
+      >
+        Previous
+      </Button>
     </>
   );
 };
 
-export default questionaires;
+export default Questionnaire;

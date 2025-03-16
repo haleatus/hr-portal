@@ -47,7 +47,7 @@ const validateForm = (values: any) => {
   return errors;
 };
 
-const CreateReviewForm = () => {
+const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
   const { user, loading } = useAuth();
   const [formValues, setFormValues] = useState({
     reviewType: "self",
@@ -99,6 +99,7 @@ const CreateReviewForm = () => {
           dueDate: formValues.dueDate,
         });
         toast.success("Self review created successfully");
+        handleNext();
       } else if (formValues.reviewType === "manager") {
         const revieweeId = Number(formValues.reviewee);
         if (isNaN(revieweeId)) {
@@ -111,6 +112,7 @@ const CreateReviewForm = () => {
           dueDate: formValues.dueDate,
         });
         toast.success("Manager review created successfully");
+        handleNext();
       } else if (formValues.reviewType === "peer") {
         toast.info("Peer review functionality is not yet available");
         return;
@@ -241,19 +243,22 @@ const CreateReviewForm = () => {
         )}
       </div>
 
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        disabled={
-          createSelfReviewMutation.isPending ||
+      <div className="flex justify-end items-center">
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          disabled={
+            createSelfReviewMutation.isPending ||
+            createManagerReviewMutation.isPending
+          }
+          className="cursor-pointer"
+        >
+          {createSelfReviewMutation.isPending ||
           createManagerReviewMutation.isPending
-        }
-      >
-        {createSelfReviewMutation.isPending ||
-        createManagerReviewMutation.isPending
-          ? "Creating..."
-          : "Create Review"}
-      </Button>
+            ? "Creating..."
+            : "Create Review"}
+        </Button>
+      </div>
     </form>
   );
 };
