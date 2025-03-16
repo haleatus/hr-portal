@@ -1,6 +1,6 @@
 "use client";
 
-import { ReviewsDashboard } from "@/components/reviews/reviews-dashboard";
+import { ReviewsDashboard } from "@/components/dashboards/reviews/reviews-dashboard";
 import Loading from "@/app/loading";
 
 export default function ReviewsPage() {

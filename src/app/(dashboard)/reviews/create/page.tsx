@@ -1,4 +1,4 @@
-import { ReviewForm } from "@/components/reviews/review-form";
+import { ReviewForm } from "@/components/dashboards/reviews/review-form";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

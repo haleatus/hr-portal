@@ -8,11 +8,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
+} from "../../ui/select";
+import { Input } from "../../ui/input";
+import { Textarea } from "../../ui/textarea";
+import { Button } from "../../ui/button";
+import { Card, CardContent } from "../../ui/card";
 import { Loader2 } from "lucide-react";
 import {
   useCreateSelfReview,

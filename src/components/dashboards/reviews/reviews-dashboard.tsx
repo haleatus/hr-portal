@@ -142,11 +142,13 @@ export function ReviewsDashboard({
         </div>
       </div>
 
-      <Tabs defaultValue="self">
+      <Tabs
+        defaultValue={userRole === "EMPLOYEE" ? "self" : "team-manager-reviews"}
+      >
         <TabsList className="mb-4">
-          <TabsTrigger value="self">Self Reviews</TabsTrigger>
           {userRole === "EMPLOYEE" && (
             <>
+              <TabsTrigger value="self">Self Reviews</TabsTrigger>
               <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
               <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
             </>

@@ -1,7 +1,7 @@
 "use client";
 
 import Loading from "@/app/loading";
-import { ReviewDetail } from "@/components/reviews/review-detail";
+import { ReviewDetail } from "@/components/dashboards/reviews/review-detail";
 import { useGetReviewDetails } from "@/hooks/reviews.hooks";
 import { useParams } from "next/navigation";
 import React from "react";
