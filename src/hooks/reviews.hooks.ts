@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import apiClient from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
-import { useSelfReviewStore } from "@/store/review-store";
+import {
+  useManagerReviewStore,
+  useSelfReviewStore,
+} from "@/store/review-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -148,9 +151,6 @@ export const useCreateSelfReview = () => {
 
       // Invalidate query to refetch the updated data
       queryClient.invalidateQueries({
-        queryKey: ["myTeamManagerReviews"],
-      });
-      queryClient.invalidateQueries({
         queryKey: ["myTeamSelfReviews"],
       });
       queryClient.invalidateQueries({
@@ -160,6 +160,49 @@ export const useCreateSelfReview = () => {
     onError: (error: any) => {
       setError(
         error.response?.data?.message || "Failed to create a self review"
+      );
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+};
+
+/**
+ * useCreateManagerReview hook
+ */
+export const useCreateManagerReview = () => {
+  const setError = useManagerReviewStore((state) => state.setError);
+  const setIsLoading = useManagerReviewStore((state) => state.setIsLoading);
+  const setReviewee = useManagerReviewStore((state) => state.setReviewee);
+  const setDueDate = useManagerReviewStore((state) => state.setDueDate);
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reviewData: any) => {
+      const response = await apiClient.post(
+        "/hr-hub/user/review/manager/create",
+        reviewData
+      );
+      return response.data;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+      setError(null);
+    },
+    onSuccess: (response) => {
+      setReviewee(response.data.reviewee);
+      setDueDate(response.data.dueDate);
+
+      // Invalidate query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamManagerReviews"],
+      });
+    },
+    onError: (error: any) => {
+      setError(
+        error.response?.data?.message || "Failed to create a manager review"
       );
     },
     onSettled: () => {
