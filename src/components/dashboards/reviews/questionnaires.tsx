@@ -153,8 +153,6 @@ const Questionnaire = () => {
     };
 
     try {
-      console.log("questionnaireData", questionnaireData);
-
       await submitQuestionnaireMutation.mutateAsync({
         id: reviewId,
         questionnaireData,

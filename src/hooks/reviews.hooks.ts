@@ -71,6 +71,34 @@ export const useGetMyTeamSelfReviews = (options: HookOptions = {}) => {
 };
 
 /**
+ * Get my team manager reviews (Employee)
+ * @param options - Additional options for the query
+ * @returns Query result with team manger reviews on employee data
+ */
+export const useGetMyTeamManagerReviewsOnMe = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isEmployee = false } = options;
+
+  // Fetch my team self reviews
+  return useQuery({
+    queryKey: ["myTeamManagerReviewsOnMe"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/my/manager/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isEmployee,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
  * Get my team manager reviews (Manager only)
  * @param options - Additional options for the query
  * @returns Query result with team manager reviews data
@@ -231,10 +259,10 @@ export const useSubmitQuestionnaire = () => {
       );
       return response.data;
     },
-    onSuccess: (variables) => {
-      // Invalidate query to refetch the updated data
+    onSuccess: () => {
+      // If we don't have an ID in the response, invalidate all review details queries
       queryClient.invalidateQueries({
-        queryKey: ["reviewDetails", variables.data.id.toString()],
+        queryKey: ["reviewDetails"],
       });
     },
   });

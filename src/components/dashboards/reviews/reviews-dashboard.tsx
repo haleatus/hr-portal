@@ -7,6 +7,7 @@ import { ReviewsList } from "./reviews-list";
 import {
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
+  useGetMyTeamManagerReviewsOnMe,
   useGetMyTeamSelfReviews,
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
@@ -78,10 +79,8 @@ export function ReviewsDashboard({
     data: undefined,
     isLoading: false,
   }; // Placeholder
-  const { data: managerReviews, isLoading: isManagerReviewsLoading } = {
-    data: undefined,
-    isLoading: false,
-  }; // Placeholder
+  const { data: managerReviews, isLoading: isManagerReviewsLoading } =
+    useGetMyTeamManagerReviewsOnMe({ isEmployee });
 
   // Get my team self reviews (Manager only)
   // Pass isManager flag to conditionally enable these manager-specific queries

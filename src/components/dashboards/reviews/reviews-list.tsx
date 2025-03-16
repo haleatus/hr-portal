@@ -142,12 +142,14 @@ export function ReviewsList({
               <DropdownMenuItem asChild>
                 <Link href={`/reviews/${review.id}`}>View Details</Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link href={`/reviews/${review.id}/edit`}>
-                  Edit Questionnaires
-                </Link>
-              </DropdownMenuItem>
+              {userRole === "MANAGER" && <DropdownMenuSeparator />}
+              {userRole === "MANAGER" && (
+                <DropdownMenuItem>
+                  <Link href={`/reviews/${review.id}/edit`}>
+                    Edit Questionnaires
+                  </Link>
+                </DropdownMenuItem>
+              )}
               {(userRole === "ADMIN" ||
                 userRole === "SUPER_ADMIN" ||
                 userRole === "MANAGER") && (
