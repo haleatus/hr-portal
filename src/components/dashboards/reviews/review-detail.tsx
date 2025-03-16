@@ -12,6 +12,7 @@ import {
   User,
   FileText,
   BarChart2,
+  EditIcon,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,13 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Type definitions
 interface Questionnaire {
@@ -169,7 +177,23 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
       <div className="grid gap-6">
         <Card className="border-muted/40">
           <CardContent className="p-6">
-            <p className="text-muted-foreground mb-4">{review.description}</p>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-muted-foreground">{review.description}</p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" className="cursor-pointer size-9">
+                      <Link href={`/reviews/${review.id}/edit`}>
+                        <EditIcon className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{`Edit Review "${review.subject}"`}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center gap-2 bg-muted/30 p-3 rounded-lg">
