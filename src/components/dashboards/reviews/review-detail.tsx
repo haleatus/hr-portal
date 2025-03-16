@@ -3,11 +3,25 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Clock, Star, StarHalf, User } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Star,
+  StarHalf,
+  User,
+  FileText,
+  BarChart2,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 
@@ -45,11 +59,17 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
   const review = reviewData.data;
 
   // Calculate average rating
-  const totalRatings = review.questionnaires.reduce(
+  const ratedQuestionnaires = review.questionnaires.filter(
+    (q) => q.ratings > 0
+  );
+  const totalRatings = ratedQuestionnaires.reduce(
     (sum, q) => sum + q.ratings,
     0
   );
-  const averageRating = totalRatings / review.questionnaires.length;
+  const averageRating =
+    ratedQuestionnaires.length > 0
+      ? totalRatings / ratedQuestionnaires.length
+      : 0;
 
   // Format dates
   const formattedDueDate = format(
@@ -63,7 +83,7 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
 
   // Get status color
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toUpperCase()) {
       case "SUBMITTED":
         return "bg-green-500/10 text-green-500 hover:bg-green-500/10";
       case "PENDING":
@@ -94,116 +114,193 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
     return stars;
   };
 
+  // Check if a question requires rating (has "1-5 scale" in the text)
+  const requiresRating = (question: string) => {
+    return question.toLowerCase().includes("(1-5 scale)");
+  };
+
+  // Clean question text by removing the scale indicator
+  const cleanQuestionText = (question: string) => {
+    return requiresRating(question)
+      ? question.replace(/\s*$$1-5 scale$$\s*/i, "")
+      : question;
+  };
+
   return (
-    <div className="container p-6">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/reviews"
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-2"
+    <div className="container py-8 px-4 md:px-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+        <div>
+          <Link
+            href="/reviews"
+            className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary mb-2"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Reviews
+          </Link>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-2">
+            {review.subject}
+          </h1>
+        </div>
+        <Badge
+          className={`${getStatusColor(
+            review.progressStatus
+          )} text-sm px-3 py-1`}
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Reviews
-        </Link>
-        <Badge className={getStatusColor(review.progressStatus)}>
           {review.progressStatus}
         </Badge>
       </div>
 
       <div className="grid gap-6">
-        <div className="flex flex-col space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {review.subject}
-          </h1>
-          <p className="text-muted-foreground">{review.description}</p>
+        <Card className="border-muted/40">
+          <CardContent className="p-6">
+            <p className="text-muted-foreground mb-4">{review.description}</p>
 
-          <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span>
-                {review.reviewType === "SELF"
-                  ? "Self Review"
-                  : review.reviewType === "MANAGER"
-                  ? "Manager Review"
-                  : "Peer Review"}
-              </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="flex items-center gap-2 bg-muted/30 p-3 rounded-lg">
+                <User className="h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-medium">Review Type</div>
+                  <div className="text-muted-foreground">
+                    {review.reviewType === "SELF"
+                      ? "Self Review"
+                      : review.reviewType === "MANAGER"
+                      ? "Manager Review"
+                      : "Peer Review"}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-muted/30 p-3 rounded-lg">
+                <Calendar className="h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-medium">Created On</div>
+                  <div className="text-muted-foreground">
+                    {formattedCreatedDate}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-muted/30 p-3 rounded-lg">
+                <Clock className="h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-medium">Due By</div>
+                  <div className="text-muted-foreground">
+                    {formattedDueDate}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Created on {formattedCreatedDate}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>Due by {formattedDueDate}</span>
-            </div>
-          </div>
-        </div>
-
-        <Separator />
+          </CardContent>
+        </Card>
 
         <Tabs
           defaultValue="overview"
           value={activeTab}
           onValueChange={setActiveTab}
+          className="w-full"
         >
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="questions">Questions & Answers</TabsTrigger>
+          <TabsList className="mb-6 grid grid-cols-2 md:w-auto md:inline-flex">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BarChart2 className="h-4 w-4" />
+              <span>Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="questions" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span>Questions & Answers</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Performance Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-col items-center justify-center space-y-2 rounded-lg bg-muted p-6">
-                  <div className="flex">{renderRatingStars(averageRating)}</div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">
-                      {averageRating.toFixed(1)}/5.0
+            {ratedQuestionnaires.length > 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">Performance Summary</CardTitle>
+                  <CardDescription>
+                    Average rating across all performance criteria
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col items-center justify-center space-y-2 rounded-lg bg-muted/50 p-6">
+                    <div className="flex">
+                      {renderRatingStars(averageRating)}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Average Rating
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-4">
-                  {review.questionnaires.map((q) => (
-                    <div key={q.id} className="grid gap-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium truncate max-w-[80%]">
-                          {q.question}
-                        </span>
-                        <span className="text-sm">{q.ratings}/5</span>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold">
+                        {averageRating.toFixed(1)}/5.0
                       </div>
-                      <Progress value={q.ratings * 20} className="h-2" />
+                      <p className="text-sm text-muted-foreground">
+                        Average Rating
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+
+                  <div className="grid gap-4">
+                    {ratedQuestionnaires.map((q) => (
+                      <div key={q.id} className="grid gap-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium truncate max-w-[80%]">
+                            {cleanQuestionText(q.question)}
+                          </span>
+                          <span className="text-sm font-medium">
+                            {q.ratings}/5
+                          </span>
+                        </div>
+                        <Progress value={q.ratings * 20} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground">
+                    No ratings available for this review.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="questions" className="space-y-6">
             {review.questionnaires.map((questionnaire) => (
-              <Card key={questionnaire.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
+              <Card key={questionnaire.id} className="overflow-hidden">
+                <CardHeader className="bg-muted/20">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <CardTitle className="text-base font-medium">
-                      {questionnaire.question}
+                      {cleanQuestionText(questionnaire.question)}
+                      {requiresRating(questionnaire.question) && (
+                        <span className="text-sm text-muted-foreground ml-2">
+                          (1-5 scale)
+                        </span>
+                      )}
                     </CardTitle>
-                    <div className="flex">
-                      {renderRatingStars(questionnaire.ratings)}
-                    </div>
+                    {questionnaire.ratings > 0 && (
+                      <div className="flex shrink-0">
+                        {renderRatingStars(questionnaire.ratings)}
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="rounded-md bg-muted p-4">
-                    <p className="whitespace-pre-line">
-                      {questionnaire.answers[0]}
-                    </p>
-                  </div>
+                <CardContent className="p-0">
+                  {questionnaire.answers && questionnaire.answers.length > 0 ? (
+                    <div className="divide-y">
+                      {questionnaire.answers.map((answer, index) => (
+                        <div key={index} className="p-4">
+                          {questionnaire.answers.length > 1 && (
+                            <div className="text-xs font-medium text-muted-foreground mb-2">
+                              Answer {index + 1}
+                            </div>
+                          )}
+                          <div className="rounded-md bg-muted/30 p-4">
+                            <p className="whitespace-pre-line">{answer}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground">
+                      No answers provided
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -212,96 +309,4 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
       </div>
     </div>
   );
-}
-
-// Example usage
-export default function ReviewDetailPage() {
-  // In a real app, you would fetch this data from an API
-  const reviewData = {
-    statusCode: 200,
-    timestamp: "2025-03-15T06:30:22.313Z",
-    message: "success",
-    data: {
-      id: 14,
-      createdAt: "2025-03-11T14:21:28.371Z",
-      updatedAt: "2025-03-11T14:28:27.913Z",
-      reviewType: "SELF",
-      subject: "monthly self review",
-      description: "This is a periodic self review to evaluate my performance",
-      progressStatus: "SUBMITTED",
-      dueDate: "2025-03-12T14:00:00.000Z",
-      questionnaires: [
-        {
-          id: 87,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.351Z",
-          question:
-            "What challenges did you face, and how did you overcome them?",
-          answers: ["Another response for questionnaire 87"],
-          ratings: 4,
-        },
-        {
-          id: 86,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:17.769Z",
-          question:
-            "What achievements are you most proud of during this period?",
-          answers: ["This is my response for questionnaire 86"],
-          ratings: 5,
-        },
-        {
-          id: 90,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.236Z",
-          question: "What are your goals for the next review period?",
-          answers: ["Another response for questionnaire 90"],
-          ratings: 4,
-        },
-        {
-          id: 89,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.240Z",
-          question: "How well do you collaborate with your team members?",
-          answers: ["Another response for questionnaire 89"],
-          ratings: 4,
-        },
-        {
-          id: 91,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.255Z",
-          question: "What skills or areas do you think you need to improve?",
-          answers: ["Another response for questionnaire 91"],
-          ratings: 4,
-        },
-        {
-          id: 92,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.264Z",
-          question:
-            "On a scale of 1-5, how would you rate your overall performance in the last review period?",
-          answers: ["Another response for questionnaire 92"],
-          ratings: 4,
-        },
-        {
-          id: 88,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.295Z",
-          question: "What support or resources do you need to perform better?",
-          answers: ["Another response for questionnaire 88"],
-          ratings: 4,
-        },
-        {
-          id: 93,
-          createdAt: "2025-03-11T14:21:28.915Z",
-          updatedAt: "2025-03-11T14:27:18.295Z",
-          question:
-            "How effectively do you manage your time and prioritize tasks?",
-          answers: ["Another response for questionnaire 93"],
-          ratings: 4,
-        },
-      ],
-    },
-  };
-
-  return <ReviewDetail reviewData={reviewData} />;
 }

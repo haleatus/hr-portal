@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useReviewIdStore } from "@/store/review-store";
@@ -9,6 +9,7 @@ import { useGetReviewDetails } from "@/hooks/reviews.hooks";
 import { useSubmitQuestionnaire } from "@/hooks/reviews.hooks";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { PlusCircle, Trash2 } from "lucide-react";
 
 const RATING_DESCRIPTIONS = {
   "1": "Needs significant improvement",
@@ -28,8 +29,8 @@ const Questionnaire = () => {
     isError,
   } = useGetReviewDetails(reviewId);
 
-  // State to manage answers and ratings
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  // State to manage multiple answers per question
+  const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [ratings, setRatings] = useState<Record<number, number>>({});
   const [errors, setErrors] = useState<Record<number, string>>({});
 
@@ -41,12 +42,61 @@ const Questionnaire = () => {
 
   const questionnaires = reviewDetails?.data?.questionnaires || [];
 
-  // Handle answer change
-  const handleAnswerChange = (questionnaireId: number, value: string) => {
-    setAnswers((prev) => ({ ...prev, [questionnaireId]: value }));
+  // Check if a question requires rating (has "1-5 scale" in the text)
+  const requiresRating = (question: string) => {
+    return question.toLowerCase().includes("(1-5 scale)");
+  };
+
+  // Handle answer change for a specific index
+  const handleAnswerChange = (
+    questionnaireId: number,
+    index: number,
+    value: string
+  ) => {
+    setAnswers((prev) => {
+      const updatedAnswers = { ...prev };
+      if (!updatedAnswers[questionnaireId]) {
+        updatedAnswers[questionnaireId] = [""];
+      }
+      updatedAnswers[questionnaireId][index] = value;
+      return updatedAnswers;
+    });
+
     if (errors[questionnaireId]) {
       setErrors((prev) => ({ ...prev, [questionnaireId]: "" }));
     }
+  };
+
+  // Add a new answer field for a question
+  const addAnswerField = (questionnaireId: number) => {
+    setAnswers((prev) => {
+      const updatedAnswers = { ...prev };
+      if (!updatedAnswers[questionnaireId]) {
+        updatedAnswers[questionnaireId] = [""];
+      } else {
+        updatedAnswers[questionnaireId] = [
+          ...updatedAnswers[questionnaireId],
+          "",
+        ];
+      }
+      return updatedAnswers;
+    });
+  };
+
+  // Remove an answer field for a question
+  const removeAnswerField = (questionnaireId: number, index: number) => {
+    setAnswers((prev) => {
+      const updatedAnswers = { ...prev };
+      if (
+        updatedAnswers[questionnaireId] &&
+        updatedAnswers[questionnaireId].length > 1
+      ) {
+        updatedAnswers[questionnaireId] = updatedAnswers[
+          questionnaireId
+        ].filter((_, i) => i !== index);
+      }
+      return updatedAnswers;
+    });
   };
 
   // Handle rating change
@@ -58,8 +108,19 @@ const Questionnaire = () => {
   const validateForm = () => {
     const newErrors: Record<number, string> = {};
     questionnaires.forEach((questionnaire: any) => {
-      if (!answers[questionnaire.id]?.trim()) {
-        newErrors[questionnaire.id] = "Answer is required";
+      // Initialize answers array if it doesn't exist
+      if (!answers[questionnaire.id]) {
+        setAnswers((prev) => ({ ...prev, [questionnaire.id]: [""] }));
+      }
+
+      // Check if at least one answer is provided and not empty
+      const questionAnswers = answers[questionnaire.id] || [];
+      const hasValidAnswer = questionAnswers.some(
+        (answer) => answer.trim() !== ""
+      );
+
+      if (!hasValidAnswer) {
+        newErrors[questionnaire.id] = "At least one answer is required";
       }
     });
     setErrors(newErrors);
@@ -75,11 +136,20 @@ const Questionnaire = () => {
 
     // Prepare the questionnaire data
     const questionnaireData = {
-      questionnaires: questionnaires.map((questionnaire: any) => ({
-        questionnaireId: questionnaire.id,
-        answers: [answers[questionnaire.id]], // Ensure answers is an array
-        ratings: ratings[questionnaire.id] || 0, // Default to 0 if no rating is provided
-      })),
+      questionnaires: questionnaires.map((questionnaire: any) => {
+        // Filter out empty answers
+        const filteredAnswers = (answers[questionnaire.id] || []).filter(
+          (answer) => answer.trim() !== ""
+        );
+
+        return {
+          questionnaireId: questionnaire.id,
+          answers: filteredAnswers.length > 0 ? filteredAnswers : [""], // Ensure answers is an array
+          ratings: requiresRating(questionnaire.question)
+            ? ratings[questionnaire.id] || 0
+            : 0, // Only include rating if required
+        };
+      }),
     };
 
     try {
@@ -97,99 +167,139 @@ const Questionnaire = () => {
     }
   };
 
+  // Initialize answers for each questionnaire if not already set
+  questionnaires.forEach((questionnaire: any) => {
+    if (!answers[questionnaire.id]) {
+      setAnswers((prev) => ({ ...prev, [questionnaire.id]: [""] }));
+    }
+  });
+
   return (
     <>
       <div className="space-y-8 pt-4">
         <div className="space-y-4">
           <h3 className="text-xl font-medium">Performance Criteria</h3>
           <p className="text-sm text-muted-foreground">
-            Rate the performance in each of the following areas on a scale of
-            1-5.
+            Answer the following questions. Questions with (1-5 scale) require a
+            rating.
           </p>
-        </div>
-
-        {/* Rating scale legend */}
-        <div className="flex items-center justify-between mb-4 px-2">
-          <div className="w-1/4"></div>
-          <div className="w-3/4 grid grid-cols-5 gap-1 text-center text-xs font-medium">
-            {Object.entries(RATING_DESCRIPTIONS).map(([rating, desc]) => (
-              <div key={rating} className="flex flex-col items-center">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mb-1">
-                  {rating}
-                </span>
-                <span className="hidden md:inline text-gray-600">{desc}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           {/* Criteria rating cards */}
           <div className="space-y-6">
-            {questionnaires.map((questionnaire: any) => (
-              <div
-                key={questionnaire.id}
-                className="bg-white p-4 rounded-md border border-gray-100 shadow-sm"
-              >
-                <div className="space-y-2">
-                  <div className="flex flex-col md:flex-row md:items-center">
-                    <div className="w-full md:w-1/4">
-                      <label className="text-base font-medium">
-                        {questionnaire.question}
+            {questionnaires.map((questionnaire: any) => {
+              const needsRating = requiresRating(questionnaire.question);
+              // Clean question text by removing the scale indicator
+              const cleanQuestion = needsRating
+                ? questionnaire.question.replace(/\s*$$1-5 scale$$\s*/i, "")
+                : questionnaire.question;
+
+              return (
+                <div
+                  key={questionnaire.id}
+                  className="bg-white p-4 rounded-md border border-gray-100 shadow-sm"
+                >
+                  <div className="space-y-4">
+                    <div className="flex flex-col">
+                      <label className="text-base font-medium mb-2">
+                        {cleanQuestion}
+                        {needsRating && (
+                          <span className="text-sm text-muted-foreground ml-2">
+                            (1-5 scale)
+                          </span>
+                        )}
                       </label>
-                    </div>
-                    <div className="w-full md:w-3/4 mt-2 md:mt-0">
-                      <div className="grid grid-cols-5 gap-1 text-center">
-                        {[1, 2, 3, 4, 5].map((rating) => (
-                          <div
-                            key={rating}
-                            className={`
-                              p-2 rounded-md cursor-pointer transition-all
-                              ${
-                                ratings[questionnaire.id] === rating
-                                  ? "bg-blue-100 border-blue-500"
-                                  : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+
+                      {/* Only show rating if needed */}
+                      {needsRating && (
+                        <div className="grid grid-cols-5 gap-1 text-center mb-4">
+                          {[1, 2, 3, 4, 5].map((rating) => (
+                            <div
+                              key={rating}
+                              className={`
+                                p-2 rounded-md cursor-pointer transition-all
+                                ${
+                                  ratings[questionnaire.id] === rating
+                                    ? "bg-blue-100 border-blue-500"
+                                    : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                                }
+                              `}
+                              onClick={() =>
+                                handleRatingChange(questionnaire.id, rating)
                               }
-                            `}
-                            onClick={() =>
-                              handleRatingChange(questionnaire.id, rating)
-                            }
-                          >
-                            <div className="font-medium mb-1">{rating}</div>
-                            <div className="text-xs hidden md:block">
-                              {
-                                RATING_DESCRIPTIONS[
-                                  rating.toString() as keyof typeof RATING_DESCRIPTIONS
-                                ]
-                              }
+                            >
+                              <div className="font-medium mb-1">{rating}</div>
+                              <div className="text-xs hidden md:block">
+                                {
+                                  RATING_DESCRIPTIONS[
+                                    rating.toString() as keyof typeof RATING_DESCRIPTIONS
+                                  ]
+                                }
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Multiple answers section */}
+                      <div className="space-y-3">
+                        {(answers[questionnaire.id] || [""]).map(
+                          (answer, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <Textarea
+                                placeholder={`Provide your answer for ${cleanQuestion.toLowerCase()}...`}
+                                value={answer}
+                                onChange={(e) =>
+                                  handleAnswerChange(
+                                    questionnaire.id,
+                                    index,
+                                    e.target.value
+                                  )
+                                }
+                                className={`min-h-[80px] resize-none flex-1 ${
+                                  errors[questionnaire.id]
+                                    ? "border-red-500"
+                                    : ""
+                                }`}
+                              />
+                              {index > 0 && (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="mt-1"
+                                  onClick={() =>
+                                    removeAnswerField(questionnaire.id, index)
+                                  }
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          )
+                        )}
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => addAnswerField(questionnaire.id)}
+                        >
+                          <PlusCircle className="h-4 w-4 mr-2" />
+                          Add Another Answer
+                        </Button>
+
+                        {errors[questionnaire.id] && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors[questionnaire.id]}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
-
-                  {/* Comments section for each criterion */}
-                  <div className="mt-4">
-                    <Textarea
-                      placeholder={`Provide your answer for ${questionnaire.question.toLowerCase()}...`}
-                      value={answers[questionnaire.id] || ""}
-                      onChange={(e) =>
-                        handleAnswerChange(questionnaire.id, e.target.value)
-                      }
-                      className={`min-h-[80px] resize-none ${
-                        errors[questionnaire.id] ? "border-red-500" : ""
-                      }`}
-                    />
-                    {errors[questionnaire.id] && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors[questionnaire.id]}
-                      </p>
-                    )}
-                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
