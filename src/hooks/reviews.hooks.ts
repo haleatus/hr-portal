@@ -210,3 +210,32 @@ export const useCreateManagerReview = () => {
     },
   });
 };
+
+/**
+ * useSubmitQuestionnaire hook
+ */
+export const useSubmitQuestionnaire = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      questionnaireData,
+    }: {
+      id: string;
+      questionnaireData: any;
+    }) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/review/submit/${id}`,
+        questionnaireData
+      );
+      return response.data;
+    },
+    onSuccess: (variables) => {
+      // Invalidate query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["reviewDetails", variables.data.id.toString()],
+      });
+    },
+  });
+};
