@@ -239,3 +239,35 @@ export const useSubmitQuestionnaire = () => {
     },
   });
 };
+
+/**
+ * useUpdateQuestionnaire hook
+ */
+export const useUpdateQuestionnaire = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ questionnaireData }: { questionnaireData: any }) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/review/questionnaire/update`,
+        questionnaireData
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // Check if we have a valid ID before invalidating queries
+      // This assumes you have access to the reviewId from somewhere
+      // If not, you might need to pass it as part of the variables
+      if (data?.data?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ["reviewDetails", data.data.id.toString()],
+        });
+      } else {
+        // If we don't have an ID in the response, invalidate all review details queries
+        queryClient.invalidateQueries({
+          queryKey: ["reviewDetails"],
+        });
+      }
+    },
+  });
+};
