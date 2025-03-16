@@ -180,7 +180,7 @@ export const useCreateManagerReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (reviewData: any) => {
+    mutationFn: async (reviewData: { reviewee: number; dueDate: string }) => {
       const response = await apiClient.post(
         "/hr-hub/user/review/manager/create",
         reviewData
