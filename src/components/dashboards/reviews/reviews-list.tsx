@@ -60,6 +60,8 @@ export function ReviewsList({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
+  console.log("userRole", reviews);
+
   const columns: ColumnDef<Review>[] = [
     {
       accessorKey: "type",
@@ -142,8 +144,9 @@ export function ReviewsList({
               <DropdownMenuItem asChild>
                 <Link href={`/reviews/${review.id}`}>View Details</Link>
               </DropdownMenuItem>
-              {userRole === "MANAGER" && <DropdownMenuSeparator />}
-              {userRole === "MANAGER" && (
+              {review.type === "SELF" && <DropdownMenuSeparator />}
+              {((review.type === "SELF" && userRole === "EMPLOYEE") ||
+                (userRole === "MANAGER" && review.type === "MANAGER")) && (
                 <DropdownMenuItem>
                   <Link href={`/reviews/${review.id}/edit`}>
                     Edit Questionnaires
