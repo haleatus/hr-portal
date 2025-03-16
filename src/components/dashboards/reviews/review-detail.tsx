@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useMarkReviewAsComplete } from "@/hooks/reviews.hooks";
 import { toast } from "sonner";
+import { useAuth } from "@/providers/auth-provider";
 
 // Type definitions
 interface Questionnaire {
@@ -81,6 +82,8 @@ interface ReviewResponse {
 }
 
 export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
+  const { user } = useAuth();
+
   const [activeTab, setActiveTab] = useState("overview");
   const review = reviewData.data;
 
@@ -197,32 +200,35 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
             <div className="flex justify-between items-center mb-2">
               <p className="text-muted-foreground">{review.description}</p>
               <div className="flex items-center gap-2">
-                {review.progressStatus === "SUBMITTED" && (
-                  <Button
-                    variant="outline"
-                    onClick={() => handleMarkAsComplete(review.id.toString())}
-                  >
-                    Mark As Completed
-                  </Button>
-                )}
+                {user?.role === "MANAGER" &&
+                  review.progressStatus === "SUBMITTED" && (
+                    <Button
+                      variant="outline"
+                      onClick={() => handleMarkAsComplete(review.id.toString())}
+                    >
+                      Mark As Completed
+                    </Button>
+                  )}
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="cursor-pointer size-9"
-                      >
-                        <Link href={`/reviews/${review.id}/edit`}>
-                          <EditIcon className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{`Edit Review "${review.subject}"`}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                {review.progressStatus !== "COMPLETED" && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="cursor-pointer size-9"
+                        >
+                          <Link href={`/reviews/${review.id}/edit`}>
+                            <EditIcon className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{`Edit Review "${review.subject}"`}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
             </div>
 
