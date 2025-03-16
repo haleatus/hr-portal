@@ -11,7 +11,7 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -214,7 +214,7 @@ const MyDepartmentComponent = (): JSX.Element => {
                     </div>
                   </CardContent>
 
-                  <CardFooter className="pt-0 pb-2 px-2">
+                  {/* <CardFooter className="pt-0 pb-2 px-2">
                     <Link
                       href={`/reviews?employee=${member.id}`}
                       className="w-full"
@@ -227,7 +227,7 @@ const MyDepartmentComponent = (): JSX.Element => {
                         View Reviews
                       </Button>
                     </Link>
-                  </CardFooter>
+                  </CardFooter> */}
                 </Card>
               );
             })}

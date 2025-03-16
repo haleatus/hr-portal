@@ -7,6 +7,7 @@ import { ReviewsList } from "./reviews-list";
 import {
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
+  useGetMyTeamManagerReviewsOnMe,
   useGetMyTeamSelfReviews,
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
@@ -78,10 +79,8 @@ export function ReviewsDashboard({
     data: undefined,
     isLoading: false,
   }; // Placeholder
-  const { data: managerReviews, isLoading: isManagerReviewsLoading } = {
-    data: undefined,
-    isLoading: false,
-  }; // Placeholder
+  const { data: managerReviews, isLoading: isManagerReviewsLoading } =
+    useGetMyTeamManagerReviewsOnMe({ isEmployee });
 
   // Get my team self reviews (Manager only)
   // Pass isManager flag to conditionally enable these manager-specific queries
@@ -113,9 +112,9 @@ export function ReviewsDashboard({
   // Map API status values to UI-friendly status values
   const mapProgressStatus = (status: string): string => {
     const statusMap: Record<string, string> = {
-      PENDING: "Pending",
-      IN_PROGRESS: "In Progress",
-      COMPLETED: "Completed",
+      PENDING: "PENDING",
+      SUBMITTED: "SUBMITTED",
+      COMPLETED: "COMPLETED",
     };
     return statusMap[status] || status;
   };
@@ -131,23 +130,24 @@ export function ReviewsDashboard({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Performance Reviews</h1>
         <div className="flex gap-2">
-          {userRole === "EMPLOYEE" ||
-            (userRole === "MANAGER" && (
-              <Button asChild>
-                <Link href="/reviews/create">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create New Review
-                </Link>
-              </Button>
-            ))}
+          {(userRole === "EMPLOYEE" || userRole === "MANAGER") && (
+            <Button asChild>
+              <Link href="/reviews/create">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create New Review
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
-      <Tabs defaultValue="self">
+      <Tabs
+        defaultValue={userRole === "EMPLOYEE" ? "self" : "team-manager-reviews"}
+      >
         <TabsList className="mb-4">
-          <TabsTrigger value="self">Self Reviews</TabsTrigger>
           {userRole === "EMPLOYEE" && (
             <>
+              <TabsTrigger value="self">Self Reviews</TabsTrigger>
               <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
               <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
             </>
