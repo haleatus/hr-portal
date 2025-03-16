@@ -1,12 +1,10 @@
 "use client";
-
-import Loading from "@/app/loading";
-import { ReviewDetail } from "@/components/dashboards/reviews/review-detail";
-import { useGetReviewDetails } from "@/hooks/reviews.hooks";
 import { useParams } from "next/navigation";
-import React from "react";
+import { useGetReviewDetails } from "@/hooks/reviews.hooks";
+import UpdateQuestionnaire from "@/components/dashboards/reviews/update-questionnaires";
+import Loading from "@/app/loading";
 
-const ReviewDetailPage = () => {
+const EditReviewPage = () => {
   const params = useParams();
   const reviewId = params.id as string;
 
@@ -17,7 +15,7 @@ const ReviewDetailPage = () => {
     return <Loading />;
   }
 
-  if (!reviewData) {
+  if (!reviewData || !reviewData.data) {
     return (
       <div className="container flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -31,7 +29,18 @@ const ReviewDetailPage = () => {
     );
   }
 
-  return <ReviewDetail reviewData={reviewData} />;
+  return (
+    <div className="container py-8 px-4 md:px-6">
+      <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
+        Edit Review: {reviewData.data.subject}
+      </h1>
+
+      <UpdateQuestionnaire
+        reviewId={reviewId}
+        questionnaires={reviewData.data.questionnaires}
+      />
+    </div>
+  );
 };
 
-export default ReviewDetailPage;
+export default EditReviewPage;

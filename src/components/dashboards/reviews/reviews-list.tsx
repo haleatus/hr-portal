@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Review = {
   id: string;
@@ -56,6 +57,8 @@ export function ReviewsList({
   reviews: Review[];
   userRole: string | null;
 }) {
+  const router = useRouter();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -94,11 +97,11 @@ export function ReviewsList({
         return (
           <Badge
             variant={
-              status === "Completed"
-                ? "default"
-                : status === "In Progress"
-                ? "outline"
-                : "secondary"
+              status === "COMPLETED"
+                ? "approved"
+                : status === "PENDING"
+                ? "pending"
+                : "red"
             }
           >
             {status}
@@ -142,8 +145,19 @@ export function ReviewsList({
               <DropdownMenuItem asChild>
                 <Link href={`/reviews/${review.id}`}>View Details</Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Edit</DropdownMenuItem>
+              {review.type === "SELF" && <DropdownMenuSeparator />}
+              {((review.type === "SELF" &&
+                userRole === "EMPLOYEE" &&
+                review.status.toUpperCase() !== "COMPLETED") ||
+                (userRole === "MANAGER" &&
+                  review.type === "MANAGER" &&
+                  review.status.toUpperCase() !== "COMPLETED")) && (
+                <DropdownMenuItem>
+                  <Link href={`/reviews/${review.id}/edit`}>
+                    Edit Questionnaires
+                  </Link>
+                </DropdownMenuItem>
+              )}
               {(userRole === "ADMIN" ||
                 userRole === "SUPER_ADMIN" ||
                 userRole === "MANAGER") && (
@@ -202,9 +216,9 @@ export function ReviewsList({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="Pending">Pending</SelectItem>
-            <SelectItem value="In Progress">In Progress</SelectItem>
-            <SelectItem value="Completed">Completed</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="SUBMITTED">Submitted</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -237,7 +251,7 @@ export function ReviewsList({
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() => {
                     // Optional: Navigate to details page on row click
-                    // router.push(`/reviews/${row.original.id}`);
+                    router.push(`/reviews/${row.original.id}`);
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
