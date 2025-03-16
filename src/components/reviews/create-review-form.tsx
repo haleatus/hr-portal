@@ -167,6 +167,7 @@ const CreateReviewForm = () => {
               name="subject"
               value={formValues.subject}
               onChange={handleChange}
+              className={`${errors.subject ? "border-red-500" : ""}`}
               placeholder="Q1 Performance Review"
             />
             {errors.subject && (
@@ -232,6 +233,7 @@ const CreateReviewForm = () => {
           type="date"
           name="dueDate"
           value={formValues.dueDate}
+          className={`${errors.dueDate ? "border-red-500" : ""}`}
           onChange={handleChange}
         />
         {errors.dueDate && (
