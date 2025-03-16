@@ -112,9 +112,9 @@ export function ReviewsDashboard({
   // Map API status values to UI-friendly status values
   const mapProgressStatus = (status: string): string => {
     const statusMap: Record<string, string> = {
-      PENDING: "Pending",
-      IN_PROGRESS: "In Progress",
-      COMPLETED: "Completed",
+      PENDING: "PENDING",
+      SUBMITTED: "SUBMITTED",
+      COMPLETED: "COMPLETED",
     };
     return statusMap[status] || status;
   };

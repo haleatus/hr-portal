@@ -299,3 +299,29 @@ export const useUpdateQuestionnaire = () => {
     },
   });
 };
+
+/**
+ * useMarkReviewAsComplete hook
+ */
+export const useMarkReviewAsComplete = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/review/mark-as-complete/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: (data, variables) => {
+      console.log("variables", variables);
+
+      console.log("data", data);
+
+      // If we don't have an ID in the response, invalidate all review details queries
+      queryClient.invalidateQueries({
+        queryKey: ["reviewDetails"],
+      });
+    },
+  });
+};

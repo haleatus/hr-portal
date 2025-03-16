@@ -32,6 +32,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useMarkReviewAsComplete } from "@/hooks/reviews.hooks";
+import { toast } from "sonner";
 
 // Type definitions
 interface Questionnaire {
@@ -150,6 +152,21 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
       : question;
   };
 
+  const markReviewAsCompletedMutation = useMarkReviewAsComplete();
+
+  const handleMarkAsComplete = async (reviewId: string) => {
+    try {
+      await markReviewAsCompletedMutation.mutateAsync(reviewId);
+      toast.success("Review marked as completed successfully");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(
+        error.response.data.message ||
+          "An error occurred while marking the review as completed"
+      );
+    }
+  };
+
   return (
     <div className="container py-8 px-4 md:px-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
@@ -179,20 +196,34 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-2">
               <p className="text-muted-foreground">{review.description}</p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" className="cursor-pointer size-9">
-                      <Link href={`/reviews/${review.id}/edit`}>
-                        <EditIcon className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{`Edit Review "${review.subject}"`}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <div className="flex items-center gap-2">
+                {review.progressStatus === "SUBMITTED" && (
+                  <Button
+                    variant="outline"
+                    onClick={() => handleMarkAsComplete(review.id.toString())}
+                  >
+                    Mark As Completed
+                  </Button>
+                )}
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer size-9"
+                      >
+                        <Link href={`/reviews/${review.id}/edit`}>
+                          <EditIcon className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{`Edit Review "${review.subject}"`}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
