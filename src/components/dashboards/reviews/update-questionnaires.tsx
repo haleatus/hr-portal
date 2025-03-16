@@ -16,6 +16,12 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const RATING_DESCRIPTIONS = {
   "1": "Needs significant improvement",
@@ -212,7 +218,7 @@ const UpdateQuestionnaire = ({
         </Link>
 
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={() => router.push(`/reviews/${reviewId}`)}
           disabled={updateQuestionnaireMutation.isPending}
@@ -304,16 +310,30 @@ const UpdateQuestionnaire = ({
                                 }`}
                               />
                               {index > 0 && (
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="mt-1"
-                                  onClick={() =>
-                                    removeAnswerField(questionnaire.id, index)
-                                  }
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="mt-1"
+                                        onClick={() =>
+                                          removeAnswerField(
+                                            questionnaire.id,
+                                            index
+                                          )
+                                        }
+                                      >
+                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-red-500">
+                                        Delete this answer
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               )}
                             </div>
                           )
