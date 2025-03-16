@@ -42,16 +42,6 @@ export function ReviewForm(): JSX.Element {
     }
   };
 
-  /**
-   * Moves to the previous tab
-   * Uses preventDefault to avoid default form submission behavior
-   */
-  const handlePrevious = (): void => {
-    if (activeTab === "criteria") {
-      setActiveTab("details");
-    }
-  };
-
   return (
     <Card>
       <CardContent className="p-6">
@@ -62,12 +52,14 @@ export function ReviewForm(): JSX.Element {
               <TabsTrigger
                 value="details"
                 className="cursor-pointer hover:bg-white hover:mx-1"
+                disabled={activeTab !== "details"}
               >
                 Details
               </TabsTrigger>
               <TabsTrigger
                 value="criteria"
                 className="cursor-pointer hover:bg-white hover:mx-1"
+                disabled={activeTab !== "criteria"}
               >
                 Criteria
               </TabsTrigger>
@@ -80,7 +72,7 @@ export function ReviewForm(): JSX.Element {
 
             {/* Criteria Tab Content */}
             <TabsContent value="criteria" className="space-y-4 pt-4">
-              <Questionnaire handlePrevious={handlePrevious} />
+              <Questionnaire />
             </TabsContent>
           </Tabs>
         </div>

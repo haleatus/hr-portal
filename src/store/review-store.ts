@@ -55,3 +55,13 @@ export const useManagerReviewStore = create<ManagerReviewState>((set) => ({
   clearError: () => set({ error: null }),
   setIsLoading: (isLoading) => set({ isLoading }),
 }));
+
+interface ReviewIdState {
+  reviewId: string;
+  setReviewId: (reviewId: string) => void;
+}
+
+export const useReviewIdStore = create<ReviewIdState>((set) => ({
+  reviewId: "",
+  setReviewId: (reviewId) => set({ reviewId }),
+}));
