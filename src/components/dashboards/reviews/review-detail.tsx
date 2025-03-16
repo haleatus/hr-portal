@@ -74,8 +74,6 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
   const [activeTab, setActiveTab] = useState("overview");
   const review = reviewData.data;
 
-  console.log("reviewDetails", review.reviewee.fullname);
-
   // Calculate average rating
   const ratedQuestionnaires = review.questionnaires.filter(
     (q) => q.ratings > 0

@@ -202,14 +202,15 @@ const Questionnaire = () => {
                 >
                   <div className="space-y-4">
                     <div className="flex flex-col">
-                      <label className="text-base font-medium mb-2">
-                        {cleanQuestion}
-                        {needsRating && (
-                          <span className="text-sm text-muted-foreground ml-2">
-                            (1-5 scale)
-                          </span>
-                        )}
-                      </label>
+                      <label
+                        className="text-base font-medium mb-2"
+                        dangerouslySetInnerHTML={{
+                          __html: cleanQuestion.replace(
+                            reviewDetails.data.reviewee.fullname,
+                            `<span class="text-blue-500 font-semibold">${reviewDetails.data.reviewee.fullname}</span>`
+                          ),
+                        }}
+                      />
 
                       {/* Only show rating if needed */}
                       {needsRating && (
