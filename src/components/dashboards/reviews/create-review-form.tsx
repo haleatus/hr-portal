@@ -400,15 +400,20 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
                         No team members found
                       </div>
                     ) : (
-                      teamMembers.map((memberItem: any) => (
-                        <SelectItem
-                          key={memberItem.member.id}
-                          value={String(memberItem.member.id)}
-                        >
-                          {memberItem.member.fullname} (
-                          {memberItem.member.email})
-                        </SelectItem>
-                      ))
+                      teamMembers
+                        .filter(
+                          (memberItem: any) =>
+                            String(memberItem.member.id) !== formValues.reviewee
+                        )
+                        .map((memberItem: any) => (
+                          <SelectItem
+                            key={memberItem.member.id}
+                            value={String(memberItem.member.id)}
+                          >
+                            {memberItem.member.fullname} (
+                            {memberItem.member.email})
+                          </SelectItem>
+                        ))
                     )}
                   </SelectContent>
                 </Select>
@@ -450,15 +455,20 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
                         No team members found
                       </div>
                     ) : (
-                      teamMembers.map((memberItem: any) => (
-                        <SelectItem
-                          key={memberItem.member.id}
-                          value={String(memberItem.member.id)}
-                        >
-                          {memberItem.member.fullname} (
-                          {memberItem.member.email})
-                        </SelectItem>
-                      ))
+                      teamMembers
+                        .filter(
+                          (memberItem: any) =>
+                            String(memberItem.member.id) !== formValues.nominee
+                        )
+                        .map((memberItem: any) => (
+                          <SelectItem
+                            key={memberItem.member.id}
+                            value={String(memberItem.member.id)}
+                          >
+                            {memberItem.member.fullname} (
+                            {memberItem.member.email})
+                          </SelectItem>
+                        ))
                     )}
                   </SelectContent>
                 </Select>
