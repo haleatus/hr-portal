@@ -7,6 +7,7 @@ import { ReviewsList } from "./reviews-list";
 import {
   useGetCreatedPeerNominations,
   useGetMyPeerReviews,
+  useGetMyPeerReviewsRequests,
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
   useGetMyTeamManagerReviewsOnMe,
@@ -16,6 +17,7 @@ import {
 import Link from "next/link";
 import { JSX } from "react";
 import { CreatedNominationsList } from "./created-nominations-list";
+import { PeerReviewsRequestLists } from "./reviews-request-list";
 
 // Define types for the API response
 interface Questionnaire {
@@ -103,6 +105,11 @@ export function ReviewsDashboard({
     isLoading: isMyCreatedPeerNominationsLoading,
   } = useGetCreatedPeerNominations({ isManager });
 
+  const {
+    data: myPeerReviewsRequests,
+    isLoading: isMyMyPeerReviewsRequestsLoading,
+  } = useGetMyPeerReviewsRequests({ isEmployee });
+
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
     reviews: ApiResponse | undefined
@@ -161,6 +168,9 @@ export function ReviewsDashboard({
               <TabsTrigger value="self">Self Reviews</TabsTrigger>
               <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
               <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
+              <TabsTrigger value="my-team-peers-requests">
+                My Peer Review Requests
+              </TabsTrigger>
             </>
           )}
           {userRole === "MANAGER" && (
@@ -262,6 +272,21 @@ export function ReviewsDashboard({
             ) : (
               <CreatedNominationsList
                 nominations={myCreatedPeerNominations}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+
+        {userRole === "EMPLOYEE" && (
+          <TabsContent value="my-team-peers-requests">
+            {isMyMyPeerReviewsRequestsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading team members peer reviews requests...
+              </div>
+            ) : (
+              <PeerReviewsRequestLists
+                requests={myPeerReviewsRequests}
                 userRole={userRole}
               />
             )}

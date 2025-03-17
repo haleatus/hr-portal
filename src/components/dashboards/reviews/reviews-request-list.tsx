@@ -39,10 +39,11 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { IUser } from "@/interfaces/user.interface";
+import { useUpdateReviewRequestStatus } from "@/hooks/reviews.hooks";
 
 type TCreatePeerNominations = {
   createdAt: string;
-  id: string;
+  id: number;
   nominationStatus: string;
   nominator: IUser;
   nominee: IUser;
@@ -51,30 +52,31 @@ type TCreatePeerNominations = {
 };
 
 type TCreatePeer = {
-  data: {
-    data: TCreatePeerNominations[];
-    limit: number;
-    next: number | null;
-    page: number | null;
-    previous: number | null;
-    total: number | null;
-  };
+  data: TCreatePeerNominations[];
   error?: object;
   message: string;
   statusCode: number;
   timestamp: string;
 };
 
-export function CreatedNominationsList({
-  nominations,
+export function PeerReviewsRequestLists({
+  requests,
   userRole,
 }: {
-  nominations: TCreatePeer;
+  requests: TCreatePeer;
   userRole: string;
 }) {
+  console.log("nomi", requests);
+
+  const updateReviewRequestStatusMutation = useUpdateReviewRequestStatus();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const columns: ColumnDef<TCreatePeerNominations>[] = [
     {
@@ -86,10 +88,10 @@ export function CreatedNominationsList({
           <Badge
             variant={
               status === "COMPLETED"
-                ? "approved"
+                ? "default"
                 : status === "PENDING"
-                ? "pending"
-                : "red"
+                ? "secondary"
+                : "destructive"
             }
           >
             {status}
@@ -153,7 +155,6 @@ export function CreatedNominationsList({
     },
   ];
 
-  // Handle status filter change
   const handleStatusChange = (value: string) => {
     setStatusFilter(value);
 
@@ -165,7 +166,7 @@ export function CreatedNominationsList({
   };
 
   const table = useReactTable({
-    data: nominations.data.data, // Use the correct data structure here
+    data: requests.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -176,7 +177,9 @@ export function CreatedNominationsList({
     state: {
       sorting,
       columnFilters,
+      pagination,
     },
+    onPaginationChange: setPagination,
   });
 
   return (

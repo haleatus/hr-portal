@@ -446,9 +446,7 @@ export const useGetCreatedPeerNominations = (options: HookOptions = {}) => {
 
   // Fetch my team manager reviews
   return useQuery({
-    queryKey: [
-      "myCreatedPeerNominations/hr-hub/user/peer-nomination/created/get-all",
-    ],
+    queryKey: ["myCreatedPeerNominations"],
     queryFn: async () => {
       const response = await apiClient.get(
         "/hr-hub/user/peer-nomination/created/get-all"
@@ -462,5 +460,61 @@ export const useGetCreatedPeerNominations = (options: HookOptions = {}) => {
     retry: 1,
     // Consider data fresh for 5 minutes
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my peer nominations requests (Employee only)
+ * @param options - Additional options for the query
+ * @returns Query result with peer review requests data
+ */
+export const useGetMyPeerReviewsRequests = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isEmployee = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myPeerReviewsRequests"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/peer-nomination/assigned/get"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isEmployee,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useUpdateReviewRequestStatus hook
+ */
+export const useUpdateReviewRequestStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/peer-nomination/update/${id}`,
+        { nominationStatus: status }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviewsRequests"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+    },
   });
 };
