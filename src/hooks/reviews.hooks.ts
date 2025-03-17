@@ -423,6 +423,9 @@ export const useCreatePeerNomination = () => {
       queryClient.invalidateQueries({
         queryKey: ["myPeerReviews"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["myCreatedPeerNominations"],
+      });
     },
     onError: (error: any) => {
       setError(

@@ -268,9 +268,11 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
                 {!loading && user?.role !== "MANAGER" && (
                   <SelectItem value="self">Self Assessment</SelectItem>
                 )}
-                <SelectItem value="peer">Peer Review</SelectItem>
                 {!loading && user?.role === "MANAGER" && (
-                  <SelectItem value="manager">Manager Review</SelectItem>
+                  <>
+                    <SelectItem value="peer">Peer Review</SelectItem>
+                    <SelectItem value="manager">Manager Review</SelectItem>
+                  </>
                 )}
               </SelectContent>
             </Select>
