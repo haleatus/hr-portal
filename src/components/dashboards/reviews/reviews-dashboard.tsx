@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { ReviewsList } from "./reviews-list";
 import {
+  useGetMyPeerReviews,
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
   useGetMyTeamManagerReviewsOnMe,
@@ -75,11 +76,8 @@ export function ReviewsDashboard({
   const { data: selfReviews, isLoading: isSelfReviewsLoading } =
     useGetMySelfReviews({ isEmployee });
 
-  // You would need to implement these hooks
-  const { data: peerReviews, isLoading: isPeerReviewsLoading } = {
-    data: undefined,
-    isLoading: false,
-  }; // Placeholder
+  const { data: peerReviews, isLoading: isPeerReviewsLoading } =
+    useGetMyPeerReviews({ isEmployee });
 
   const { data: managerReviews, isLoading: isManagerReviewsLoading } =
     useGetMyTeamManagerReviewsOnMe({ isEmployee });
