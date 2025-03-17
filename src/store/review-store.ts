@@ -65,3 +65,31 @@ export const useReviewIdStore = create<ReviewIdState>((set) => ({
   reviewId: "",
   setReviewId: (reviewId) => set({ reviewId }),
 }));
+
+interface PeerReviewNominationState {
+  nominee: number;
+  reviewee: number;
+  error: string | null;
+  isLoading: boolean;
+
+  setNominee: (nominee: number) => void;
+  setReviewee: (reviewee: number) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  setIsLoading: (isLoading: boolean) => void;
+}
+
+export const usePeerReviewNominationStore = create<PeerReviewNominationState>(
+  (set) => ({
+    nominee: 0,
+    reviewee: 0,
+    error: null,
+    isLoading: false,
+
+    setNominee: (nominee) => set({ nominee }),
+    setReviewee: (reviewee) => set({ reviewee }),
+    setError: (error) => set({ error }),
+    clearError: () => set({ error: null }),
+    setIsLoading: (isLoading) => set({ isLoading }),
+  })
+);

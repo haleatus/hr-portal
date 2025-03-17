@@ -3,6 +3,7 @@ import apiClient from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import {
   useManagerReviewStore,
+  usePeerReviewNominationStore,
   useSelfReviewStore,
 } from "@/store/review-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -381,5 +382,55 @@ export const useGetMyPeerReviews = (options: HookOptions = {}) => {
     retry: 1,
     // Consider data fresh for 5 minutes
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useCreatePeerNomination hook (Manager only)
+ */
+export const useCreatePeerNomination = () => {
+  const setError = usePeerReviewNominationStore((state) => state.setError);
+  const setIsLoading = usePeerReviewNominationStore(
+    (state) => state.setIsLoading
+  );
+  const setNominee = usePeerReviewNominationStore((state) => state.setNominee);
+  const setReviewee = usePeerReviewNominationStore(
+    (state) => state.setReviewee
+  );
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reviewData: { nominee: number; reviewee: number }) => {
+      const response = await apiClient.post(
+        "/hr-hub/user/peer-nomination/create",
+        reviewData
+      );
+      return response.data;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+      setError(null);
+    },
+    onSuccess: (response) => {
+      setNominee(response.data.nominee);
+      setReviewee(response.data.reviewee);
+
+      // Invalidate query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
+    },
+    onError: (error: any) => {
+      setError(
+        error.response?.data?.message || "Failed to create a peer review"
+      );
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
   });
 };
