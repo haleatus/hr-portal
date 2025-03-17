@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { ReviewsList } from "./reviews-list";
 import {
+  useGetCreatedPeerNominations,
   useGetMyPeerReviews,
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
@@ -14,6 +15,7 @@ import {
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
 import { JSX } from "react";
+import { CreatedNominationsList } from "./created-nominations-list";
 
 // Define types for the API response
 interface Questionnaire {
@@ -96,6 +98,11 @@ export function ReviewsDashboard({
   const { data: myTeamPeerReviews, isLoading: isMyTeamPeerReviewsLoading } =
     useGetMyTeamPeerReviews({ isManager });
 
+  const {
+    data: myCreatedPeerNominations,
+    isLoading: isMyCreatedPeerNominationsLoading,
+  } = useGetCreatedPeerNominations({ isManager });
+
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
     reviews: ApiResponse | undefined
@@ -163,6 +170,9 @@ export function ReviewsDashboard({
               </TabsTrigger>
               <TabsTrigger value="team-self">Team Self Reviews</TabsTrigger>
               <TabsTrigger value="team-peer">Team Peer Reviews</TabsTrigger>
+              <TabsTrigger value="created-team-peers">
+                Created Team Peers
+              </TabsTrigger>
             </>
           )}
         </TabsList>
@@ -231,13 +241,27 @@ export function ReviewsDashboard({
         )}
         {userRole === "MANAGER" && (
           <TabsContent value="team-peer">
+            {isMyCreatedPeerNominationsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading created team members peer reviews...
+              </div>
+            ) : (
+              <ReviewsList
+                reviews={formattedMyTeamPeerReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+        {userRole === "MANAGER" && (
+          <TabsContent value="created-team-peers">
             {isMyTeamPeerReviewsLoading ? (
               <div className="flex justify-center p-8">
                 Loading team members peer reviews...
               </div>
             ) : (
-              <ReviewsList
-                reviews={formattedMyTeamPeerReviews}
+              <CreatedNominationsList
+                nominations={myCreatedPeerNominations}
                 userRole={userRole}
               />
             )}
