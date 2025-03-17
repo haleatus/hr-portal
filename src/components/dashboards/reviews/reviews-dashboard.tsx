@@ -8,6 +8,7 @@ import {
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
   useGetMyTeamManagerReviewsOnMe,
+  useGetMyTeamPeerReviews,
   useGetMyTeamSelfReviews,
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
@@ -79,6 +80,7 @@ export function ReviewsDashboard({
     data: undefined,
     isLoading: false,
   }; // Placeholder
+
   const { data: managerReviews, isLoading: isManagerReviewsLoading } =
     useGetMyTeamManagerReviewsOnMe({ isEmployee });
 
@@ -92,6 +94,9 @@ export function ReviewsDashboard({
     data: myTeamManagerReviews,
     isLoading: isMyTeamManagerReviewsLoading,
   } = useGetMyTeamManagerReviews({ isManager });
+
+  const { data: myTeamPeerReviews, isLoading: isMyTeamPeerReviewsLoading } =
+    useGetMyTeamPeerReviews({ isManager });
 
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
@@ -124,6 +129,7 @@ export function ReviewsDashboard({
   const formattedManagerReviews = formatReviewsData(managerReviews);
   const formattedMyTeamSelfReviews = formatReviewsData(myTeamSelfReviews);
   const formattedMyTeamManagerReviews = formatReviewsData(myTeamManagerReviews);
+  const formattedMyTeamPeerReviews = formatReviewsData(myTeamPeerReviews);
 
   return (
     <div className="space-y-6">
@@ -158,6 +164,7 @@ export function ReviewsDashboard({
                 My Team Manager Reviews
               </TabsTrigger>
               <TabsTrigger value="team-self">Team Self Reviews</TabsTrigger>
+              <TabsTrigger value="team-peer">Team Peer Reviews</TabsTrigger>
             </>
           )}
         </TabsList>
@@ -219,6 +226,20 @@ export function ReviewsDashboard({
             ) : (
               <ReviewsList
                 reviews={formattedMyTeamSelfReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+        {userRole === "MANAGER" && (
+          <TabsContent value="team-peer">
+            {isMyTeamPeerReviewsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading team members peer reviews...
+              </div>
+            ) : (
+              <ReviewsList
+                reviews={formattedMyTeamPeerReviews}
                 userRole={userRole}
               />
             )}

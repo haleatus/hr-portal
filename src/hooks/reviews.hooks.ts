@@ -325,3 +325,33 @@ export const useMarkReviewAsComplete = () => {
     },
   });
 };
+
+// Peer Review
+
+/**
+ * Get my team peer reviews (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team peer reviews data
+ */
+export const useGetMyTeamPeerReviews = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myTeamPeerReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/my-team/peer/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
