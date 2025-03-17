@@ -38,8 +38,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { IUser } from "@/interfaces/user.interface";
 
 type TCreatePeerNominations = {
@@ -73,8 +71,6 @@ export function CreatedNominationsList({
   nominations: TCreatePeer;
   userRole: string;
 }) {
-  const router = useRouter();
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -133,9 +129,7 @@ export function CreatedNominationsList({
     },
     {
       id: "actions",
-      cell: ({ row }) => {
-        const review = row.original;
-
+      cell: () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -146,16 +140,6 @@ export function CreatedNominationsList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link href={`/reviews/${review.id}`}>View Details</Link>
-              </DropdownMenuItem>
-              {review.nominationStatus === "PENDING" && (
-                <DropdownMenuItem>
-                  <Link href={`/reviews/${review.id}/edit`}>
-                    Edit Questionnaires
-                  </Link>
-                </DropdownMenuItem>
-              )}
               {(userRole === "ADMIN" ||
                 userRole === "SUPER_ADMIN" ||
                 userRole === "MANAGER") && (
@@ -249,10 +233,6 @@ export function CreatedNominationsList({
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => {
-                    // Optional: Navigate to details page on row click
-                    router.push(`/reviews/${row.original.id}`);
-                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
