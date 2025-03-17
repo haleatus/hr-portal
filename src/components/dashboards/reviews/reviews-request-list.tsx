@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,6 +40,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { IUser } from "@/interfaces/user.interface";
 import { useUpdateReviewRequestStatus } from "@/hooks/reviews.hooks";
+import { toast } from "sonner";
 
 type TCreatePeerNominations = {
   createdAt: string;
@@ -52,7 +53,7 @@ type TCreatePeerNominations = {
 };
 
 type TCreatePeer = {
-  data: TCreatePeerNominations[];
+  data: TCreatePeerNominations; // Single object, not an array
   error?: object;
   message: string;
   statusCode: number;
@@ -66,17 +67,35 @@ export function PeerReviewsRequestLists({
   requests: TCreatePeer;
   userRole: string;
 }) {
-  console.log("nomi", requests);
+  // Handle single object data instead of an array
+  const hasValidData = requests && requests.data;
 
-  const updateReviewRequestStatusMutation = useUpdateReviewRequestStatus();
+  // Convert single object to array if it exists
+  const reviewData = hasValidData ? [requests.data] : [];
+
+  const updateReviewRequestStatus = useUpdateReviewRequestStatus();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const handleStatusUpdate = (id: number, status: string) => {
+    updateReviewRequestStatus.mutate(
+      { id: id.toString(), status },
+      {
+        onSuccess: () => {
+          toast.success(`Review request status updated to ${status}`);
+        },
+        onError: () => {
+          toast.error("Failed to update review request status");
+        },
+      }
+    );
+  };
 
   const columns: ColumnDef<TCreatePeerNominations>[] = [
     {
@@ -91,6 +110,8 @@ export function PeerReviewsRequestLists({
                 ? "default"
                 : status === "PENDING"
                 ? "secondary"
+                : status === "ACCEPTED"
+                ? "outline"
                 : "destructive"
             }
           >
@@ -113,60 +134,99 @@ export function PeerReviewsRequestLists({
         );
       },
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.nominator.fullname}</div>
+        <div className="font-medium">
+          {row.original.nominator?.fullname || "N/A"}
+        </div>
       ),
     },
     {
       accessorKey: "nominee",
       header: "Nominee",
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.nominee.fullname}</div>
+        <div className="font-medium">
+          {row.original.nominee?.fullname || "N/A"}
+        </div>
       ),
     },
     {
       accessorKey: "reviewee",
       header: "Reviewee",
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.reviewee.fullname}</div>
+        <div className="font-medium">
+          {row.original.reviewee?.fullname || "N/A"}
+        </div>
       ),
     },
     {
       id: "actions",
-      cell: () => {
+      header: "Actions",
+      cell: ({ row }) => {
+        const reviewId = row.original.id;
+        const status = row.original.nominationStatus;
+        const isPending = status === "PENDING";
+
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {(userRole === "ADMIN" ||
-                userRole === "SUPER_ADMIN" ||
-                userRole === "MANAGER") && (
-                <DropdownMenuItem>Delete</DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex space-x-2">
+            {isPending && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-green-500"
+                  onClick={() => handleStatusUpdate(reviewId, "ACCEPTED")}
+                  title="Accept"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-red-500"
+                  onClick={() => handleStatusUpdate(reviewId, "DECLINED")}
+                  title="Decline"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                {isPending && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => handleStatusUpdate(reviewId, "ACCEPTED")}
+                    >
+                      Accept
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleStatusUpdate(reviewId, "DECLINED")}
+                    >
+                      Decline
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {(userRole === "ADMIN" ||
+                  userRole === "SUPER_ADMIN" ||
+                  userRole === "MANAGER") && (
+                  <DropdownMenuItem>Delete</DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     },
   ];
 
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-
-    if (value === "all") {
-      table.getColumn("nominationStatus")?.setFilterValue(undefined);
-    } else {
-      table.getColumn("nominationStatus")?.setFilterValue(value);
-    }
-  };
-
   const table = useReactTable({
-    data: requests.data,
+    data: reviewData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -182,6 +242,20 @@ export function PeerReviewsRequestLists({
     onPaginationChange: setPagination,
   });
 
+  // Use useEffect to apply the status filter when the table or statusFilter changes
+  useEffect(() => {
+    if (statusFilter === "all") {
+      table.getColumn("nominationStatus")?.setFilterValue(undefined);
+    } else {
+      table.getColumn("nominationStatus")?.setFilterValue(statusFilter);
+    }
+  }, [table, statusFilter]);
+
+  // Move this function after table is defined
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -195,10 +269,7 @@ export function PeerReviewsRequestLists({
           }
           className="max-w-sm"
         />
-        <Select
-          value={statusFilter || "all"}
-          onValueChange={handleStatusChange}
-        >
+        <Select value={statusFilter} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
@@ -207,6 +278,7 @@ export function PeerReviewsRequestLists({
             <SelectItem value="PENDING">Pending</SelectItem>
             <SelectItem value="ACCEPTED">Accepted</SelectItem>
             <SelectItem value="DECLINED">Declined</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
           </SelectContent>
         </Select>
       </div>
