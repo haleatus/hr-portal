@@ -297,6 +297,12 @@ export const useUpdateQuestionnaire = () => {
           queryKey: ["reviewDetails"],
         });
       }
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
     },
   });
 };
