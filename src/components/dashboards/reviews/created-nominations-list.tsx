@@ -1,6 +1,9 @@
 "use client";
 
+// Core React imports
 import { useState } from "react";
+
+// Core TanStack imports
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -12,14 +15,17 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
+// Core Lucide imports
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+
+// UI Components imports
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -39,70 +45,63 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-type Review = {
+// Interfaces imports
+import { IUser } from "@/interfaces/user.interface";
+
+// Types
+type TCreatePeerNominations = {
+  createdAt: string;
   id: string;
-  type: string;
-  subject: string;
-  status: string;
-  dueDate: string;
+  nominationStatus: string;
+  nominator: IUser;
+  nominee: IUser;
+  reviewee: IUser;
+  updatedAt: string;
 };
 
-export function ReviewsList({
-  reviews,
+type TCreatePeer = {
+  data: TCreatePeerNominations[];
+  error?: object;
+  message: string;
+  statusCode: number;
+  timestamp: string;
+};
+
+/**
+ * CreatedNominationsList component
+ * @param {TCreatePeer} nominations
+ * @param {string} userRole
+ * @returns {JSX.Element}
+ */
+export function CreatedNominationsList({
+  nominations,
   userRole,
 }: {
-  reviews: Review[];
-  userRole: string | null;
+  nominations: TCreatePeer;
+  userRole: string;
 }) {
-  const router = useRouter();
-
+  // State variables
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-  const columns: ColumnDef<Review>[] = [
+  // Columns definition
+  const columns: ColumnDef<TCreatePeerNominations>[] = [
     {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("type")}</div>
-      ),
-    },
-    {
-      accessorKey: "subject",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Subject
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("subject")}</div>
-      ),
-    },
-    {
-      accessorKey: "status",
+      accessorKey: "nominationStatus",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-
+        const status = row.getValue("nominationStatus") as string;
         return (
           <Badge
             variant={
-              status === "COMPLETED"
+              status === "ACCEPTED"
                 ? "approved"
                 : status === "PENDING"
                 ? "pending"
-                : status === "SUBMITTED"
-                ? "default"
+                : status === "COMPLETED"
+                ? "outline"
                 : "red"
             }
           >
@@ -112,28 +111,39 @@ export function ReviewsList({
       },
     },
     {
-      accessorKey: "dueDate",
+      accessorKey: "nominator",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Due Date
+            Nominator
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("dueDate"));
-        return <div>{date.toLocaleDateString()}</div>;
-      },
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.nominator.fullname}</div>
+      ),
+    },
+    {
+      accessorKey: "nominee",
+      header: "Nominee",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.nominee.fullname}</div>
+      ),
+    },
+    {
+      accessorKey: "reviewee",
+      header: "Reviewee",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.reviewee.fullname}</div>
+      ),
     },
     {
       id: "actions",
-      cell: ({ row }) => {
-        const review = row.original;
-
+      cell: () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -144,22 +154,6 @@ export function ReviewsList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link href={`/reviews/${review.id}`}>View Details</Link>
-              </DropdownMenuItem>
-              {review.type === "SELF" && <DropdownMenuSeparator />}
-              {((review.type === "SELF" &&
-                userRole === "EMPLOYEE" &&
-                review.status.toUpperCase() !== "COMPLETED") ||
-                (userRole === "MANAGER" &&
-                  review.type === "MANAGER" &&
-                  review.status.toUpperCase() !== "COMPLETED")) && (
-                <DropdownMenuItem>
-                  <Link href={`/reviews/${review.id}/edit`}>
-                    Edit Questionnaires
-                  </Link>
-                </DropdownMenuItem>
-              )}
               {(userRole === "ADMIN" ||
                 userRole === "SUPER_ADMIN" ||
                 userRole === "MANAGER") && (
@@ -177,14 +171,15 @@ export function ReviewsList({
     setStatusFilter(value);
 
     if (value === "all") {
-      table.getColumn("status")?.setFilterValue(undefined);
+      table.getColumn("nominationStatus")?.setFilterValue(undefined);
     } else {
-      table.getColumn("status")?.setFilterValue(value);
+      table.getColumn("nominationStatus")?.setFilterValue(value);
     }
   };
 
+  // React Table instance
   const table = useReactTable({
-    data: reviews,
+    data: nominations.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -202,10 +197,12 @@ export function ReviewsList({
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <Input
-          placeholder="Filter subjects..."
-          value={(table.getColumn("subject")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter nominators..."
+          value={
+            (table.getColumn("nominator")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("subject")?.setFilterValue(event.target.value)
+            table.getColumn("nominator")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -219,8 +216,8 @@ export function ReviewsList({
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="SUBMITTED">Submitted</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
+            <SelectItem value="ACCEPTED">Accepted</SelectItem>
+            <SelectItem value="DECLINED">Declined</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -251,10 +248,6 @@ export function ReviewsList({
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => {
-                    // Optional: Navigate to details page on row click
-                    router.push(`/reviews/${row.original.id}`);
-                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+// Core react imports
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+// UI component imports
 import {
   Select,
   SelectContent,
@@ -14,19 +18,40 @@ import { Textarea } from "../../ui/textarea";
 import { Button } from "../../ui/button";
 import { Card, CardContent } from "../../ui/card";
 import { Loader2 } from "lucide-react";
+
+// Hook imports
 import {
   useCreateSelfReview,
   useCreateManagerReview,
+  useCreatePeerNomination,
 } from "@/hooks/reviews.hooks";
 import { useGetMyDepartment } from "@/hooks/department.hooks";
+
+// Other imports
 import { toast } from "sonner";
+
+// Provider imports
 import { useAuth } from "@/providers/auth-provider";
+
+// Store imports
 import { useReviewIdStore } from "@/store/review-store";
 
+/**
+ * CreateReviewForm Component
+ * @param handleNext - Function to move to the next tab
+ * @returns JSX.Element
+ */
 const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
-  const { setReviewId } = useReviewIdStore(); // Use the store to set the review ID
+  // Get the router object
+  const router = useRouter();
 
+  // Get the review ID store
+  const { setReviewId } = useReviewIdStore();
+
+  // Get the user and loading status from the auth provider
   const { user, loading } = useAuth();
+
+  // Check if the user is a manager
   const isManager = !loading && user?.role === "MANAGER";
 
   // Set minimum date to today for due date
@@ -38,13 +63,17 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
   twoWeeksFromNow.setDate(today.getDate() + 14);
   const defaultDueDate = twoWeeksFromNow.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
+  // State for form values and errors
   const [formValues, setFormValues] = useState({
     reviewType: "",
     subject: "",
     description: "",
     reviewee: "",
+    nominee: "",
     dueDate: defaultDueDate,
   });
+
+  // State for form errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Set initial review type based on user role
@@ -57,14 +86,19 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
     }
   }, [loading, isManager]);
 
+  // Mutation hooks for creating reviews
   const createSelfReviewMutation = useCreateSelfReview();
+  const createPeerNominationMutation = useCreatePeerNomination();
   const createManagerReviewMutation = useCreateManagerReview();
 
+  // Get department data for manager reviews
   const { data: departmentData, isLoading: isLoadingDepartment } =
     useGetMyDepartment();
 
+  // Get team members from department data
   const teamMembers = departmentData?.data?.members || [];
 
+  // Handle form input changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -77,6 +111,7 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
     }
   };
 
+  // Handle select input changes
   const handleSelectChange = (value: string, name: string) => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
 
@@ -86,6 +121,7 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
     }
   };
 
+  // Form validation function
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -105,6 +141,20 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
       newErrors.reviewee = "Please select an employee to review";
     }
 
+    if (formValues.reviewType === "peer") {
+      if (!formValues.nominee) {
+        newErrors.nominee = "Please select a nominee";
+      }
+
+      if (!formValues.reviewee) {
+        newErrors.reviewee = "Please select a reviewee";
+      }
+
+      if (formValues.nominee === formValues.reviewee && formValues.nominee) {
+        newErrors.nominee = "Nominee and reviewee cannot be the same person";
+      }
+    }
+
     if (!formValues.dueDate) {
       newErrors.dueDate = "Due date is required";
     } else {
@@ -122,6 +172,7 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -155,7 +206,21 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
         toast.success("Manager review created successfully");
         handleNext();
       } else if (formValues.reviewType === "peer") {
-        toast.info("Peer review functionality coming soon");
+        const nomineeId = Number(formValues.nominee);
+        const revieweeId = Number(formValues.reviewee);
+
+        if (isNaN(nomineeId) || isNaN(revieweeId)) {
+          toast.error("Invalid nominee or reviewee ID");
+          return;
+        }
+
+        await createPeerNominationMutation.mutateAsync({
+          nominee: nomineeId,
+          reviewee: revieweeId,
+        });
+
+        toast.success("Peer review nomination created successfully");
+        router.push("/reviews");
       }
 
       // Reset form after successful submission
@@ -164,6 +229,7 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
         subject: "",
         description: "",
         reviewee: "",
+        nominee: "",
         dueDate: defaultDueDate,
       });
     } catch (error: any) {
@@ -175,8 +241,11 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
     }
   };
 
+  // Check if any mutation is pending
   const isPending =
-    createSelfReviewMutation.isPending || createManagerReviewMutation.isPending;
+    createSelfReviewMutation.isPending ||
+    createManagerReviewMutation.isPending ||
+    createPeerNominationMutation.isPending;
 
   return (
     <Card>
@@ -199,9 +268,11 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
                 {!loading && user?.role !== "MANAGER" && (
                   <SelectItem value="self">Self Assessment</SelectItem>
                 )}
-                <SelectItem value="peer">Peer Review</SelectItem>
                 {!loading && user?.role === "MANAGER" && (
-                  <SelectItem value="manager">Manager Review</SelectItem>
+                  <>
+                    <SelectItem value="peer">Peer Review</SelectItem>
+                    <SelectItem value="manager">Manager Review</SelectItem>
+                  </>
                 )}
               </SelectContent>
             </Select>
@@ -293,6 +364,121 @@ const CreateReviewForm = ({ handleNext }: { handleNext: () => void }) => {
                 <p className="text-red-500 text-xs mt-1">{errors.reviewee}</p>
               )}
             </div>
+          )}
+
+          {/* Nominee and Reviewee (for peer review) */}
+          {formValues.reviewType === "peer" && (
+            <>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Nominee (Who will do the review)
+                </label>
+                <Select
+                  onValueChange={(value) =>
+                    handleSelectChange(value, "nominee")
+                  }
+                  value={formValues.nominee}
+                  disabled={isLoadingDepartment}
+                >
+                  <SelectTrigger
+                    className={errors.nominee ? "border-red-500" : ""}
+                  >
+                    <SelectValue
+                      placeholder={
+                        isLoadingDepartment
+                          ? "Loading team members..."
+                          : "Select nominee"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isLoadingDepartment ? (
+                      <div className="flex items-center justify-center py-2 text-sm">
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Loading team members...
+                      </div>
+                    ) : teamMembers.length === 0 ? (
+                      <div className="py-2 text-sm text-center">
+                        No team members found
+                      </div>
+                    ) : (
+                      teamMembers
+                        .filter(
+                          (memberItem: any) =>
+                            String(memberItem.member.id) !== formValues.reviewee
+                        )
+                        .map((memberItem: any) => (
+                          <SelectItem
+                            key={memberItem.member.id}
+                            value={String(memberItem.member.id)}
+                          >
+                            {memberItem.member.fullname} (
+                            {memberItem.member.email})
+                          </SelectItem>
+                        ))
+                    )}
+                  </SelectContent>
+                </Select>
+                {errors.nominee && (
+                  <p className="text-red-500 text-xs mt-1">{errors.nominee}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Reviewee (Who will be reviewed)
+                </label>
+                <Select
+                  onValueChange={(value) =>
+                    handleSelectChange(value, "reviewee")
+                  }
+                  value={formValues.reviewee}
+                  disabled={isLoadingDepartment}
+                >
+                  <SelectTrigger
+                    className={errors.reviewee ? "border-red-500" : ""}
+                  >
+                    <SelectValue
+                      placeholder={
+                        isLoadingDepartment
+                          ? "Loading team members..."
+                          : "Select reviewee"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isLoadingDepartment ? (
+                      <div className="flex items-center justify-center py-2 text-sm">
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Loading team members...
+                      </div>
+                    ) : teamMembers.length === 0 ? (
+                      <div className="py-2 text-sm text-center">
+                        No team members found
+                      </div>
+                    ) : (
+                      teamMembers
+                        .filter(
+                          (memberItem: any) =>
+                            String(memberItem.member.id) !== formValues.nominee
+                        )
+                        .map((memberItem: any) => (
+                          <SelectItem
+                            key={memberItem.member.id}
+                            value={String(memberItem.member.id)}
+                          >
+                            {memberItem.member.fullname} (
+                            {memberItem.member.email})
+                          </SelectItem>
+                        ))
+                    )}
+                  </SelectContent>
+                </Select>
+                {errors.reviewee && (
+                  <p className="text-red-500 text-xs mt-1">{errors.reviewee}</p>
+                )}
+              </div>
+            </>
           )}
 
           {/* Due Date with standard input */}
