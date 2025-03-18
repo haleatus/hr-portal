@@ -1,6 +1,9 @@
 "use client";
 
+// Core React imports
 import { useState } from "react";
+
+// Core TanStack imports
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -12,7 +15,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
+// Core Lucide imports
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+
+// UI Components imports
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,8 +45,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+
+// Interfaces imports
 import { IUser } from "@/interfaces/user.interface";
 
+// Types
 type TCreatePeerNominations = {
   createdAt: string;
   id: string;
@@ -58,6 +68,12 @@ type TCreatePeer = {
   timestamp: string;
 };
 
+/**
+ * CreatedNominationsList component
+ * @param {TCreatePeer} nominations
+ * @param {string} userRole
+ * @returns {JSX.Element}
+ */
 export function CreatedNominationsList({
   nominations,
   userRole,
@@ -65,12 +81,12 @@ export function CreatedNominationsList({
   nominations: TCreatePeer;
   userRole: string;
 }) {
-  console.log(nominations);
-
+  // State variables
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
+  // Columns definition
   const columns: ColumnDef<TCreatePeerNominations>[] = [
     {
       accessorKey: "nominationStatus",
@@ -80,10 +96,12 @@ export function CreatedNominationsList({
         return (
           <Badge
             variant={
-              status === "COMPLETED"
+              status === "ACCEPTED"
                 ? "approved"
                 : status === "PENDING"
                 ? "pending"
+                : status === "COMPLETED"
+                ? "outline"
                 : "red"
             }
           >
@@ -159,6 +177,7 @@ export function CreatedNominationsList({
     }
   };
 
+  // React Table instance
   const table = useReactTable({
     data: nominations.data,
     columns,
