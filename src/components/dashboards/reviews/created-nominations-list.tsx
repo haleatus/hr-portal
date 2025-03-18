@@ -51,14 +51,7 @@ type TCreatePeerNominations = {
 };
 
 type TCreatePeer = {
-  data: {
-    data: TCreatePeerNominations[];
-    limit: number;
-    next: number | null;
-    page: number | null;
-    previous: number | null;
-    total: number | null;
-  };
+  data: TCreatePeerNominations[];
   error?: object;
   message: string;
   statusCode: number;
@@ -72,6 +65,8 @@ export function CreatedNominationsList({
   nominations: TCreatePeer;
   userRole: string;
 }) {
+  console.log(nominations);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -165,7 +160,7 @@ export function CreatedNominationsList({
   };
 
   const table = useReactTable({
-    data: nominations.data.data, // Use the correct data structure here
+    data: nominations.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
