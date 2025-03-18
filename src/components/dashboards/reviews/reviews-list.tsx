@@ -101,6 +101,8 @@ export function ReviewsList({
                 ? "approved"
                 : status === "PENDING"
                 ? "pending"
+                : status === "SUBMITTED"
+                ? "default"
                 : "red"
             }
           >

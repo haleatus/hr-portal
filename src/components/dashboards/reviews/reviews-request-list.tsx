@@ -119,9 +119,9 @@ export function PeerReviewsRequestLists({
                 status === "COMPLETED"
                   ? "default"
                   : status === "PENDING"
-                  ? "secondary"
+                  ? "pending"
                   : status === "ACCEPTED"
-                  ? "outline"
+                  ? "approved"
                   : "destructive"
               }
             >
