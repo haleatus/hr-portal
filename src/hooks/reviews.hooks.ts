@@ -3,6 +3,7 @@ import apiClient from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import {
   useManagerReviewStore,
+  usePeerReviewNominationStore,
   useSelfReviewStore,
 } from "@/store/review-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -296,6 +297,12 @@ export const useUpdateQuestionnaire = () => {
           queryKey: ["reviewDetails"],
         });
       }
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
     },
   });
 };
@@ -321,6 +328,201 @@ export const useMarkReviewAsComplete = () => {
       // If we don't have an ID in the response, invalidate all review details queries
       queryClient.invalidateQueries({
         queryKey: ["reviewDetails"],
+      });
+    },
+  });
+};
+
+// Peer Review
+
+/**
+ * Get my team peer reviews (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team peer reviews data
+ */
+export const useGetMyTeamPeerReviews = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myTeamPeerReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/my-team/peer/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my peer reviews (Employee only | Nomeniee)
+ * @param options - Additional options for the query
+ * @returns Query result with employee peer reviews data
+ */
+export const useGetMyPeerReviews = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isEmployee = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myPeerReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/my/peer/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isEmployee,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useCreatePeerNomination hook (Manager only)
+ */
+export const useCreatePeerNomination = () => {
+  const setError = usePeerReviewNominationStore((state) => state.setError);
+  const setIsLoading = usePeerReviewNominationStore(
+    (state) => state.setIsLoading
+  );
+  const setNominee = usePeerReviewNominationStore((state) => state.setNominee);
+  const setReviewee = usePeerReviewNominationStore(
+    (state) => state.setReviewee
+  );
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reviewData: { nominee: number; reviewee: number }) => {
+      const response = await apiClient.post(
+        "/hr-hub/user/peer-nomination/create",
+        reviewData
+      );
+      return response.data;
+    },
+    onMutate: () => {
+      setIsLoading(true);
+      setError(null);
+    },
+    onSuccess: (response) => {
+      setNominee(response.data.nominee);
+      setReviewee(response.data.reviewee);
+
+      // Invalidate query to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myCreatedPeerNominations"],
+      });
+    },
+    onError: (error: any) => {
+      setError(
+        error.response?.data?.message || "Failed to create a peer review"
+      );
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+};
+
+/**
+ * Get created peer nominations (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with nominee and reviewee data for that peer review
+ */
+export const useGetCreatedPeerNominations = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myCreatedPeerNominations"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/peer-nomination/created/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my peer nominations requests (Employee only)
+ * @param options - Additional options for the query
+ * @returns Query result with peer review requests data
+ */
+export const useGetMyPeerReviewsRequests = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isEmployee = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myPeerReviewsRequests"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/peer-nomination/assigned/get"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isEmployee,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useUpdateReviewRequestStatus hook
+ */
+export const useUpdateReviewRequestStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/peer-nomination/update/${id}`,
+        { nominationStatus: status }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviewsRequests"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
       });
     },
   });

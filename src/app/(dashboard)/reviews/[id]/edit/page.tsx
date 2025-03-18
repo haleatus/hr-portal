@@ -28,17 +28,24 @@ const EditReviewPage = () => {
       </div>
     );
   }
-
   return (
     <div className="container py-8 px-4 md:px-6">
       <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
         Edit Review: {reviewData.data.subject}
       </h1>
 
-      <UpdateQuestionnaire
-        reviewId={reviewId}
-        questionnaires={reviewData.data.questionnaires}
-      />
+      {reviewData.data.reviewType === "PEER" ? (
+        <UpdateQuestionnaire
+          reviewId={reviewId}
+          questionnaires={reviewData.data.questionnaires}
+          peerReview={true}
+        />
+      ) : (
+        <UpdateQuestionnaire
+          reviewId={reviewId}
+          questionnaires={reviewData.data.questionnaires}
+        />
+      )}
     </div>
   );
 };

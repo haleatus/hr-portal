@@ -5,13 +5,19 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { ReviewsList } from "./reviews-list";
 import {
+  useGetCreatedPeerNominations,
+  useGetMyPeerReviews,
+  useGetMyPeerReviewsRequests,
   useGetMySelfReviews,
   useGetMyTeamManagerReviews,
   useGetMyTeamManagerReviewsOnMe,
+  useGetMyTeamPeerReviews,
   useGetMyTeamSelfReviews,
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
 import { JSX } from "react";
+import { CreatedNominationsList } from "./created-nominations-list";
+import { PeerReviewsRequestLists } from "./reviews-request-list";
 
 // Define types for the API response
 interface Questionnaire {
@@ -74,11 +80,9 @@ export function ReviewsDashboard({
   const { data: selfReviews, isLoading: isSelfReviewsLoading } =
     useGetMySelfReviews({ isEmployee });
 
-  // You would need to implement these hooks
-  const { data: peerReviews, isLoading: isPeerReviewsLoading } = {
-    data: undefined,
-    isLoading: false,
-  }; // Placeholder
+  const { data: peerReviews, isLoading: isPeerReviewsLoading } =
+    useGetMyPeerReviews({ isEmployee });
+
   const { data: managerReviews, isLoading: isManagerReviewsLoading } =
     useGetMyTeamManagerReviewsOnMe({ isEmployee });
 
@@ -92,6 +96,19 @@ export function ReviewsDashboard({
     data: myTeamManagerReviews,
     isLoading: isMyTeamManagerReviewsLoading,
   } = useGetMyTeamManagerReviews({ isManager });
+
+  const { data: myTeamPeerReviews, isLoading: isMyTeamPeerReviewsLoading } =
+    useGetMyTeamPeerReviews({ isManager });
+
+  const {
+    data: myCreatedPeerNominations,
+    isLoading: isMyCreatedPeerNominationsLoading,
+  } = useGetCreatedPeerNominations({ isManager });
+
+  const {
+    data: myPeerReviewsRequests,
+    isLoading: isMyMyPeerReviewsRequestsLoading,
+  } = useGetMyPeerReviewsRequests({ isEmployee });
 
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
@@ -124,6 +141,7 @@ export function ReviewsDashboard({
   const formattedManagerReviews = formatReviewsData(managerReviews);
   const formattedMyTeamSelfReviews = formatReviewsData(myTeamSelfReviews);
   const formattedMyTeamManagerReviews = formatReviewsData(myTeamManagerReviews);
+  const formattedMyTeamPeerReviews = formatReviewsData(myTeamPeerReviews);
 
   return (
     <div className="space-y-6">
@@ -150,6 +168,9 @@ export function ReviewsDashboard({
               <TabsTrigger value="self">Self Reviews</TabsTrigger>
               <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
               <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
+              <TabsTrigger value="my-team-peers-requests">
+                My Peer Review Requests
+              </TabsTrigger>
             </>
           )}
           {userRole === "MANAGER" && (
@@ -158,6 +179,10 @@ export function ReviewsDashboard({
                 My Team Manager Reviews
               </TabsTrigger>
               <TabsTrigger value="team-self">Team Self Reviews</TabsTrigger>
+              <TabsTrigger value="team-peer">Team Peer Reviews</TabsTrigger>
+              <TabsTrigger value="created-team-peers">
+                Created Team Peers
+              </TabsTrigger>
             </>
           )}
         </TabsList>
@@ -219,6 +244,49 @@ export function ReviewsDashboard({
             ) : (
               <ReviewsList
                 reviews={formattedMyTeamSelfReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+        {userRole === "MANAGER" && (
+          <TabsContent value="team-peer">
+            {isMyCreatedPeerNominationsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading created team members peer reviews...
+              </div>
+            ) : (
+              <ReviewsList
+                reviews={formattedMyTeamPeerReviews}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+        {userRole === "MANAGER" && (
+          <TabsContent value="created-team-peers">
+            {isMyTeamPeerReviewsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading team members peer reviews...
+              </div>
+            ) : (
+              <CreatedNominationsList
+                nominations={myCreatedPeerNominations}
+                userRole={userRole}
+              />
+            )}
+          </TabsContent>
+        )}
+
+        {userRole === "EMPLOYEE" && (
+          <TabsContent value="my-team-peers-requests">
+            {isMyMyPeerReviewsRequestsLoading ? (
+              <div className="flex justify-center p-8">
+                Loading team members peer reviews requests...
+              </div>
+            ) : (
+              <PeerReviewsRequestLists
+                requests={myPeerReviewsRequests}
                 userRole={userRole}
               />
             )}

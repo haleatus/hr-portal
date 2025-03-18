@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useUpdateQuestionnaire } from "@/hooks/reviews.hooks";
+import {
+  useSubmitQuestionnaire,
+  useUpdateQuestionnaire,
+} from "@/hooks/reviews.hooks";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, Save, ArrowLeft } from "lucide-react";
 import {
@@ -41,11 +44,13 @@ interface Questionnaire {
 interface UpdateQuestionnaireProps {
   reviewId: string;
   questionnaires: Questionnaire[];
+  peerReview?: boolean;
 }
 
 const UpdateQuestionnaire = ({
   reviewId,
   questionnaires,
+  peerReview,
 }: UpdateQuestionnaireProps) => {
   const router = useRouter();
 
@@ -57,6 +62,9 @@ const UpdateQuestionnaire = ({
 
   // Use the update questionnaire hook
   const updateQuestionnaireMutation = useUpdateQuestionnaire();
+
+  // Use the submit questionnaire hook
+  const submitQuestionnaireMutation = useSubmitQuestionnaire();
 
   // Initialize state with existing data
   useEffect(() => {
@@ -192,9 +200,16 @@ const UpdateQuestionnaire = ({
     };
 
     try {
-      await updateQuestionnaireMutation.mutateAsync({
-        questionnaireData,
-      });
+      if (peerReview) {
+        await submitQuestionnaireMutation.mutateAsync({
+          id: reviewId,
+          questionnaireData,
+        });
+      } else {
+        await updateQuestionnaireMutation.mutateAsync({
+          questionnaireData,
+        });
+      }
 
       toast.success("Questionnaire updated successfully");
       setIsFormDirty(false);
