@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAcknowledgeReviewSummary } from "@/hooks/reviews.hooks";
+import { Button } from "@/components/ui/button";
 
 interface AcknowledgmentSectionProps {
   reviewId: string | number;
@@ -26,7 +27,7 @@ const AcknowledgmentSection: React.FC<AcknowledgmentSectionProps> = ({
     return (
       <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
         <p className="text-green-700 font-medium">
-          You have acknowledged this review.
+          You have acknowledged this review summary.
         </p>
       </div>
     );
@@ -55,7 +56,7 @@ const AcknowledgmentSection: React.FC<AcknowledgmentSectionProps> = ({
       </div>
 
       <div className="text-center">
-        <button
+        <Button
           onClick={handleAcknowledge}
           disabled={!isChecked || isPending}
           className={`px-4 py-2 rounded-md ${
@@ -65,7 +66,7 @@ const AcknowledgmentSection: React.FC<AcknowledgmentSectionProps> = ({
           } transition-colors`}
         >
           {isPending ? "Processing..." : "Submit Acknowledgment"}
-        </button>
+        </Button>
       </div>
     </div>
   );
