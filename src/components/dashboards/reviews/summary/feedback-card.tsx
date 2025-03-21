@@ -23,9 +23,16 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
         <h4 className={`font-semibold ${textColor}`}>{title}</h4>
         {feedback.ratings > 0 && <RatingStars rating={feedback.ratings} />}
       </div>
-      <p className="text-gray-700">
-        {feedback.answers[0] || "No feedback provided"}
-      </p>
+
+      {feedback.answers.length > 0 ? (
+        feedback.answers.map((answer, idx) => (
+          <p key={idx} className="text-gray-700">
+            Answer {idx + 1}: {answer}
+          </p>
+        ))
+      ) : (
+        <p className="text-gray-700">No feedback provided</p>
+      )}
     </div>
   );
 };

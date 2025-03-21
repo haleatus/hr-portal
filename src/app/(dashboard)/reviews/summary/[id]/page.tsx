@@ -27,6 +27,8 @@ const ReviewSummaryDetailPage: React.FC = () => {
     return <ReviewNotFound />;
   }
 
+  console.log("rd", reviewSummaryData);
+
   // Check if summaryQuestionnaire exists
   const summaryQuestionnaire =
     reviewSummaryData.data.summaryQuestionnaire || [];
