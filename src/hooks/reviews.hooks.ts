@@ -527,3 +527,92 @@ export const useUpdateReviewRequestStatus = () => {
     },
   });
 };
+
+// -------------- Summary of Review --------------
+
+/**
+ * Get my team reviews that are acknowledged (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team peer reviews data
+ */
+export const useGetMyTeamAcknowledgedReviewsSummary = (
+  options: HookOptions = {}
+) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myTeamAcknowledgedReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/summary/my/team/acknowledged/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my team reviews that are not yet acknowledged (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team peer reviews data
+ */
+export const useGetMyTeamUnAcknowledgedReviewsSummary = (
+  options: HookOptions = {}
+) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myTeamUnAcknowledgedReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/summary/my/team/unacknowledged/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my recent reviews
+ * @param options - Additional options for the query
+ * @returns Query result with latest reviews summary data
+ */
+export const useGetLatestReviewsSummary = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myRecentReviewsSummary"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/summary/my/get"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated
+    enabled: isAuthenticated,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
