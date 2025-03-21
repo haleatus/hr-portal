@@ -6,8 +6,6 @@ interface ReviewHeaderProps {
 }
 
 const ReviewHeader: React.FC<ReviewHeaderProps> = ({ reviewData }) => {
-  console.log("rvvd", reviewData);
-
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
       <div>

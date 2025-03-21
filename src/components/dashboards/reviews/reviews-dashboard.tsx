@@ -20,7 +20,7 @@ import Link from "next/link";
 import { JSX } from "react";
 import { CreatedNominationsList } from "./created-nominations-list";
 import { PeerReviewsRequestLists } from "./reviews-request-list";
-import SummarriesList from "./summaries-list";
+import SummarriesList from "./summary/summaries-list";
 
 // Define types for the API response
 interface Questionnaire {

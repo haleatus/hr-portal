@@ -19,8 +19,6 @@ const ReviewSummaryDetailPage: React.FC = () => {
   const { data: reviewSummaryData, isLoading } =
     useGetReviewSummaryDetails(reviewId);
 
-  console.log("rd", reviewSummaryData);
-
   if (isLoading) {
     return <Loading />;
   }
