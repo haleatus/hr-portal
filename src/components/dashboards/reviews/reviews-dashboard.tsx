@@ -9,15 +9,18 @@ import {
   useGetMyPeerReviews,
   useGetMyPeerReviewsRequests,
   useGetMySelfReviews,
+  useGetMyTeamAcknowledgedReviewsSummary,
   useGetMyTeamManagerReviews,
   useGetMyTeamManagerReviewsOnMe,
   useGetMyTeamPeerReviews,
   useGetMyTeamSelfReviews,
+  useGetMyTeamUnAcknowledgedReviewsSummary,
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
 import { JSX } from "react";
 import { CreatedNominationsList } from "./created-nominations-list";
 import { PeerReviewsRequestLists } from "./reviews-request-list";
+import SummarriesList from "./summary/summaries-list";
 
 // Define types for the API response
 interface Questionnaire {
@@ -110,6 +113,16 @@ export function ReviewsDashboard({
     isLoading: isMyMyPeerReviewsRequestsLoading,
   } = useGetMyPeerReviewsRequests({ isEmployee });
 
+  const {
+    data: myTeamAcknowledgedReviewsSummary,
+    isLoading: isMyTeamAcknowledgedReviewsSummaryLoading,
+  } = useGetMyTeamAcknowledgedReviewsSummary({ isManager });
+
+  const {
+    data: myTeamUnAcknowledgedReviewsSummary,
+    isLoading: isMyTeamUnAcknowledgedReviewsSummaryLoading,
+  } = useGetMyTeamUnAcknowledgedReviewsSummary({ isManager });
+
   // Transform API data to match the format expected by ReviewsList
   const formatReviewsData = (
     reviews: ApiResponse | undefined
@@ -148,6 +161,13 @@ export function ReviewsDashboard({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Performance Reviews</h1>
         <div className="flex gap-2">
+          {userRole === "EMPLOYEE" && (
+            <Button asChild>
+              <Link href="/reviews/latest-summary">
+                View Your Latest Summary
+              </Link>
+            </Button>
+          )}
           {(userRole === "EMPLOYEE" || userRole === "MANAGER") && (
             <Button asChild>
               <Link href="/reviews/create">
@@ -182,6 +202,12 @@ export function ReviewsDashboard({
               <TabsTrigger value="team-peer">Team Peer Reviews</TabsTrigger>
               <TabsTrigger value="created-team-peers">
                 Created Team Peers
+              </TabsTrigger>
+              <TabsTrigger value="acknowledged-summary">
+                Acknowledged Summaries
+              </TabsTrigger>
+              <TabsTrigger value="unacknowledged-summary">
+                UnAcknowledged Summaries
               </TabsTrigger>
             </>
           )}
@@ -289,6 +315,30 @@ export function ReviewsDashboard({
                 requests={myPeerReviewsRequests}
                 userRole={userRole}
               />
+            )}
+          </TabsContent>
+        )}
+
+        {userRole === "MANAGER" && (
+          <TabsContent value="acknowledged-summary">
+            {isMyTeamAcknowledgedReviewsSummaryLoading ? (
+              <div className="flex justify-center p-8">
+                Loading acknowledged summarries...
+              </div>
+            ) : (
+              <SummarriesList summarries={myTeamAcknowledgedReviewsSummary} />
+            )}
+          </TabsContent>
+        )}
+
+        {userRole === "MANAGER" && (
+          <TabsContent value="unacknowledged-summary">
+            {isMyTeamUnAcknowledgedReviewsSummaryLoading ? (
+              <div className="flex justify-center p-8">
+                Loading unacknowledged summarries...
+              </div>
+            ) : (
+              <SummarriesList summarries={myTeamUnAcknowledgedReviewsSummary} />
             )}
           </TabsContent>
         )}

@@ -303,6 +303,12 @@ export const useUpdateQuestionnaire = () => {
       queryClient.invalidateQueries({
         queryKey: ["myPeerReviews"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["mySelfReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamSelfReviews"],
+      });
     },
   });
 };
@@ -320,14 +326,25 @@ export const useMarkReviewAsComplete = () => {
       );
       return response.data;
     },
-    onSuccess: (data, variables) => {
-      console.log("variables", variables);
-
-      console.log("data", data);
-
+    onSuccess: () => {
       // If we don't have an ID in the response, invalidate all review details queries
       queryClient.invalidateQueries({
         queryKey: ["reviewDetails"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamManagerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamManagerReviewsOnMe"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["mySelfReviews"],
       });
     },
   });
@@ -523,6 +540,148 @@ export const useUpdateReviewRequestStatus = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["myTeamPeerReviews"],
+      });
+    },
+  });
+};
+
+// -------------- Summary of Review --------------
+
+/**
+ * Get my team reviews that are acknowledged (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team peer reviews data
+ */
+export const useGetMyTeamAcknowledgedReviewsSummary = (
+  options: HookOptions = {}
+) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myTeamAcknowledgedReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/summary/my/team/acknowledged/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my team reviews that are not yet acknowledged (Manager only)
+ * @param options - Additional options for the query
+ * @returns Query result with team peer reviews data
+ */
+export const useGetMyTeamUnAcknowledgedReviewsSummary = (
+  options: HookOptions = {}
+) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isManager = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myTeamUnAcknowledgedReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/summary/my/team/unacknowledged/get-all"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated AND is a manager
+    enabled: isAuthenticated && isManager,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Get my recent reviews
+ * @param options - Additional options for the query
+ * @returns Query result with latest reviews summary data
+ */
+export const useGetLatestReviewsSummary = (options: HookOptions = {}) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isEmployee = false } = options;
+
+  // Fetch my team manager reviews
+  return useQuery({
+    queryKey: ["myRecentReviewsSummary"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        "/hr-hub/user/review/summary/my/get"
+      );
+      return response.data;
+    },
+    // Only fetch data if the user is authenticated
+    enabled: isAuthenticated && isEmployee,
+
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useGetReviewSummaryDetails hook
+ */
+export const useGetReviewSummaryDetails = (id: string) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    // Include the id in the query key to make it unique per department
+    queryKey: ["reviewSummaryDetails", id],
+    queryFn: async () => {
+      const response = await apiClient.get(`/hr-hub/review-summary/get/${id}`);
+      return response.data;
+    },
+    // Don't run this query if the user isn't authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * useAcknowledgeReviewSummary hook
+ */
+export const useAcknowledgeReviewSummary = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/review/summary/acknowledge/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reviewSummaryDetails"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myRecentReviewsSummary"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamUnAcknowledgedReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamAcknowledgedReviews"],
       });
     },
   });
