@@ -303,6 +303,12 @@ export const useUpdateQuestionnaire = () => {
       queryClient.invalidateQueries({
         queryKey: ["myPeerReviews"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["mySelfReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamSelfReviews"],
+      });
     },
   });
 };
@@ -320,14 +326,25 @@ export const useMarkReviewAsComplete = () => {
       );
       return response.data;
     },
-    onSuccess: (data, variables) => {
-      console.log("variables", variables);
-
-      console.log("data", data);
-
+    onSuccess: () => {
       // If we don't have an ID in the response, invalidate all review details queries
       queryClient.invalidateQueries({
         queryKey: ["reviewDetails"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myPeerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamManagerReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamManagerReviewsOnMe"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["mySelfReviews"],
       });
     },
   });
