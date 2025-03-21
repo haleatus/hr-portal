@@ -161,6 +161,13 @@ export function ReviewsDashboard({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Performance Reviews</h1>
         <div className="flex gap-2">
+          {userRole === "EMPLOYEE" && (
+            <Button asChild>
+              <Link href="/reviews/latest-summary">
+                View Your Latest Summary
+              </Link>
+            </Button>
+          )}
           {(userRole === "EMPLOYEE" || userRole === "MANAGER") && (
             <Button asChild>
               <Link href="/reviews/create">
