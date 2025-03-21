@@ -6,7 +6,6 @@ import { useState } from "react";
 // Core TanStack imports
 import {
   type ColumnDef,
-  type ColumnFiltersState,
   type SortingState,
   flexRender,
   getCoreRowModel,
@@ -37,13 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Link from "next/link";
 
 // Types
@@ -101,17 +93,11 @@ type TReviewSummaryResponse = {
  */
 export default function SummarriesList({
   summarries,
-  userRole,
 }: {
   summarries: TReviewSummaryResponse;
-  userRole: string;
 }) {
   // State variables
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [acknowledgeFilter, setAcknowledgeFilter] = useState<string | null>(
-    null
-  );
 
   // Ensure summarries data exists
   const summariesData = summarries?.data || [];
@@ -195,12 +181,6 @@ export default function SummarriesList({
                   View Details
                 </Link>
               </DropdownMenuItem>
-              {(userRole === "ADMIN" ||
-                userRole === "SUPER_ADMIN" ||
-                userRole === "MANAGER") &&
-                !row.original.isAcknowledged && (
-                  <DropdownMenuItem>Mark as Acknowledged</DropdownMenuItem>
-                )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -208,31 +188,17 @@ export default function SummarriesList({
     },
   ];
 
-  // Handle acknowledgement status filter change
-  const handleAcknowledgeChange = (value: string) => {
-    setAcknowledgeFilter(value);
-
-    if (value === "all") {
-      table.getColumn("isAcknowledged")?.setFilterValue(undefined);
-    } else {
-      const boolValue = value === "true";
-      table.getColumn("isAcknowledged")?.setFilterValue(boolValue);
-    }
-  };
-
   // React Table instance
   const table = useReactTable({
     data: summariesData,
     columns,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
-      columnFilters,
     },
   });
 
@@ -254,19 +220,6 @@ export default function SummarriesList({
           }
           className="max-w-sm"
         />
-        <Select
-          value={acknowledgeFilter || "all"}
-          onValueChange={handleAcknowledgeChange}
-        >
-          <SelectTrigger className="w-[220px]">
-            <SelectValue placeholder="All Acknowledgement Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="true">Acknowledged</SelectItem>
-            <SelectItem value="false">Pending Acknowledgement</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="rounded-md border">

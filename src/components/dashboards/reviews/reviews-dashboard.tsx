@@ -319,10 +319,7 @@ export function ReviewsDashboard({
                 Loading acknowledged summarries...
               </div>
             ) : (
-              <SummarriesList
-                summarries={myTeamAcknowledgedReviewsSummary}
-                userRole={userRole}
-              />
+              <SummarriesList summarries={myTeamAcknowledgedReviewsSummary} />
             )}
           </TabsContent>
         )}
@@ -334,10 +331,7 @@ export function ReviewsDashboard({
                 Loading unacknowledged summarries...
               </div>
             ) : (
-              <SummarriesList
-                summarries={myTeamUnAcknowledgedReviewsSummary}
-                userRole={userRole}
-              />
+              <SummarriesList summarries={myTeamUnAcknowledgedReviewsSummary} />
             )}
           </TabsContent>
         )}
