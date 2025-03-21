@@ -95,12 +95,13 @@ const LatestSummaryDetailPage: React.FC = () => {
           )}
         </div>
         {/* Only show acknowledgment section for employees */}
-        {isEmployee && (
-          <AcknowledgmentSection
-            reviewId={reviewId}
-            isAcknowledged={isAcknowledged}
-          />
-        )}
+        {isEmployee &&
+          Object.keys(latestReviewSummaryData.data).length !== 0 && (
+            <AcknowledgmentSection
+              reviewId={reviewId}
+              isAcknowledged={isAcknowledged}
+            />
+          )}
       </div>
     </div>
   );
