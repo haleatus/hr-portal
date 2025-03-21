@@ -10,6 +10,7 @@ import { useGetReviewSummaryDetails } from "@/hooks/reviews.hooks";
 import ReviewHeader from "@/components/dashboards/reviews/summary/review-header";
 import QuestionnaireItem from "@/components/dashboards/reviews/summary/questionnaire-item";
 import ReviewNotFound from "@/components/dashboards/reviews/summary/review-not-found";
+import OverallRatingCard from "@/components/dashboards/reviews/summary/overall-rating-card";
 
 const ReviewSummaryDetailPage: React.FC = () => {
   const params = useParams();
@@ -27,30 +28,37 @@ const ReviewSummaryDetailPage: React.FC = () => {
     return <ReviewNotFound />;
   }
 
-  console.log("rd", reviewSummaryData);
-
   // Check if summaryQuestionnaire exists
   const summaryQuestionnaire =
     reviewSummaryData.data.summaryQuestionnaire || [];
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-6 bg-white rounded-lg shadow-md p-6">
+    <div className="container mx-auto py-8 px-8">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <ReviewHeader reviewData={reviewSummaryData.data} />
 
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">
             Questionnaire Responses
           </h2>
           {summaryQuestionnaire.length > 0 ? (
-            summaryQuestionnaire.map((item: any, index: number) => (
-              <QuestionnaireItem key={index} item={item} />
-            ))
+            <div className="space-y-8">
+              {summaryQuestionnaire.map((item: any, index: number) => (
+                <QuestionnaireItem key={index} item={item} />
+              ))}
+            </div>
           ) : (
-            <p className="text-gray-600 italic">
+            <div className="text-gray-500 bg-gray-50 p-4 rounded-lg text-center">
               No questionnaire responses available.
-            </p>
+            </div>
           )}
+        </div>
+
+        {/* Overall Rating Card at the bottom */}
+        <div className="mt-6 p-6 bg-gray-50 border-t">
+          <OverallRatingCard
+            rating={reviewSummaryData.data.averagePerformanceRating}
+          />
         </div>
       </div>
     </div>

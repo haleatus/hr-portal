@@ -1,6 +1,6 @@
-import React from "react";
+import type React from "react";
 import FeedbackCard from "./feedback-card";
-import { QuestionnaireItem as QuestionnaireItemType } from "@/interfaces/reviews.interface";
+import type { QuestionnaireItem as QuestionnaireItemType } from "@/interfaces/reviews.interface";
 
 interface QuestionnaireItemProps {
   item: QuestionnaireItemType;
@@ -8,8 +8,8 @@ interface QuestionnaireItemProps {
 
 const QuestionnaireItem: React.FC<QuestionnaireItemProps> = ({ item }) => {
   return (
-    <div className="mb-8 border-b pb-6">
-      <h3 className="text-lg font-medium text-gray-800 mb-3">
+    <div className="pb-6">
+      <h3 className="text-lg font-medium text-gray-800 mb-4">
         {item.question}
       </h3>
 
