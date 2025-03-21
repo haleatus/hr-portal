@@ -13,7 +13,7 @@ const QuestionnaireItem: React.FC<QuestionnaireItemProps> = ({ item }) => {
         {item.question}
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FeedbackCard
           feedback={item.managerFeedback}
           title="Manager Feedback"

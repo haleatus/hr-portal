@@ -42,7 +42,7 @@ const ReviewSummaryDetailPage: React.FC = () => {
             Questionnaire Responses
           </h2>
           {summaryQuestionnaire.length > 0 ? (
-            <div className="space-y-8">
+            <div className="space-y-2">
               {summaryQuestionnaire.map((item: any, index: number) => (
                 <QuestionnaireItem key={index} item={item} />
               ))}
