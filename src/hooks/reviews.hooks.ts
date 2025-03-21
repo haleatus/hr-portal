@@ -346,6 +346,9 @@ export const useMarkReviewAsComplete = () => {
       queryClient.invalidateQueries({
         queryKey: ["mySelfReviews"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamSelfReviews"],
+      });
     },
   });
 };
