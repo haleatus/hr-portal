@@ -656,3 +656,33 @@ export const useGetReviewSummaryDetails = (id: string) => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+/**
+ * useAcknowledgeReviewSummary hook
+ */
+export const useAcknowledgeReviewSummary = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await apiClient.patch(
+        `/hr-hub/user/review/summary/acknowledge/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reviewSummaryDetails"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myRecentReviewsSummary"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamUnAcknowledgedReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamAcknowledgedReviews"],
+      });
+    },
+  });
+};

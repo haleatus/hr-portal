@@ -1,16 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Loading from "@/app/loading";
 import { useGetLatestReviewsSummary } from "@/hooks/reviews.hooks";
 
 // Import components
 import QuestionnaireItem from "@/components/dashboards/reviews/summary/questionnaire-item";
 import ReviewNotFound from "@/components/dashboards/reviews/summary/review-not-found";
+import AcknowledgmentSection from "@/components/dashboards/reviews/summary/acknowledgment-section";
 
-const ReviewSummaryDetailPage: React.FC = () => {
-  const userRole = localStorage.getItem("userRole") || "EMPLOYEE";
+const LatestSummaryDetailPage: React.FC = () => {
+  const [userRole, setUserRole] = useState<string>("EMPLOYEE");
+
+  useEffect(() => {
+    // Get user role from localStorage after component is mounted to avoid SSR issues
+    setUserRole(localStorage.getItem("userRole") || "EMPLOYEE");
+  }, []);
 
   const isEmployee = userRole === "EMPLOYEE";
 
@@ -29,6 +35,9 @@ const ReviewSummaryDetailPage: React.FC = () => {
   // Check if summaryQuestionnaire exists
   const summaryQuestionnaire =
     latestReviewSummaryData.data.summaryQuestionnaire || [];
+
+  const reviewId = latestReviewSummaryData.data.id;
+  const isAcknowledged = latestReviewSummaryData.data.isAcknowledged;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -85,9 +94,16 @@ const ReviewSummaryDetailPage: React.FC = () => {
             </p>
           )}
         </div>
+        {/* Only show acknowledgment section for employees */}
+        {isEmployee && (
+          <AcknowledgmentSection
+            reviewId={reviewId}
+            isAcknowledged={isAcknowledged}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default ReviewSummaryDetailPage;
+export default LatestSummaryDetailPage;
