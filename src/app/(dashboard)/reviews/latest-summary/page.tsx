@@ -47,9 +47,9 @@ const LatestSummaryDetailPage: React.FC = () => {
   const reviewId = latestReviewSummaryData.data.id;
   const isAcknowledged = latestReviewSummaryData.data.isAcknowledged || false;
 
-  // Ensure rating has a valid value, default to 0 if undefined/NaN
-  const rating = latestReviewSummaryData.data.averagePerformanceRating;
-  const validRating = typeof rating === "number" && !isNaN(rating) ? rating : 0;
+  // Convert string rating to a number and ensure it's valid
+  const ratingValue = latestReviewSummaryData.data.averagePerformanceRating;
+  const validRating = parseFloat(ratingValue) || 0; // Parse the string to float, default to 0 if parsing fails
 
   return (
     <div className="container mx-auto py-8 px-8">
