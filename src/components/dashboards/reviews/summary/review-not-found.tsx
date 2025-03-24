@@ -40,7 +40,7 @@ const ReviewNotFound: React.FC = () => {
 
         <div className="p-6">
           <motion.h2
-            className="text-xl font-semibold text-foreground mb-3"
+            className="text-xl font-semibold text-foreground mb-3 text-center"
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.3 }}
@@ -49,7 +49,7 @@ const ReviewNotFound: React.FC = () => {
           </motion.h2>
 
           <motion.p
-            className="text-muted-foreground mb-6"
+            className="text-muted-foreground mb-6 text-center"
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.3 }}

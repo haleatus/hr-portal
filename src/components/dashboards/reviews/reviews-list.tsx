@@ -1,6 +1,11 @@
 "use client";
 
+// Core React imports
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+// Tansctack React Table imports
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -12,7 +17,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
+// Lucide icons imports
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+
+// UI components imports
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -39,9 +48,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
+// Define the Review type
 type Review = {
   id: string;
   type: string;
@@ -50,6 +58,12 @@ type Review = {
   dueDate: string;
 };
 
+/**
+ * ReviewsList component
+ * @param {Review[]} reviews - List of reviews
+ * @param {string | null} userRole - User role
+ * @returns {ReactElement} - ReviewsList component
+ */
 export function ReviewsList({
   reviews,
   userRole,
@@ -57,12 +71,15 @@ export function ReviewsList({
   reviews: Review[];
   userRole: string | null;
 }) {
+  // Next.js router
   const router = useRouter();
 
+  // State for sorting, column filters, and status filter
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
+  // Define columns
   const columns: ColumnDef<Review>[] = [
     {
       accessorKey: "type",

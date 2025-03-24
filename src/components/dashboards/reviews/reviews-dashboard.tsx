@@ -21,6 +21,7 @@ import { JSX } from "react";
 import { CreatedNominationsList } from "./created-nominations-list";
 import { PeerReviewsRequestLists } from "./reviews-request-list";
 import SummarriesList from "./summary/summaries-list";
+import { ListLoadingState } from "./list-loading-state";
 
 // Define types for the API response
 interface Questionnaire {
@@ -215,9 +216,7 @@ export function ReviewsDashboard({
 
         <TabsContent value="self">
           {isSelfReviewsLoading ? (
-            <div className="flex justify-center p-8">
-              Loading self reviews...
-            </div>
+            <ListLoadingState message="Loading self reviews..." />
           ) : (
             <ReviewsList reviews={formattedSelfReviews} userRole={userRole} />
           )}
@@ -225,9 +224,7 @@ export function ReviewsDashboard({
 
         <TabsContent value="peer">
           {isPeerReviewsLoading ? (
-            <div className="flex justify-center p-8">
-              Loading peer reviews...
-            </div>
+            <ListLoadingState message="Loading peer reviews..." />
           ) : (
             <ReviewsList reviews={formattedPeerReviews} userRole={userRole} />
           )}
@@ -250,9 +247,7 @@ export function ReviewsDashboard({
         {userRole === "MANAGER" && (
           <TabsContent value="team-manager-reviews">
             {isMyTeamManagerReviewsLoading ? (
-              <div className="flex justify-center p-8">
-                Loading team members manager reviews...
-              </div>
+              <ListLoadingState message="Loading team members manager reviews..." />
             ) : (
               <ReviewsList
                 reviews={formattedMyTeamManagerReviews}
@@ -264,9 +259,7 @@ export function ReviewsDashboard({
         {userRole === "MANAGER" && (
           <TabsContent value="team-self">
             {isMyTeamSelfReviewsLoading ? (
-              <div className="flex justify-center p-8">
-                Loading team members self reviews...
-              </div>
+              <ListLoadingState message="Loading team members self reviews..." />
             ) : (
               <ReviewsList
                 reviews={formattedMyTeamSelfReviews}
@@ -278,9 +271,7 @@ export function ReviewsDashboard({
         {userRole === "MANAGER" && (
           <TabsContent value="team-peer">
             {isMyCreatedPeerNominationsLoading ? (
-              <div className="flex justify-center p-8">
-                Loading created team members peer reviews...
-              </div>
+              <ListLoadingState message="Loading created team members peer reviews..." />
             ) : (
               <ReviewsList
                 reviews={formattedMyTeamPeerReviews}
@@ -292,9 +283,7 @@ export function ReviewsDashboard({
         {userRole === "MANAGER" && (
           <TabsContent value="created-team-peers">
             {isMyTeamPeerReviewsLoading ? (
-              <div className="flex justify-center p-8">
-                Loading team members peer reviews...
-              </div>
+              <ListLoadingState message="Loading team members peer reviews..." />
             ) : (
               <CreatedNominationsList
                 nominations={myCreatedPeerNominations}
@@ -307,9 +296,7 @@ export function ReviewsDashboard({
         {userRole === "EMPLOYEE" && (
           <TabsContent value="my-team-peers-requests">
             {isMyMyPeerReviewsRequestsLoading ? (
-              <div className="flex justify-center p-8">
-                Loading team members peer reviews requests...
-              </div>
+              <ListLoadingState message="Loading team members peer reviews requests..." />
             ) : (
               <PeerReviewsRequestLists
                 requests={myPeerReviewsRequests}
@@ -322,9 +309,7 @@ export function ReviewsDashboard({
         {userRole === "MANAGER" && (
           <TabsContent value="acknowledged-summary">
             {isMyTeamAcknowledgedReviewsSummaryLoading ? (
-              <div className="flex justify-center p-8">
-                Loading acknowledged summarries...
-              </div>
+              <ListLoadingState message="Loading acknowledged summarries..." />
             ) : (
               <SummarriesList summarries={myTeamAcknowledgedReviewsSummary} />
             )}
@@ -334,9 +319,7 @@ export function ReviewsDashboard({
         {userRole === "MANAGER" && (
           <TabsContent value="unacknowledged-summary">
             {isMyTeamUnAcknowledgedReviewsSummaryLoading ? (
-              <div className="flex justify-center p-8">
-                Loading unacknowledged summarries...
-              </div>
+              <ListLoadingState message="Loading unacknowledged summarries..." />
             ) : (
               <SummarriesList summarries={myTeamUnAcknowledgedReviewsSummary} />
             )}
