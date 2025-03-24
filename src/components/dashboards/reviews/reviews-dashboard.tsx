@@ -11,7 +11,7 @@ import {
   useGetMySelfReviews,
   useGetMyTeamAcknowledgedReviewsSummary,
   useGetMyTeamManagerReviews,
-  useGetMyTeamManagerReviewsOnMe,
+  // useGetMyTeamManagerReviewsOnMe,
   useGetMyTeamPeerReviews,
   useGetMyTeamSelfReviews,
   useGetMyTeamUnAcknowledgedReviewsSummary,
@@ -86,8 +86,8 @@ export function ReviewsDashboard({
   const { data: peerReviews, isLoading: isPeerReviewsLoading } =
     useGetMyPeerReviews({ isEmployee });
 
-  const { data: managerReviews, isLoading: isManagerReviewsLoading } =
-    useGetMyTeamManagerReviewsOnMe({ isEmployee });
+  // const { data: managerReviews, isLoading: isManagerReviewsLoading } =
+  //   useGetMyTeamManagerReviewsOnMe({ isEmployee });
 
   // Get my team self reviews (Manager only)
   // Pass isManager flag to conditionally enable these manager-specific queries
@@ -151,7 +151,7 @@ export function ReviewsDashboard({
 
   const formattedSelfReviews = formatReviewsData(selfReviews);
   const formattedPeerReviews = formatReviewsData(peerReviews);
-  const formattedManagerReviews = formatReviewsData(managerReviews);
+  // const formattedManagerReviews = formatReviewsData(managerReviews);
   const formattedMyTeamSelfReviews = formatReviewsData(myTeamSelfReviews);
   const formattedMyTeamManagerReviews = formatReviewsData(myTeamManagerReviews);
   const formattedMyTeamPeerReviews = formatReviewsData(myTeamPeerReviews);
@@ -187,7 +187,7 @@ export function ReviewsDashboard({
             <>
               <TabsTrigger value="self">Self Reviews</TabsTrigger>
               <TabsTrigger value="peer">Peer Reviews</TabsTrigger>
-              <TabsTrigger value="manager">Manager Reviews</TabsTrigger>
+              {/* <TabsTrigger value="manager">Manager Reviews</TabsTrigger> */}
               <TabsTrigger value="my-team-peers-requests">
                 My Peer Review Requests
               </TabsTrigger>
@@ -233,7 +233,7 @@ export function ReviewsDashboard({
           )}
         </TabsContent>
 
-        {userRole === "EMPLOYEE" && (
+        {/* {userRole === "EMPLOYEE" && (
           <TabsContent value="manager">
             {isManagerReviewsLoading ? (
               <div className="flex justify-center p-8">
@@ -246,7 +246,7 @@ export function ReviewsDashboard({
               />
             )}
           </TabsContent>
-        )}
+        )} */}
         {userRole === "MANAGER" && (
           <TabsContent value="team-manager-reviews">
             {isMyTeamManagerReviewsLoading ? (

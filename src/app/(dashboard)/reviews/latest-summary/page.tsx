@@ -31,7 +31,12 @@ const LatestSummaryDetailPage: React.FC = () => {
     return <Loading />;
   }
 
-  if (!latestReviewSummaryData) {
+  // Check if we have a proper response with data
+  if (
+    !latestReviewSummaryData ||
+    !latestReviewSummaryData.data ||
+    Object.keys(latestReviewSummaryData.data).length === 0
+  ) {
     return <ReviewNotFound />;
   }
 
@@ -40,7 +45,11 @@ const LatestSummaryDetailPage: React.FC = () => {
     latestReviewSummaryData.data.summaryQuestionnaire || [];
 
   const reviewId = latestReviewSummaryData.data.id;
-  const isAcknowledged = latestReviewSummaryData.data.isAcknowledged;
+  const isAcknowledged = latestReviewSummaryData.data.isAcknowledged || false;
+
+  // Ensure rating has a valid value, default to 0 if undefined/NaN
+  const rating = latestReviewSummaryData.data.averagePerformanceRating;
+  const validRating = typeof rating === "number" && !isNaN(rating) ? rating : 0;
 
   return (
     <div className="container mx-auto py-8 px-8">
@@ -64,13 +73,15 @@ const LatestSummaryDetailPage: React.FC = () => {
               <div className="flex items-center text-gray-700">
                 <CalendarDays className="h-4 w-4 mr-2 text-blue-600" />
                 <span>
-                  {new Date(
-                    latestReviewSummaryData.data.createdAt
-                  ).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {latestReviewSummaryData.data.createdAt
+                    ? new Date(
+                        latestReviewSummaryData.data.createdAt
+                      ).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Date not available"}
                 </span>
               </div>
             </div>
@@ -78,14 +89,12 @@ const LatestSummaryDetailPage: React.FC = () => {
             <div className="flex items-center">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  latestReviewSummaryData.data.isAcknowledged
+                  isAcknowledged
                     ? "bg-green-100 text-green-800"
                     : "bg-amber-100 text-amber-800"
                 }`}
               >
-                {latestReviewSummaryData.data.isAcknowledged
-                  ? "Acknowledged"
-                  : "Pending Acknowledgement"}
+                {isAcknowledged ? "Acknowledged" : "Pending Acknowledgement"}
               </span>
             </div>
           </div>
@@ -111,21 +120,18 @@ const LatestSummaryDetailPage: React.FC = () => {
 
         {/* Overall Rating Card */}
         <div className="mt-6 p-8 bg-gray-50 border-t">
-          <OverallRatingCard
-            rating={latestReviewSummaryData.data.averagePerformanceRating}
-          />
+          <OverallRatingCard rating={validRating} />
         </div>
 
         {/* Acknowledgment Section - Only for employees */}
-        {isEmployee &&
-          Object.keys(latestReviewSummaryData.data).length !== 0 && (
-            <div className="p-6 border-t bg-white">
-              <AcknowledgmentSection
-                reviewId={reviewId}
-                isAcknowledged={isAcknowledged}
-              />
-            </div>
-          )}
+        {isEmployee && reviewId && (
+          <div className="p-6 border-t bg-white">
+            <AcknowledgmentSection
+              reviewId={reviewId}
+              isAcknowledged={isAcknowledged}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
