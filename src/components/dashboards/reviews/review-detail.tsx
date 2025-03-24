@@ -46,7 +46,7 @@ import { useMarkReviewAsComplete } from "@/hooks/reviews.hooks";
 import { useAuth } from "@/providers/auth-provider";
 
 // Interfaces imports
-import { ReviewResponse } from "@/interfaces/reviews.interface";
+import type { ReviewResponse } from "@/interfaces/reviews.interface";
 
 // Semi-circle progress component
 const SemiCircleProgress = ({
@@ -86,9 +86,28 @@ const SemiCircleProgress = ({
   return (
     <div
       className="relative flex justify-center items-center"
-      style={{ width: size, height: size / 2 }}
+      style={{ width: size, height: size / 2 + strokeWidth / 2 }}
     >
-      <svg width={size} height={size / 2} className="overflow-visible">
+      <svg
+        width={size}
+        height={size / 2 + strokeWidth / 2}
+        className="overflow-visible"
+        style={{ marginTop: -strokeWidth / 2 }}
+      >
+        {/* Gradient Definition */}
+        <defs>
+          <linearGradient
+            id="progressGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="red" />
+            <stop offset="100%" stopColor="green" />
+          </linearGradient>
+        </defs>
+
         {/* Background track */}
         <path
           d={`M ${strokeWidth / 2}, ${size / 2} A ${radius} ${radius} 0 0 1 ${
@@ -106,7 +125,7 @@ const SemiCircleProgress = ({
             size - strokeWidth / 2
           }, ${size / 2}`}
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke="url(#progressGradient)" // Use the gradient
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
