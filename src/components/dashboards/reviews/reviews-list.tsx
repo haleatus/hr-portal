@@ -161,7 +161,7 @@ export function ReviewsList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={`/reviews/${review.id}`}>View Details</Link>
               </DropdownMenuItem>
               {review.type === "SELF" && <DropdownMenuSeparator />}

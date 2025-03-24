@@ -16,7 +16,7 @@ import {
 } from "@tanstack/react-table";
 
 // Core Lucide imports
-import { ArrowUpDown, MoreHorizontal, Eye } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 // UI Components imports
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Types
 interface IUser {
@@ -96,6 +97,8 @@ export default function SummarriesList({
 }: {
   summarries: TReviewSummaryResponse;
 }) {
+  const router = useRouter();
+
   // State variables
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -175,9 +178,8 @@ export default function SummarriesList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={`/reviews/summary/${row.original.id}`}>
-                  <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </Link>
               </DropdownMenuItem>
@@ -248,6 +250,10 @@ export default function SummarriesList({
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => {
+                    // Optional: Navigate to details page on row click
+                    router.push(`/reviews/summary/${row.original.id}`);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

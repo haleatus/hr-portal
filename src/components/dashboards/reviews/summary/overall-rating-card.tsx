@@ -51,6 +51,7 @@ const OverallRatingCard: React.FC<OverallRatingCardProps> = ({ rating }) => {
       return { ...category, value };
     });
     setCategories(newCategories);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numRating]);
 
   // Start animations when component is in view
