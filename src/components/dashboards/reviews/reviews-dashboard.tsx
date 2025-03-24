@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { ReviewsList } from "./reviews-list";
+import { ReviewsList } from "./lists/reviews-list";
 import {
   useGetCreatedPeerNominations,
   useGetMyPeerReviews,
@@ -18,8 +18,8 @@ import {
 } from "@/hooks/reviews.hooks";
 import Link from "next/link";
 import { JSX } from "react";
-import { CreatedNominationsList } from "./created-nominations-list";
-import { PeerReviewsRequestLists } from "./reviews-request-list";
+import { CreatedNominationsList } from "./lists/created-nominations-list";
+import { PeerReviewsRequestLists } from "./lists/reviews-request-list";
 import SummarriesList from "./summary/summaries-list";
 import { ListLoadingState } from "./list-loading-state";
 
