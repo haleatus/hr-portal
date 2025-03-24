@@ -1,6 +1,9 @@
 "use client";
 
+// Core react imports
 import { useState, useCallback, useMemo } from "react";
+
+// Tanstack imports
 import {
   type ColumnDef,
   type SortingState,
@@ -10,7 +13,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
+// Lucide icons
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+
+// UI imports
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,10 +43,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+
+// Interfaces
 import { IUser } from "@/interfaces/user.interface";
+
+// Custom hooks
 import { useUpdateReviewRequestStatus } from "@/hooks/reviews.hooks";
+
+// Utils
 import { toast } from "sonner";
 
+// This type is based on the response from the API
 type TCreatePeerNominations = {
   createdAt: string;
   id: number;
@@ -50,6 +64,8 @@ type TCreatePeerNominations = {
   updatedAt: string;
 };
 
+// This type is based on the response from the API
+// The API can return a single object or an array of objects
 type TCreatePeer = {
   data: TCreatePeerNominations | TCreatePeerNominations[]; // Could be single object or array
   error?: object;
@@ -57,6 +73,13 @@ type TCreatePeer = {
   statusCode: number;
   timestamp: string;
 };
+
+/**
+ * PeerReviewsRequestLists
+ * @param requests - The peer review requests data
+ * @param userRole - The role of the user
+ * @returns JSX.Element
+ */
 
 export function PeerReviewsRequestLists({
   requests,

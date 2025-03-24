@@ -1,9 +1,13 @@
 "use client";
 
+// Core React imports
 import { JSX, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 
+// UI components imports
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Custom components imports
 import CreateReviewForm from "./create-review-form";
 import Questionnaire from "../questionnaires";
 

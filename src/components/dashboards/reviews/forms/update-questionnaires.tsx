@@ -1,13 +1,13 @@
 "use client";
 
+// Core React imports
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+// UI Component imports
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  useSubmitQuestionnaire,
-  useUpdateQuestionnaire,
-} from "@/hooks/reviews.hooks";
-import { toast } from "sonner";
 import { PlusCircle, Trash2, Save, ArrowLeft } from "lucide-react";
 import {
   Card,
@@ -17,8 +17,6 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Tooltip,
   TooltipContent,
@@ -26,6 +24,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+// Custom hook imports
+import {
+  useSubmitQuestionnaire,
+  useUpdateQuestionnaire,
+} from "@/hooks/reviews.hooks";
+
+// Utility imports
+import { toast } from "sonner";
+
+// Constants
+// Rating descriptions for the 1-5 scale
 const RATING_DESCRIPTIONS = {
   "1": "Needs significant improvement",
   "2": "Below expectations",
@@ -34,6 +43,7 @@ const RATING_DESCRIPTIONS = {
   "5": "Outstanding performance",
 } as const;
 
+// Questionnaire interface
 interface Questionnaire {
   id: number;
   question: string;
@@ -41,17 +51,27 @@ interface Questionnaire {
   ratings: number;
 }
 
+// UpdateQuestionnaire component props
 interface UpdateQuestionnaireProps {
   reviewId: string;
   questionnaires: Questionnaire[];
   peerReview?: boolean;
 }
 
+/**
+ * UpdateQuestionnaire component
+ * @param reviewId - The ID of the review
+ * @param questionnaires - The list of questionnaires to update
+ * @param peerReview - Whether this is a peer review or not
+ * @returns The UpdateQuestionnaire component
+ */
+
 const UpdateQuestionnaire = ({
   reviewId,
   questionnaires,
   peerReview,
 }: UpdateQuestionnaireProps) => {
+  // useRouter hook to get the current route
   const router = useRouter();
 
   // State to manage answers and ratings
