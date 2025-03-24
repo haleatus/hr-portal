@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Loading from "@/app/loading";
 import { useGetLatestReviewsSummary } from "@/hooks/reviews.hooks";
 import { CalendarDays, User } from "lucide-react";
+import { motion } from "framer-motion";
 
 // Import components
 import QuestionnaireItem from "@/components/dashboards/reviews/summary/questionnaire-item";
@@ -49,19 +50,48 @@ const LatestSummaryDetailPage: React.FC = () => {
 
   // Convert string rating to a number and ensure it's valid
   const ratingValue = latestReviewSummaryData.data.averagePerformanceRating;
-  const validRating = parseFloat(ratingValue) || 0; // Parse the string to float, default to 0 if parsing fails
+  const validRating = Number.parseFloat(ratingValue) || 0; // Parse the string to float, default to 0 if parsing fails
 
   return (
-    <div className="container mx-auto py-8 px-8">
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <motion.div
+      className="container mx-auto py-8 px-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div
+        className="bg-white rounded-xl shadow-sm overflow-hidden"
+        initial={{ y: 20 }}
+        animate={{ y: 0 }}
+        transition={{
+          duration: 0.6,
+          type: "spring",
+          stiffness: 100,
+        }}
+      >
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-3">
+        <motion.div
+          className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.h1
+            className="text-2xl font-bold text-gray-800 mb-3"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             My Performance Review Summary
-          </h1>
+          </motion.h1>
 
           <div className="flex flex-col sm:flex-row justify-between gap-4">
-            <div className="space-y-2">
+            <motion.div
+              className="space-y-2"
+              initial={{ x: -10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <div className="flex items-center text-gray-700">
                 <User className="h-4 w-4 mr-2 text-blue-600" />
                 <span className="font-medium">
@@ -84,9 +114,14 @@ const LatestSummaryDetailPage: React.FC = () => {
                     : "Date not available"}
                 </span>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center">
+            <motion.div
+              className="flex items-center"
+              initial={{ x: 10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
                   isAcknowledged
@@ -96,15 +131,25 @@ const LatestSummaryDetailPage: React.FC = () => {
               >
                 {isAcknowledged ? "Acknowledged" : "Pending Acknowledgement"}
               </span>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Questionnaire Section */}
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">
+        <motion.div
+          className="p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <motion.h2
+            className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3"
+            initial={{ y: -5, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+          >
             Questionnaire Responses
-          </h2>
+          </motion.h2>
           {summaryQuestionnaire.length > 0 ? (
             <div className="space-y-2">
               {summaryQuestionnaire.map((item: any, index: number) => (
@@ -112,16 +157,26 @@ const LatestSummaryDetailPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="text-gray-500 bg-gray-50 p-4 rounded-lg text-center">
+            <motion.div
+              className="text-gray-500 bg-gray-50 p-4 rounded-lg text-center"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+            >
               No questionnaire responses available.
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Overall Rating Card */}
-        <div className="mt-6 p-8 bg-gray-50 border-t">
+        <motion.div
+          className="mt-6 p-8 bg-gray-50 border-t"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
+        >
           <OverallRatingCard rating={validRating} />
-        </div>
+        </motion.div>
 
         {/* Acknowledgment Section - Only for employees */}
         {isEmployee && reviewId && (
@@ -132,8 +187,8 @@ const LatestSummaryDetailPage: React.FC = () => {
             />
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
