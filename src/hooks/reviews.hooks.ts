@@ -349,6 +349,12 @@ export const useMarkReviewAsComplete = () => {
       queryClient.invalidateQueries({
         queryKey: ["myTeamSelfReviews"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamAcknowledgedReviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["myTeamUnAcknowledgedReviews"],
+      });
     },
   });
 };

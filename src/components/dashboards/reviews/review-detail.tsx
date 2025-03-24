@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { format } from "date-fns";
+// Core react imports
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
+// External imports
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { motion } from "framer-motion";
+
+// Icons imports
 import {
   ArrowLeft,
   Calendar,
@@ -15,6 +22,7 @@ import {
   EditIcon,
 } from "lucide-react";
 
+// UI components imports
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -32,60 +40,129 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+// Custom hooks imports
 import { useMarkReviewAsComplete } from "@/hooks/reviews.hooks";
-import { toast } from "sonner";
 import { useAuth } from "@/providers/auth-provider";
 
-// Type definitions
-interface Questionnaire {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-  question: string;
-  answers: string[];
-  ratings: number;
-}
+// Interfaces imports
+import type { ReviewResponse } from "@/interfaces/reviews.interface";
 
-interface ReviewData {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-  reviewType: string;
-  subject: string;
-  description: string;
-  progressStatus: string;
-  reviewee: {
-    id: number;
-    fullname: string;
-    email: string;
-    role: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-  reviewer: {
-    id: number;
-    fullname: string;
-    email: string;
-    role: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-  dueDate: string;
-  questionnaires: Questionnaire[];
-}
+// Semi-circle progress component
+const SemiCircleProgress = ({
+  value,
+  maxValue = 5,
+  size = 200,
+  strokeWidth = 15,
+  animate = true,
+}: {
+  value: number;
+  maxValue?: number;
+  size?: number;
+  strokeWidth?: number;
+  animate?: boolean;
+}) => {
+  const [animatedValue, setAnimatedValue] = useState(0);
 
-interface ReviewResponse {
-  statusCode: number;
-  timestamp: string;
-  message: string;
-  data: ReviewData;
-}
+  useEffect(() => {
+    if (animate) {
+      setAnimatedValue(0);
+      const timeout = setTimeout(() => {
+        setAnimatedValue(value);
+      }, 100);
+      return () => clearTimeout(timeout);
+    } else {
+      setAnimatedValue(value);
+    }
+  }, [value, animate]);
+
+  // Calculate parameters for the semi-circle
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * Math.PI;
+  const valuePercentage = (animatedValue / maxValue) * 100;
+  const strokeDashoffset =
+    circumference - (valuePercentage / 100) * circumference;
+
+  return (
+    <div
+      className="relative flex justify-center items-center"
+      style={{ width: size, height: size / 2 + strokeWidth / 2 }}
+    >
+      <svg
+        width={size}
+        height={size / 2 + strokeWidth / 2}
+        className="overflow-visible"
+        style={{ marginTop: -strokeWidth / 2 }}
+      >
+        {/* Gradient Definition */}
+        <defs>
+          <linearGradient
+            id="progressGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="red" />
+            <stop offset="100%" stopColor="green" />
+          </linearGradient>
+        </defs>
+
+        {/* Background track */}
+        <path
+          d={`M ${strokeWidth / 2}, ${size / 2} A ${radius} ${radius} 0 0 1 ${
+            size - strokeWidth / 2
+          }, ${size / 2}`}
+          fill="none"
+          stroke="hsl(var(--muted))"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+        />
+
+        {/* Foreground track */}
+        <motion.path
+          d={`M ${strokeWidth / 2}, ${size / 2} A ${radius} ${radius} 0 0 1 ${
+            size - strokeWidth / 2
+          }, ${size / 2}`}
+          fill="none"
+          stroke="url(#progressGradient)" // Use the gradient
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+      </svg>
+
+      {/* Value display */}
+      <div
+        className="absolute flex flex-col items-center justify-center"
+        style={{ bottom: "10px" }}
+      >
+        <motion.div
+          className="flex flex-col items-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <div className="text-3xl font-bold">{value.toFixed(1)}</div>
+          <div className="text-sm text-muted-foreground">out of {maxValue}</div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
 
 export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
   const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [isCompletedLoading, setIsCompletedLoading] = useState(false);
   const review = reviewData.data;
+
+  console.log("r", review);
+  console.log("u", user);
 
   // Calculate average rating
   const ratedQuestionnaires = review.questionnaires.filter(
@@ -158,6 +235,7 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
   const markReviewAsCompletedMutation = useMarkReviewAsComplete();
 
   const handleMarkAsComplete = async (reviewId: string) => {
+    setIsCompletedLoading(true);
     try {
       await markReviewAsCompletedMutation.mutateAsync(reviewId);
       toast.success("Review marked as completed successfully");
@@ -167,6 +245,8 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
         error.response.data.message ||
           "An error occurred while marking the review as completed"
       );
+    } finally {
+      setIsCompletedLoading(false);
     }
   };
 
@@ -205,30 +285,33 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
                     <Button
                       variant="outline"
                       onClick={() => handleMarkAsComplete(review.id.toString())}
+                      disabled={isCompletedLoading}
+                      className="cursor-pointer"
                     >
                       Mark As Completed
                     </Button>
                   )}
 
-                {review.progressStatus !== "COMPLETED" && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="cursor-pointer size-9"
-                        >
-                          <Link href={`/reviews/${review.id}/edit`}>
-                            <EditIcon className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{`Edit Review "${review.subject}"`}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
+                {review.progressStatus !== "COMPLETED" &&
+                  review.reviewer.id === user?.id && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="cursor-pointer size-9"
+                          >
+                            <Link href={`/reviews/${review.id}/edit`}>
+                              <EditIcon className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{`Edit Review "${review.subject}"`}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
               </div>
             </div>
 
@@ -296,22 +379,31 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex flex-col items-center justify-center space-y-2 rounded-lg bg-muted/50 p-6">
-                    <div className="flex">
-                      {renderRatingStars(averageRating)}
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold">
-                        {averageRating.toFixed(1)}/5.0
+                    <motion.div
+                      className="flex flex-col items-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <SemiCircleProgress value={averageRating} />
+                      <div className="flex mt-2">
+                        {renderRatingStars(averageRating)}
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Average Rating
                       </p>
-                    </div>
+                    </motion.div>
                   </div>
 
                   <div className="grid gap-4">
-                    {ratedQuestionnaires.map((q) => (
-                      <div key={q.id} className="grid gap-1">
+                    {ratedQuestionnaires.map((q, index) => (
+                      <motion.div
+                        key={q.id}
+                        className="grid gap-1"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 * index, duration: 0.3 }}
+                      >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium truncate max-w-[80%]">
                             {cleanQuestionText(q.question)}
@@ -321,7 +413,7 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
                           </span>
                         </div>
                         <Progress value={q.ratings * 20} className="h-2" />
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </CardContent>
