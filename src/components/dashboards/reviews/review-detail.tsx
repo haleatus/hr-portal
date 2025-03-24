@@ -161,6 +161,9 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
   const [isCompletedLoading, setIsCompletedLoading] = useState(false);
   const review = reviewData.data;
 
+  console.log("r", review);
+  console.log("u", user);
+
   // Calculate average rating
   const ratedQuestionnaires = review.questionnaires.filter(
     (q) => q.ratings > 0
@@ -289,25 +292,26 @@ export function ReviewDetail({ reviewData }: { reviewData: ReviewResponse }) {
                     </Button>
                   )}
 
-                {review.progressStatus !== "COMPLETED" && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="cursor-pointer size-9"
-                        >
-                          <Link href={`/reviews/${review.id}/edit`}>
-                            <EditIcon className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{`Edit Review "${review.subject}"`}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
+                {review.progressStatus !== "COMPLETED" &&
+                  review.reviewer.id === user?.id && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="cursor-pointer size-9"
+                          >
+                            <Link href={`/reviews/${review.id}/edit`}>
+                              <EditIcon className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{`Edit Review "${review.subject}"`}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
               </div>
             </div>
 
