@@ -1,7 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useGetReviewDetails } from "@/hooks/reviews.hooks";
-import UpdateQuestionnaire from "@/components/dashboards/reviews/update-questionnaires";
+import UpdateQuestionnaire from "@/components/dashboards/reviews/forms/update-questionnaires";
 import Loading from "@/app/loading";
 
 const EditReviewPage = () => {

@@ -1,8 +1,8 @@
 "use client";
 
-import { AdminDashboard } from "@/components/dashboards/admin-dashboard";
-import { ManagerDashboard } from "@/components/dashboards/manager-dashboard";
-import { EmployeeDashboard } from "@/components/dashboards/employee-dashboard";
+import { AdminDashboard } from "@/components/dashboards/reviews/dashboard/admin-dashboard";
+import { ManagerDashboard } from "@/components/dashboards/reviews/dashboard/manager-dashboard";
+import { EmployeeDashboard } from "@/components/dashboards/reviews/dashboard/employee-dashboard";
 import Loading from "@/app/loading";
 import { useAuth } from "@/providers/auth-provider";
 

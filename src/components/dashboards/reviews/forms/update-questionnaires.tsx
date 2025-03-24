@@ -1,13 +1,13 @@
 "use client";
 
+// Core React imports
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+// UI Component imports
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  useSubmitQuestionnaire,
-  useUpdateQuestionnaire,
-} from "@/hooks/reviews.hooks";
-import { toast } from "sonner";
 import { PlusCircle, Trash2, Save, ArrowLeft } from "lucide-react";
 import {
   Card,
@@ -17,8 +17,6 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Tooltip,
   TooltipContent,
@@ -26,6 +24,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+// Custom hook imports
+import {
+  useSubmitQuestionnaire,
+  useUpdateQuestionnaire,
+} from "@/hooks/reviews.hooks";
+
+// Utility imports
+import { toast } from "sonner";
+
+// Constants
+// Rating descriptions for the 1-5 scale
 const RATING_DESCRIPTIONS = {
   "1": "Needs significant improvement",
   "2": "Below expectations",
@@ -34,6 +43,7 @@ const RATING_DESCRIPTIONS = {
   "5": "Outstanding performance",
 } as const;
 
+// Questionnaire interface
 interface Questionnaire {
   id: number;
   question: string;
@@ -41,17 +51,27 @@ interface Questionnaire {
   ratings: number;
 }
 
+// UpdateQuestionnaire component props
 interface UpdateQuestionnaireProps {
   reviewId: string;
   questionnaires: Questionnaire[];
   peerReview?: boolean;
 }
 
+/**
+ * UpdateQuestionnaire component
+ * @param reviewId - The ID of the review
+ * @param questionnaires - The list of questionnaires to update
+ * @param peerReview - Whether this is a peer review or not
+ * @returns The UpdateQuestionnaire component
+ */
+
 const UpdateQuestionnaire = ({
   reviewId,
   questionnaires,
   peerReview,
 }: UpdateQuestionnaireProps) => {
+  // useRouter hook to get the current route
   const router = useRouter();
 
   // State to manage answers and ratings
@@ -72,7 +92,9 @@ const UpdateQuestionnaire = ({
     const initialRatings: Record<number, number> = {};
 
     questionnaires.forEach((questionnaire) => {
-      initialAnswers[questionnaire.id] = [...questionnaire.answers];
+      // Always ensure there's at least one empty answer field
+      initialAnswers[questionnaire.id] =
+        questionnaire.answers.length > 0 ? [...questionnaire.answers] : [""];
       initialRatings[questionnaire.id] = questionnaire.ratings;
     });
 
@@ -88,7 +110,7 @@ const UpdateQuestionnaire = ({
   // Clean question text by removing the scale indicator
   const cleanQuestionText = (question: string) => {
     return requiresRating(question)
-      ? question.replace(/\s*$$1-5 scale$$\s*/i, "")
+      ? question.replace(/\s*\(1-5 scale\)\s*/i, "")
       : question;
   };
 
@@ -255,6 +277,8 @@ const UpdateQuestionnaire = ({
             {questionnaires.map((questionnaire) => {
               const needsRating = requiresRating(questionnaire.question);
               const cleanQuestion = cleanQuestionText(questionnaire.question);
+              // Ensure there's always an answers array with at least one item
+              const questionAnswers = answers[questionnaire.id] || [""];
 
               return (
                 <div
@@ -303,56 +327,52 @@ const UpdateQuestionnaire = ({
                         </div>
                       )}
 
-                      {/* Multiple answers section */}
+                      {/* Multiple answers section - always display at least one text box */}
                       <div className="space-y-3">
-                        {(answers[questionnaire.id] || [""]).map(
-                          (answer, index) => (
-                            <div key={index} className="flex items-start gap-2">
-                              <Textarea
-                                placeholder={`Provide your answer for ${cleanQuestion.toLowerCase()}...`}
-                                value={answer}
-                                onChange={(e) =>
-                                  handleAnswerChange(
-                                    questionnaire.id,
-                                    index,
-                                    e.target.value
-                                  )
-                                }
-                                className={`min-h-[80px] resize-none flex-1 ${
-                                  errors[questionnaire.id]
-                                    ? "border-red-500"
-                                    : ""
-                                }`}
-                              />
-                              {index > 0 && (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="mt-1"
-                                        onClick={() =>
-                                          removeAnswerField(
-                                            questionnaire.id,
-                                            index
-                                          )
-                                        }
-                                      >
-                                        <Trash2 className="h-4 w-4 text-red-500" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="text-red-500">
-                                        Delete this answer
-                                      </p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              )}
-                            </div>
-                          )
-                        )}
+                        {questionAnswers.map((answer, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <Textarea
+                              placeholder={`Provide your answer for ${cleanQuestion.toLowerCase()}...`}
+                              value={answer}
+                              onChange={(e) =>
+                                handleAnswerChange(
+                                  questionnaire.id,
+                                  index,
+                                  e.target.value
+                                )
+                              }
+                              className={`min-h-[80px] resize-none flex-1 ${
+                                errors[questionnaire.id] ? "border-red-500" : ""
+                              }`}
+                            />
+                            {index > 0 && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="mt-1"
+                                      onClick={() =>
+                                        removeAnswerField(
+                                          questionnaire.id,
+                                          index
+                                        )
+                                      }
+                                    >
+                                      <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-red-500">
+                                      Delete this answer
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        ))}
 
                         <Button
                           variant="outline"

@@ -14,7 +14,6 @@ import {
   ShieldEllipsis,
   ShieldPlus,
   ShieldUser,
-  User,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -163,12 +162,6 @@ export function AppSidebar() {
       href: "/departments/create",
       icon: NetworkIcon,
       roles: ["SUPER_ADMIN", "ADMIN"],
-    },
-    {
-      title: "Profile",
-      href: "/profile",
-      icon: User,
-      roles: ["MANAGER", "EMPLOYEE"],
     },
   ];
 

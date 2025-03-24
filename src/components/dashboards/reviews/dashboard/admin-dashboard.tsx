@@ -1,5 +1,6 @@
 "use client";
 
+// UI components imports
 import {
   Card,
   CardContent,
@@ -17,8 +18,18 @@ import {
   Users,
 } from "lucide-react";
 import { DashboardChart } from "@/components/dashboards/dashboard-chart";
+
+// Custom components imports
 import { RecentActivity } from "@/components/dashboards/recent-activity";
 
+/**
+ * AdminDashboard Component
+ *
+ * A dashboard for monitoring organization-wide review progress and performance
+ * metrics.
+ *
+ * @returns {JSX.Element} The rendered dashboard
+ */
 export function AdminDashboard() {
   // In a real app, this data would come from your API
   const reviewStats = {
@@ -29,6 +40,7 @@ export function AdminDashboard() {
     completionRate: 63,
   };
 
+  // In a real app, this data would come from your API
   const departmentStats = [
     { name: "Engineering", completed: 85, total: 100 },
     { name: "Marketing", completed: 45, total: 60 },
