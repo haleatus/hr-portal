@@ -11,8 +11,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import {
-  AlertCircle,
   CheckCircle2,
+  CircleCheckBigIcon,
   ClipboardList,
   Clock,
   Users,
@@ -21,6 +21,8 @@ import { DashboardChart } from "@/components/dashboards/dashboard-chart";
 
 // Custom components imports
 import { RecentActivity } from "@/components/dashboards/recent-activity";
+import { useGetAllAdminDashboardInfo } from "@/hooks/admin.hooks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /**
  * AdminDashboard Component
@@ -31,14 +33,8 @@ import { RecentActivity } from "@/components/dashboards/recent-activity";
  * @returns {JSX.Element} The rendered dashboard
  */
 export function AdminDashboard() {
-  // In a real app, this data would come from your API
-  const reviewStats = {
-    total: 124,
-    completed: 78,
-    inProgress: 32,
-    pending: 14,
-    completionRate: 63,
-  };
+  const { data: dashboardInfo, isLoading: isDashboardInfoLoading } =
+    useGetAllAdminDashboardInfo();
 
   // In a real app, this data would come from your API
   const departmentStats = [
@@ -66,71 +62,94 @@ export function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Reviews
-                </CardTitle>
-                <ClipboardList className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{reviewStats.total}</div>
-                <p className="text-xs text-muted-foreground">
-                  Current review cycle
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completed</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {reviewStats.completed}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {reviewStats.completionRate}% completion rate
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  In Progress
-                </CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {reviewStats.inProgress}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {Math.round(
-                    (reviewStats.inProgress / reviewStats.total) * 100
-                  )}
-                  % of total reviews
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending</CardTitle>
-                <AlertCircle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{reviewStats.pending}</div>
-                <p className="text-xs text-muted-foreground">
-                  {Math.round((reviewStats.pending / reviewStats.total) * 100)}%
-                  of total reviews
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          {isDashboardInfoLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-4" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-8 w-24 mb-2" />
+                    <Skeleton className="h-4 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Reviews
+                  </CardTitle>
+                  <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardInfo.data.totalReviews}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Current total reviews
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Completed
+                  </CardTitle>
+                  <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardInfo.data.totalCompletedReviews}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total completed reviews
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    In Progress
+                  </CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardInfo.data.totalPendingReviews}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {Math.round(
+                      (dashboardInfo.data.totalPendingReviews /
+                        dashboardInfo.data.totalReviews) *
+                        100
+                    )}
+                    % of total reviews
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Submitted Reviews
+                  </CardTitle>
+                  <CircleCheckBigIcon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardInfo.data.totalSubmittedReviews}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total submitted reviews
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
