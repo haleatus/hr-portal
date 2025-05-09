@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 // UI components imports
@@ -21,7 +22,10 @@ import { DashboardChart } from "@/components/dashboards/dashboard-chart";
 
 // Custom components imports
 import { RecentActivity } from "@/components/dashboards/recent-activity";
-import { useGetAllAdminDashboardInfo } from "@/hooks/admin.hooks";
+import {
+  useGetAllAdminDashboardInfo,
+  useGetAllAdminDepartmentReviews,
+} from "@/hooks/admin.hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
@@ -36,14 +40,10 @@ export function AdminDashboard() {
   const { data: dashboardInfo, isLoading: isDashboardInfoLoading } =
     useGetAllAdminDashboardInfo();
 
-  // In a real app, this data would come from your API
-  const departmentStats = [
-    { name: "Engineering", completed: 85, total: 100 },
-    { name: "Marketing", completed: 45, total: 60 },
-    { name: "Sales", completed: 32, total: 40 },
-    { name: "HR", completed: 18, total: 20 },
-    { name: "Finance", completed: 12, total: 15 },
-  ];
+  const { data: departmentReviews, isLoading: isDepartmentsReviewsLoading } =
+    useGetAllAdminDepartmentReviews();
+
+  console.log("dd", departmentReviews);
 
   return (
     <div className="space-y-6">
@@ -173,7 +173,7 @@ export function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {departmentStats.map((dept) => (
+                  {/* {departmentStats.map((dept) => (
                     <div key={dept.name} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="text-sm font-medium">{dept.name}</div>
@@ -183,7 +183,7 @@ export function AdminDashboard() {
                       </div>
                       <Progress value={(dept.completed / dept.total) * 100} />
                     </div>
-                  ))}
+                  ))} */}
                 </div>
               </CardContent>
             </Card>
@@ -191,57 +191,90 @@ export function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="departments" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Department Overview</CardTitle>
-              <CardDescription>
-                Review status and performance metrics by department
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-8">
-                {departmentStats.map((dept) => (
-                  <div key={dept.name} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-muted-foreground" />
-                        <div className="font-medium">{dept.name}</div>
+          {isDepartmentsReviewsLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Card key={i}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-4" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-8 w-24 mb-2" />
+                    <Skeleton className="h-4 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Department Overview</CardTitle>
+                <CardDescription>
+                  Review status and performance metrics by department
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-8">
+                  {departmentReviews.data.map((dept: any) => (
+                    <div key={dept.name} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-muted-foreground" />
+                          <div className="font-medium">{dept.department}</div>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {Math.round(
+                            (dept.completedReviews / dept.totalReviews) * 100
+                          )}
+                          % Complete
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {Math.round((dept.completed / dept.total) * 100)}%
-                        Complete
+                      <Progress
+                        value={
+                          (dept.completedReviews / dept.totalReviews) * 100
+                        }
+                      />
+                      <div className="grid grid-cols-4 gap-4 pt-2">
+                        <div className="space-y-1 rounded-lg border p-2">
+                          <div className="text-xs text-muted-foreground">
+                            Total Reviews
+                          </div>
+                          <div className="text-lg font-bold">
+                            {dept.totalReviews}
+                          </div>
+                        </div>
+                        <div className="space-y-1 rounded-lg border p-2">
+                          <div className="text-xs text-muted-foreground">
+                            Submitted Reviews
+                          </div>
+                          <div className="text-lg font-bold">
+                            {dept.submittedReviews}
+                          </div>
+                        </div>
+                        <div className="space-y-1 rounded-lg border p-2">
+                          <div className="text-xs text-muted-foreground">
+                            Completed
+                          </div>
+                          <div className="text-lg font-bold">
+                            {dept.completedReviews}
+                          </div>
+                        </div>
+                        <div className="space-y-1 rounded-lg border p-2">
+                          <div className="text-xs text-muted-foreground">
+                            Pending
+                          </div>
+                          <div className="text-lg font-bold">
+                            {dept.pendingReviews}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <Progress value={(dept.completed / dept.total) * 100} />
-                    <div className="grid grid-cols-3 gap-4 pt-2">
-                      <div className="space-y-1 rounded-lg border p-2">
-                        <div className="text-xs text-muted-foreground">
-                          Total Reviews
-                        </div>
-                        <div className="text-lg font-bold">{dept.total}</div>
-                      </div>
-                      <div className="space-y-1 rounded-lg border p-2">
-                        <div className="text-xs text-muted-foreground">
-                          Completed
-                        </div>
-                        <div className="text-lg font-bold">
-                          {dept.completed}
-                        </div>
-                      </div>
-                      <div className="space-y-1 rounded-lg border p-2">
-                        <div className="text-xs text-muted-foreground">
-                          Pending
-                        </div>
-                        <div className="text-lg font-bold">
-                          {dept.total - dept.completed}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">
