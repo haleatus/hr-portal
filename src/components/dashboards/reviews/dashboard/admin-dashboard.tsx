@@ -43,8 +43,6 @@ export function AdminDashboard() {
   const { data: departmentReviews, isLoading: isDepartmentsReviewsLoading } =
     useGetAllAdminDepartmentReviews();
 
-  console.log("dd", departmentReviews);
-
   return (
     <div className="space-y-6">
       <div>
