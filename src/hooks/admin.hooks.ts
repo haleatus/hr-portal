@@ -225,9 +225,6 @@ export const useGetAllNonTeamManagers = () => {
   });
 };
 
-/**
- * useGetAllManagers hook
- */
 export const useGetAllAdminDashboardInfo = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
@@ -236,6 +233,26 @@ export const useGetAllAdminDashboardInfo = () => {
     queryFn: async () => {
       const response = await apiClient.get(
         `/hr-hub/admin/dashboard/get-overall-review-info`
+      );
+      return response.data;
+    },
+    // Don't run this query if the user isn't authenticated
+    enabled: isAuthenticated,
+    // Only retry once if the request fails
+    retry: 1,
+    // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useGetAllAdminDepartmentReviews = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  return useQuery({
+    queryKey: ["allAdminDepartmentsReviews"],
+    queryFn: async () => {
+      const response = await apiClient.get(
+        `/hr-hub/admin/dashboard/get-department-review-overview`
       );
       return response.data;
     },
