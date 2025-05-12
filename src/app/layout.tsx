@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import AuthProvider from "@/providers/auth-provider";
 import QueryProvider from "@/providers/tanstack-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { NotificationInitializer } from "@/components/notification-initilizer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -43,6 +44,8 @@ export default function RootLayout({
               - Maintains consistent padding
               */}
               <main className="relative flex-1 w-full md:pt-0 pt-8">
+                {/* Client-only initializer */}
+                <NotificationInitializer />
                 {children}
               </main>
 
