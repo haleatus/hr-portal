@@ -6,13 +6,13 @@ import { getMessaging, getToken, Messaging } from "firebase/messaging";
 import { toast } from "sonner";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAenenFbxDWVskMcggeeW5OovTuBEgudXw",
-  authDomain: "hr-portal-notifications.firebaseapp.com",
-  projectId: "hr-portal-notifications",
-  storageBucket: "hr-portal-notifications.firebasestorage.app",
-  messagingSenderId: "814851903871",
-  appId: "1:814851903871:web:74ebe3d18e8ed1d1d0ca4a",
-  measurementId: "G-YTEB1PBL3J",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
