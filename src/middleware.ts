@@ -39,16 +39,18 @@ export function middleware(request: NextRequest) {
 
 // Configure the middleware to run on specific paths
 export const config = {
-  // Match all routes except for assets, api routes, etc.
   matcher: [
     /*
-     * Match all paths except for:
-     * 1. /api routes
-     * 2. /_next (Next.js internals)
-     * 3. /static (static files)
-     * 4. /images (image files)
-     * 5. /favicon.ico, /sitemap.xml (common static files)
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - static (your static folder, if applicable - adjust if needed)
+     * - images (your images folder, if applicable - adjust if needed)
+     * - favicon.ico (favicon file)
+     * - sitemap.xml (sitemap file)
+     * - firebase-messaging-sw.js (Firebase service worker) <--- ADDED EXCLUSION
      */
-    "/((?!api|_next|static|images|favicon.ico|sitemap.xml).*)",
+    "/((?!api|_next/static|_next/image|static|images|favicon.ico|sitemap.xml|firebase-messaging-sw.js).*)",
   ],
 };
