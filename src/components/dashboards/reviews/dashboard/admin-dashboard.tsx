@@ -214,23 +214,27 @@ export function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-8">
-                  {departmentReviews.data.map((dept: any) => (
-                    <div key={dept.name} className="space-y-2">
+                  {departmentReviews.data.map((dept: any, i: number) => (
+                    <div key={i} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Users className="h-5 w-5 text-muted-foreground" />
                           <div className="font-medium">{dept.department}</div>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {Math.round(
-                            (dept.completedReviews / dept.totalReviews) * 100
-                          )}
-                          % Complete
+                          {dept.totalReviews > 0
+                            ? `${Math.round(
+                                (dept.completedReviews / dept.totalReviews) *
+                                  100
+                              )}% Complete`
+                            : "0% Complete"}
                         </div>
                       </div>
                       <Progress
                         value={
-                          (dept.completedReviews / dept.totalReviews) * 100
+                          dept.totalReviews > 0
+                            ? (dept.completedReviews / dept.totalReviews) * 100
+                            : 0
                         }
                       />
                       <div className="grid grid-cols-4 gap-4 pt-2">

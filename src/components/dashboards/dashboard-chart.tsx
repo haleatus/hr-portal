@@ -56,37 +56,37 @@ export function DashboardChart() {
           <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="5%"
-              stopColor="hsl(var(--primary))"
+              stopColor="hsl(var(--chart-1))"
               stopOpacity={0.8}
             />
             <stop
               offset="95%"
-              stopColor="hsl(var(--primary))"
+              stopColor="hsl(var(--chart-1))"
               stopOpacity={0.2}
             />
           </linearGradient>
           <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="5%"
-              stopColor="hsl(var(--muted-foreground))"
+              stopColor="hsl(var(--chart-1))"
               stopOpacity={0.8}
             />
             <stop
               offset="95%"
-              stopColor="hsl(var(--muted-foreground))"
+              stopColor="hsl(var(--chart-1))"
               stopOpacity={0.2}
             />
           </linearGradient>
         </defs>
         <XAxis
           dataKey="date"
-          stroke="hsl(var(--muted-foreground))"
+          stroke="hsl(var(--chart-1))"
           fontSize={12}
           tickLine={false}
           axisLine={false}
         />
         <YAxis
-          stroke="hsl(var(--muted-foreground))"
+          stroke="hsl(var(--chart-1))"
           fontSize={12}
           tickLine={false}
           axisLine={false}
@@ -95,7 +95,7 @@ export function DashboardChart() {
         <CartesianGrid
           strokeDasharray="3 3"
           vertical={false}
-          stroke="hsl(var(--border))"
+          stroke="hsl(var(--chart-1))"
         />
         <Tooltip
           content={({ active, payload }) => {
