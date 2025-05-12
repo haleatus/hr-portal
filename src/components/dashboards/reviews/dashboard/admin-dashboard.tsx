@@ -232,7 +232,9 @@ export function AdminDashboard() {
                       </div>
                       <Progress
                         value={
-                          (dept.completedReviews / dept.totalReviews) * 100
+                          dept.totalReviews > 0
+                            ? (dept.completedReviews / dept.totalReviews) * 100
+                            : 0
                         }
                       />
                       <div className="grid grid-cols-4 gap-4 pt-2">
