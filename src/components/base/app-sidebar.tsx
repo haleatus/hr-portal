@@ -1,25 +1,7 @@
 "use client";
 
-import type React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  ClipboardList,
-  Cog,
-  Home,
-  Menu,
-  Network,
-  NetworkIcon,
-  ShieldEllipsis,
-  ShieldPlus,
-  ShieldUser,
-  UserPlus,
-  Users,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -40,8 +23,27 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import LogoutButton from "../auth/logout-button";
 import { useAuth } from "@/providers/auth-provider";
+import {
+  BarChart3,
+  ClipboardList,
+  Cog,
+  Home,
+  Menu,
+  Network,
+  NetworkIcon,
+  ShieldEllipsis,
+  ShieldPlus,
+  ShieldUser,
+  ToggleLeftIcon,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type React from "react";
+import LogoutButton from "../auth/logout-button";
 
 // Define the navigation item type for better type safety
 type NavItem = {
@@ -85,6 +87,7 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
 export function AppSidebar() {
   // Get the current pathname to highlight active navigation item
   const pathname = usePathname();
+  const { setTheme } = useTheme();
 
   // Access sidebar context to manage collapsible state and mobile responsiveness
   const { setOpenMobile, isMobile, state } = useSidebar();
@@ -281,6 +284,30 @@ export function AppSidebar() {
                 >
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start items-center flex px-2"
+                        >
+                          <ToggleLeftIcon className="mr-2 h-4 w-4" />
+                          <span>Toggle Theme</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setTheme("light")}>
+                          Light
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme("dark")}>
+                          Dark
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme("system")}>
+                          System
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/settings">
                       <Cog className="mr-2 h-4 w-4" />
