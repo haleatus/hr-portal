@@ -16,6 +16,7 @@ export async function getDeviceId() {
 
 export function getDeviceType() {
   const userAgent = navigator.userAgent || navigator.vendor;
+  console.log("User Agent for getDeviceType:", userAgent);
 
   if (/windows phone/i.test(userAgent)) {
     return "Windows Phone";

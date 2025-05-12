@@ -62,18 +62,21 @@ export function AdminLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const fcmToken = await generateToken();
+    const fcmToken = await generateToken(); // This will now hopefully work
     if (!fcmToken) {
-      toast.error("Failed to generate FCM token");
-      return;
+      toast.error(
+        "Failed to get notification token. Notifications might not work."
+      );
+      // Decide if login should proceed without a token. For now, let's assume it should.
+      // return; // Uncomment if FCM token is strictly required for login
     }
 
-    const deviceId = getDeviceId(); // Dynamically get the device ID
-    const deviceType = getDeviceType(); // Dynamically get the device type
+    const deviceId = getDeviceId();
+    const deviceType = getDeviceType();
 
-    console.log("fcmToken", fcmToken);
-    console.log("deviceId", deviceId);
-    console.log("deviceType", deviceType);
+    console.log("FCM Token from form:", fcmToken); // Log for debugging
+    console.log("Device ID:", deviceId);
+    console.log("Device Type:", deviceType);
 
     adminSignIn(
       { email, password },
