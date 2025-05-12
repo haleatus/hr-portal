@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { onMessage } from "firebase/messaging";
-import { messaging } from "../notifications/firebase";
+import { messaging } from "../../notifications/firebase";
 import { toast, Toaster } from "sonner";
 import { CustomNotificationToast } from "./custom-notification-toast";
 
