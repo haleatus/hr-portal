@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import AuthProvider from "@/providers/auth-provider";
 import QueryProvider from "@/providers/tanstack-query-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,24 +26,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <QueryProvider>
-          <AuthProvider>
-            {/* 
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <AuthProvider>
+              {/* 
               Main content area that adjusts based on sidebar state
               - Properly responds to sidebar expansion/collapse
               - Takes full available width
               - Maintains consistent padding
               */}
-            <main className="relative flex-1 w-full md:pt-0 pt-8">
-              {children}
-            </main>
+              <main className="relative flex-1 w-full md:pt-0 pt-8">
+                {children}
+              </main>
 
-            {/* Toast notifications */}
-            <Toaster richColors position="top-right" />
-          </AuthProvider>
-        </QueryProvider>
+              {/* Toast notifications */}
+              <Toaster richColors position="top-right" />
+            </AuthProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
