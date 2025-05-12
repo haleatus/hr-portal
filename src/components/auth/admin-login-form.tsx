@@ -32,6 +32,8 @@ import {
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { useAdminSignIn } from "@/hooks/auth.hooks";
+import { getDeviceId, getDeviceType } from "@/lib/utils";
+import { generateToken } from "@/notifications/firebase";
 
 /**
  * SigninForm Component - Handles user login.
@@ -59,6 +61,19 @@ export function AdminLoginForm() {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const fcmToken = await generateToken();
+    if (!fcmToken) {
+      toast.error("Failed to generate FCM token");
+      return;
+    }
+
+    const deviceId = getDeviceId(); // Dynamically get the device ID
+    const deviceType = getDeviceType(); // Dynamically get the device type
+
+    console.log("fcmToken", fcmToken);
+    console.log("deviceId", deviceId);
+    console.log("deviceType", deviceType);
 
     adminSignIn(
       { email, password },
