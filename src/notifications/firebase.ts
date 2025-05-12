@@ -1,4 +1,3 @@
-// src/notification/firebase.ts
 "use client";
 
 import { initializeApp, getApps, getApp } from "firebase/app";
