@@ -50,7 +50,7 @@ export default function RootLayout({
               </main>
 
               {/* Toast notifications */}
-              <Toaster richColors position="top-right" />
+              <Toaster richColors position="bottom-right" />
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>

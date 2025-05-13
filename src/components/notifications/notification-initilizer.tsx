@@ -45,7 +45,6 @@ export const NotificationInitializer = () => {
   return (
     <Toaster
       position="top-right"
-      closeButton
       theme="light"
       toastOptions={{
         duration: 5000,
