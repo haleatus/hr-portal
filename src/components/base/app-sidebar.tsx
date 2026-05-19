@@ -116,7 +116,7 @@ export function AppSidebar() {
       title: "Reviews",
       href: "/reviews",
       icon: ClipboardList,
-      roles: ["SUPER_ADMIN", "ADMIN", "MANAGER", "EMPLOYEE"],
+      roles: ["MANAGER", "EMPLOYEE"],
     },
     {
       title: "Reports",
@@ -170,7 +170,7 @@ export function AppSidebar() {
 
   // Filter navigation items based on user role
   const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(user.role)
+    item.roles.includes(user.role),
   );
 
   return (
