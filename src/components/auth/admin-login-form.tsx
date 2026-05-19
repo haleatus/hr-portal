@@ -64,8 +64,8 @@ export function AdminLoginForm() {
 
     const fcmToken = await generateToken(); // This will now hopefully work
     if (!fcmToken) {
-      toast.error(
-        "Failed to get notification token. Notifications might not work."
+      console.error(
+        "Failed to get notification token. Notifications might not work.",
       );
       // Decide if login should proceed without a token. For now, let's assume it should.
       // return; // Uncomment if FCM token is strictly required for login
@@ -90,7 +90,7 @@ export function AdminLoginForm() {
         onError: (error: any) => {
           toast.error(error.response?.data?.message || "Failed to sign in");
         },
-      }
+      },
     );
   };
 
